@@ -13,26 +13,11 @@ git clone https://github.com/amon-sudo/SMART-TOURISM-INFORMATION-CENTRE.git
 cd your-repo
 2. Create virtual environment
 
-python -m venv venv
+pipenv install
 
+3. start virtual env
 
-Activate it:
-
-Mac/Linux
-
-source venv/bin/activate
-
-Windows
-
-
-venv\Scripts\activate
-
-3. Install dependencies
-
-
-pip install -r requirements.txt
-
-make sure you run this one...
+pipenv shell
 
 
 5. Setup environment variables
@@ -44,14 +29,28 @@ cp .env.example .env
 7. Run the app
 
 
-python main.py on windows 
+ on windows 
+```bash
+ python main.py
+ ```
 
-python3 main.py on mac and linux
+on mac and linux
+
+
+``` bash
+python3 main.py 
+
+```
 
 Server will start at:
-test hii endpoint kama inwork
+test the endpoint
+
+```http
 http://127.0.0.1:5000
-GET /API/v1/Health
+GET /api/v1/Health
+```
+
+```bash
 
 Response:
 
@@ -59,3 +58,5 @@ Response:
   "status": "ok",
   "version": "1.0.0"
 }
+
+```
