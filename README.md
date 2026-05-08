@@ -12,18 +12,27 @@ pip
 git clone https://github.com/amon-sudo/SMART-TOURISM-INFORMATION-CENTRE.git
 cd your-repo
 2. Create virtual environment
-
+```bash
 pipenv install
+```
 
 3. start virtual env
 
+```bash
 pipenv shell
+```
 
 
 5. Setup environment variables
 
 Copy the example file:
 cp .env.example .env
+
+create your .env
+
+```bash
+touch .env
+```
 
 
 7. Run the app
