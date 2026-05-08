@@ -7,11 +7,11 @@ Make sure you have installed:
 
 Python 3.10+
 pip
-🛠️ Setup Instructions
+Setup Instructions
 1. Clone the repository
 git clone https://github.com/amon-sudo/SMART-TOURISM-INFORMATION-CENTRE.git
 cd your-repo
-2. Create virtual environment
+2. Create virtual environment and intall the dependecies
 ```bash
 pipenv install
 ```
