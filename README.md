@@ -54,8 +54,10 @@ python3 main.py
 Server will start at:
 test the endpoint
 
-```http
+
 http://127.0.0.1:5000
+
+```http
 GET /api/v1/Health
 ```
 
