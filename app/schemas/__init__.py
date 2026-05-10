@@ -1,2 +1,0 @@
-from app.schemas.role import RoleCreateSchema, RoleResponseSchema
-from app.schemas.permission import PermissionCreateSchema, PermissionResponseSchema
