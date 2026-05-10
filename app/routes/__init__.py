@@ -1,0 +1,1 @@
+from app.routes.rbac import rbac_bp
