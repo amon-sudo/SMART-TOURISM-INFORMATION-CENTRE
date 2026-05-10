@@ -3,6 +3,7 @@ from flask import Flask, jsonify
 from dotenv import load_dotenv
 from app.extensions import db, migrate, jwt
 from app.routes.rbac import rbac_bp
+from user_handling_and_auth.MVC_architecture.controllers.user_routes import user_blueprint
 
 load_dotenv()
 
@@ -19,6 +20,7 @@ def create_app():
     jwt.init_app(app)
 
     app.register_blueprint(rbac_bp)
+    app.register_blueprint(user_blueprint)
 
     @app.route("/api/v1/health", methods=["GET"])
     def health():
