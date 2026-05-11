@@ -2,7 +2,7 @@ import os
 from flask import Flask, jsonify
 from dotenv import load_dotenv
 from app.extensions import db, migrate, jwt
-from app.routes.rbac import rbac_bp
+from app.Business import register_business_blueprints
 
 load_dotenv()
 
@@ -18,7 +18,7 @@ def create_app():
     migrate.init_app(app, db)
     jwt.init_app(app)
 
-    app.register_blueprint(app)
+    register_business_blueprints(app)
 
     @app.route("/api/v1/health", methods=["GET"])
     def health():

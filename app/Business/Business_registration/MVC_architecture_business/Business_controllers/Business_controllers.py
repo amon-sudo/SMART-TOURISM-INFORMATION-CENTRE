@@ -8,13 +8,13 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from marshmallow import ValidationError
 from werkzeug.exceptions import Unauthorized
 
-from ..Business_models.Business_repo.Business_registration_request_schema.Business_registration_request_schema import (
+from ..Business_registration_models.Business_schema.Business_registration_schema import (
     BusinessRegistrationRequestCreateSchema,
     BusinessRegistrationRequestUpdateSchema,
     BusinessRegistrationRequestAdminActionSchema,
     BusinessRegistrationRequestResponseSchema,
 )
-from ..Business_views.Business_views.Business_service import (
+from ..Business_registration_views.Business_views.Business_registration_service import (
     register_business_request,
     get_registration_request,
     list_registration_requests,
@@ -73,7 +73,7 @@ def get_my_registration():
 
     from sqlalchemy import select
     from app.extensions import db
-    from ..Business_models.Business_domain.Business_registration_request_domain.Business_registration_request_domain import (
+    from ..Business_registration_models.Business_registration_domain.Business_registration_domain import (
         BusinessRegistrationRequest,
     )
  
