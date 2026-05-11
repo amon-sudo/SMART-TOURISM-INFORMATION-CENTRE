@@ -22,3 +22,5 @@ venv
 *.pyc
 
 __pycache__/
+# Ignore Alembic migration scripts
+migrations/versions/*.py
