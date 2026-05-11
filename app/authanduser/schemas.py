@@ -7,6 +7,7 @@ class UserSchema(SQLAlchemyAutoSchema):
         model = User
         load_instance = True
         include_fk = True
+        exclude = ("password_hash",)  # 🔹 FIX: don’t expose password hash
 
 class PasswordResetSchema(SQLAlchemyAutoSchema):
     class Meta:
@@ -14,7 +15,6 @@ class PasswordResetSchema(SQLAlchemyAutoSchema):
         load_instance = True
         include_fk = True
 
-    # Example: expose token and expiry fields
     token = fields.String()
     expires_at = fields.DateTime()
     used = fields.Boolean()

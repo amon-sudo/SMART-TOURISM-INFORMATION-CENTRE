@@ -35,8 +35,10 @@ def login():
 @auth_bp.route("/me", methods=["GET"])
 @jwt_required()
 def me():
-    current_user = get_jwt_identity()
-    user = AuthService.get_user(current_user)
+    current_user_id = get_jwt_identity()   # identity is UUID string
+    user = AuthService.get_user(current_user_id)  # cast back to UUID inside service
+    if not user:
+        return jsonify({"error": "User not found"}), 404
     return jsonify(user_schema.dump(user)), 200
 
 # Logout
@@ -72,6 +74,6 @@ def password_reset_confirm():
 @auth_bp.route("/refresh", methods=["POST"])
 @jwt_required(refresh=True)
 def refresh():
-    current_user = get_jwt_identity()
-    new_access_token = AuthService.generate_access_token(current_user)
+    current_user_id = get_jwt_identity()   # identity is UUID string
+    new_access_token = AuthService.generate_access_token(current_user_id)
     return jsonify({"access_token": new_access_token}), 200

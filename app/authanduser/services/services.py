@@ -1,7 +1,8 @@
 import uuid, datetime
 from app.authanduser.extensions import db
 from app.authanduser.models.models import User, RefreshToken, PasswordReset
-from app.authanduser.utils.utils import hash_password, verify_password, generate_jwt
+from app.authanduser.utils.utils import hash_password, verify_password
+from flask_jwt_extended import create_access_token
 
 class AuthService:
     @staticmethod
@@ -17,7 +18,8 @@ class AuthService:
     def login(email, password):
         user = User.query.filter_by(email=email).first()
         if user and verify_password(user.password_hash, password):
-            access_token = generate_jwt(user.id)
+            # 🔹 Use UUID as identity
+            access_token = create_access_token(identity=str(user.id))
             refresh_token = str(uuid.uuid4())
             rt = RefreshToken(
                 user_id=user.id,
@@ -62,3 +64,16 @@ class AuthService:
             db.session.commit()
             return True
         return False
+
+    # 🔹 Get user by UUID (for /me)
+    @staticmethod
+    def get_user(user_id):
+        try:
+            return User.query.get(uuid.UUID(user_id))
+        except (ValueError, TypeError):
+            return None
+
+    # 🔹 Generate new access token (for /refresh)
+    @staticmethod
+    def generate_access_token(user_id):
+        return create_access_token(identity=str(user_id))
