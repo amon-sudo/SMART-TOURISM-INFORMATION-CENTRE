@@ -42,8 +42,6 @@ class BusinessRegistrationRequest(db.Model):
         onupdate=lambda: datetime.now(timezone.utc),
     )
 
-    user = db.relationship("User", foreign_keys=[user_id], lazy="select")
-    reviewer = db.relationship("User", foreign_keys=[reviewed_by], lazy="select")
     business_profile = db.relationship("BusinessProfile", foreign_keys=[business_profile_id], lazy="select")
 
    

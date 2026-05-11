@@ -11,7 +11,7 @@ from ....Business_registration.utils.utilities import admin_required
 
 
 business_admin_blueprint = Blueprint(
-    "business_admin",
+    "business_admin_profile",
     __name__,
     url_prefix="/api/v1/admin/business/business_profiles",
 )

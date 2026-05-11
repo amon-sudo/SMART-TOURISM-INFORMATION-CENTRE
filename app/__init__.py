@@ -1,17 +1,8 @@
 import os
 from flask import Flask, jsonify
-
-try:
-    from dotenv import load_dotenv
-except ImportError:
-    def load_dotenv(*args, **kwargs):
-        return False
-
+from dotenv import load_dotenv
 from app.extensions import db, migrate, jwt
-from app.routes.rbac import rbac_bp
-from app.user_handling_and_auth.MVC_architecture.controllers.user_routes import user_blueprint
-from app.Business.Business_registration.MVC_architecture_business.Business_controllers.Business_registrationroutes import business_bp
-from app.Business.Business_registration.MVC_architecture_business.Business_controllers.Business_registration_routes_admin import business_admin_bp
+from app.Business import register_business_blueprints
 
 load_dotenv()
 
@@ -27,10 +18,8 @@ def create_app():
     migrate.init_app(app, db)
     jwt.init_app(app)
 
-    app.register_blueprint(rbac_bp)
-    app.register_blueprint(user_blueprint)
-    app.register_blueprint(business_bp)
-    app.register_blueprint(business_admin_bp)
+   
+    register_business_blueprints(app)
 
     @app.route("/api/v1/health", methods=["GET"])
     def health():

@@ -13,7 +13,8 @@ business_bp = Blueprint("business", __name__, url_prefix="/api/v1/business")
 # POST /api/v1/business/register
 business_bp.add_url_rule(
     "/register",
-    view_func=jwt_required()(register_business),
+    #view_func=jwt_required()(register_business),
+    view_func=register_business,
     methods=["POST"],
 )
 
@@ -22,11 +23,13 @@ business_bp.add_url_rule(
 # Business owners (and applicants) manage their own registration.
 business_bp.add_url_rule(
     "/registration",
-    view_func=jwt_required()(get_my_registration),
+    #view_func=jwt_required()(get_my_registration),
+    view_func=get_my_registration,
     methods=["GET"],
 )
 business_bp.add_url_rule(
     "/registration/<string:request_id>",
-    view_func=jwt_required()(update_my_registration),
+    #view_func=jwt_required()(update_my_registration),
+    view_func=update_my_registration,
     methods=["PATCH"],
 )
