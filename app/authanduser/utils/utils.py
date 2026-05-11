@@ -16,10 +16,7 @@ def generate_jwt(user_id: str, expires_minutes: int = 30) -> str:
         "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=expires_minutes)
     }
     token = jwt.encode(payload, secret, algorithm="HS256")
-    # PyJWT may return bytes in some versions; ensure a str is returned
-    if isinstance(token, bytes):
-        token = token.decode("utf-8")
-    return token
+    return token if isinstance(token, str) else token.decode("utf-8")
 
 def decode_jwt(token: str) -> dict:
     secret = current_app.config.get("SECRET_KEY")

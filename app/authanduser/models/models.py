@@ -9,7 +9,11 @@ class User(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    # relationships for convenience
+    refresh_tokens = db.relationship("RefreshToken", backref="user", lazy=True)
+    password_resets = db.relationship("PasswordReset", backref="user", lazy=True)
 
     def set_password(self, password: str):
         self.password_hash = generate_password_hash(password)
@@ -24,8 +28,12 @@ class RefreshToken(db.Model):
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("users.id"), nullable=False)
     token = db.Column(db.String(512), nullable=False)
     revoked = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     expires_at = db.Column(db.DateTime, nullable=False)
+
+    def revoke(self):
+        self.revoked = True
+        db.session.commit()
 
 
 class PasswordReset(db.Model):
@@ -34,5 +42,9 @@ class PasswordReset(db.Model):
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("users.id"), nullable=False)
     token = db.Column(db.String(512), nullable=False)
     used = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     expires_at = db.Column(db.DateTime, nullable=False)
+
+    def mark_used(self):
+        self.used = True
+        db.session.commit()
