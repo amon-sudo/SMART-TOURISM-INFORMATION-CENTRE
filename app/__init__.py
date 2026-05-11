@@ -18,7 +18,7 @@ def create_app():
     migrate.init_app(app, db)
     jwt.init_app(app)
 
-    app.register_blueprint(rbac_bp)
+    app.register_blueprint(app)
 
     @app.route("/api/v1/health", methods=["GET"])
     def health():
