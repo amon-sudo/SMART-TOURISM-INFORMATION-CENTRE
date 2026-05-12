@@ -9,6 +9,15 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+from app.extensions import db
+from datetime import datetime
+
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
     # Relationships
     profile = db.relationship('UserProfile', backref='user', uselist=False)
     accessibility = db.relationship('UserAccessibility', backref='user', uselist=False)
@@ -31,6 +40,9 @@ class UserProfile(db.Model):
     last_login_at = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    full_name = db.Column(db.String(100))
+    bio = db.Column(db.Text)
+    profile_picture = db.Column(db.String(255))
 
 class UserAccessibility(db.Model):
     __tablename__ = 'user_accessibility'
@@ -46,6 +58,8 @@ class UserAccessibility(db.Model):
     wheelchair_mode = db.Column(db.Boolean, default=False)
     other_needs = db.Column(db.JSON, default={})
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    accessibility_preference = db.Column(db.String(50)) # e.g., 'Screen Reader', 'High Contrast'
+    font_size = db.Column(db.Integer, default=14)
 
 class UserNotification(db.Model):
     __tablename__ = 'user_notifications'
@@ -99,3 +113,6 @@ class PasswordReset(db.Model):
     expires_at = db.Column(db.DateTime, nullable=False)
     used_at = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    language_preference = db.Column(db.String(10), default='en')
+    email_alerts = db.Column(db.Boolean, default=True)
+    push_notifications = db.Column(db.Boolean, default=True)
