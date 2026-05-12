@@ -1,15 +1,12 @@
 import os
 from dotenv import load_dotenv
-from flask_migrate import Migrate
-from app import create_app, db   # import db from extensions
+from app import create_app   # only import create_app
 
+# Load environment variables
 load_dotenv()
 
-
+# Create the app instance
 app = create_app()
-
-
-migrate = Migrate(app, db)
 
 if __name__ == "__main__":
     app.run(debug=True)
