@@ -15,8 +15,6 @@ import logging
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-from ..models.models import UserProfile, UserAccessibility, UserNotification
-from ..schemas.schemas import UserProfileSchema, UserAccessibilitySchema, UserNotificationSchema
 
 # Initialize schemas
 profile_schema = UserProfileSchema()
@@ -83,4 +81,4 @@ def _update_setting_generic(user_id, data, model_class, schema, label):
         return ApiResponse.error(message="Database transaction failed.", code="DB_ERROR")
     except Exception as e:
         logger.error(f"Unexpected error updating {label} for user {user_id}: {str(e)}")
-        return {"status": "error", "message": "An unexpected error occurred."}, 500
+        return ApiResponse.error(message="An unexpected error occurred.")
