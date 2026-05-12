@@ -61,6 +61,25 @@ class BusinessRegistrationRepository:
         #adding a function fo admin to search for registration forms by name, this will be used in the admin dashboard to manage registration requests.
     def search_registration_requests_by_name(self, search_query):
         return BusinessRegistrationRequest.query.filter(BusinessRegistrationRequest.business_name.ilike(f"%{search_query}%")).all()
+
+    def delete_own_pending_registration_request(self, request_id, user_id):
+        registration_request = BusinessRegistrationRequest.query.get(request_id)
+        if registration_request is None:
+            return False, "not_found"
+
+        if str(registration_request.user_id) != str(user_id):
+            return False, "not_found"
+
+        if registration_request.status != "pending":
+            return False, "invalid_status"
+
+        try:
+            db.session.delete(registration_request)
+            db.session.commit()
+            return True, "deleted"
+        except SQLAlchemyError as sae:
+            db.session.rollback()
+            raise sae
     
     
         

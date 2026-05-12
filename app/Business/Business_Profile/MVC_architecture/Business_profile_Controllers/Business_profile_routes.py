@@ -97,3 +97,15 @@ def update_business_profile_route():
         return jsonify({"error": str(exc)}), HTTPStatus.NOT_FOUND
 
     return jsonify({"profile": {"id": str(profile.id)}}), HTTPStatus.OK
+
+#businesses to be able to delete thier own profiles (soft delete by setting is_active to False)
+@business_bp.route("/profile/delete", methods=["PATCH"])
+@role_required("business_owner")
+def delete_business_profile_route():
+    payload = request.get_json(silent=True) or {}
+    try:
+        profile = update_business_profile(_current_user_uuid(), payload, delete=True)
+    except (ValueError, ProfileNotFoundError) as exc:
+        return jsonify({"error": str(exc)}), HTTPStatus.NOT_FOUND
+
+    return jsonify({"message": "Business profile deleted successfully"}), HTTPStatus.OK

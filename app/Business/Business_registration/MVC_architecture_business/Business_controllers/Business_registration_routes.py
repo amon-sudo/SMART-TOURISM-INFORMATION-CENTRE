@@ -1,7 +1,9 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 
+
 from ..Business_controllers.Business_controllers import (
+    delete_my_registration,
     get_my_registration,
     register_business,
     update_my_registration,
@@ -37,3 +39,8 @@ def update_my_registration_route(request_id: str):
 def submit_registration_request():
     return register_business()  
 
+#businesses to delete their pending registration request if they change their mind or need to correct something before resubmitting. This endpoint allows for better user control and flexibility in managing their registration process, while still ensuring that only the owner of the request can perform this action.
+@business_bp.route("/registration/<string:request_id>", methods=["DELETE"])
+@jwt_required()
+def delete_my_registration_request(request_id: str):
+    return delete_my_registration(request_id)

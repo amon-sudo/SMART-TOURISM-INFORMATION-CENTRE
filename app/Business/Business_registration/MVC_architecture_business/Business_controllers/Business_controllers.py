@@ -19,6 +19,7 @@ from ..Business_registration_views.Business_views.Business_registration_service 
     get_registration_request,
     list_registration_requests,
     update_registration_request,
+    delete_registration_request,
     action_registration_request,
     RegistrationNotFoundError,
     InvalidStatusTransitionError,
@@ -127,6 +128,34 @@ def update_my_registration(request_id: str):
         ),
         HTTPStatus.OK,
     )
+
+
+def delete_my_registration(request_id: str):
+    """
+    DELETE /api/v1/business/registrations/registration/<request_id>
+    -------------------------------------------------------------
+    Allows the applicant to delete their own pending registration request.
+
+    Responses:
+        200  { message }
+        404  { error }
+        409  { error }
+    """
+    try:
+        delete_registration_request(
+            request_id=uuid.UUID(request_id),
+            user_id=_current_user_id(),
+        )
+    except ValueError:
+        return _error("Invalid request id.", HTTPStatus.BAD_REQUEST)
+    except RegistrationNotFoundError as exc:
+        return _error(str(exc), HTTPStatus.NOT_FOUND)
+    except InvalidStatusTransitionError as exc:
+        return _error(str(exc), HTTPStatus.CONFLICT)
+    except BusinessServiceError as exc:
+        return _error(str(exc), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+    return jsonify({"message": "Registration request deleted successfully."}), HTTPStatus.OK
 def admin_list_registrations():
     """
     GET /api/v1/admin/business/registrations

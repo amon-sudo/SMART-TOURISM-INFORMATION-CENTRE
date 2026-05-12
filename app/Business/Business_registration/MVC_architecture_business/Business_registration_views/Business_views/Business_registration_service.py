@@ -9,6 +9,7 @@ from app.extensions import db
 
 from ....utils.utilities import send_notification, paginate_query
 from ...Business_registration_models.Business_registration_domain.Business_registration_domain import BusinessRegistrationRequest
+from ...Business_registration_models.Business_repo.Business_registration_repo import BusinessRegistrationRepository
 
 
 # ---------------------------------------------------------------------------
@@ -25,6 +26,9 @@ class RegistrationNotFoundError(BusinessServiceError):
 
 class InvalidStatusTransitionError(BusinessServiceError):
     """Raised when an invalid status transition is attempted."""
+
+
+_registration_repository = BusinessRegistrationRepository()
 
 
 # ---------------------------------------------------------------------------
@@ -180,3 +184,35 @@ def action_registration_request(
     )
 
     return reg_request
+
+
+def delete_registration_request(
+    request_id: uuid.UUID,
+    user_id: uuid.UUID,
+) -> None:
+    """
+    Delete a user's own pending registration request.
+
+    Raises:
+        RegistrationNotFoundError
+        InvalidStatusTransitionError
+    """
+    deleted, reason = _registration_repository.delete_own_pending_registration_request(
+        request_id=request_id,
+        user_id=user_id,
+    )
+
+    if deleted:
+        return
+
+    if reason == "not_found":
+        raise RegistrationNotFoundError(
+            f"Registration request {request_id} not found."
+        )
+
+    if reason == "invalid_status":
+        raise InvalidStatusTransitionError(
+            "Only pending requests can be deleted."
+        )
+
+    raise BusinessServiceError("Unable to delete registration request.")
