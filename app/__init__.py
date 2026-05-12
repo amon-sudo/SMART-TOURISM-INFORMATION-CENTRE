@@ -2,7 +2,7 @@ import os
 from flask import Flask, jsonify
 from dotenv import load_dotenv
 from app.extensions import db, migrate, jwt
-# from app.routes.rbac import rbac_bp
+##from app.routes.rbac import rbac_bp
 
 load_dotenv()
 
