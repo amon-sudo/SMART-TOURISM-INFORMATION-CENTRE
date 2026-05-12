@@ -7,9 +7,10 @@ Delegates to app/authanduser if needed.
 
 import os
 from flask import Flask, jsonify
+# pyrefly: ignore [missing-import]
 from dotenv import load_dotenv
 from app.extensions import db, migrate, jwt
-from app.routes.rbac import rbac_bp
+# from app.routes.rbac import rbac_bp
 
 # Load environment variables
 load_dotenv()
@@ -27,6 +28,9 @@ def create_app():
     migrate.init_app(app, db)
     jwt.init_app(app)
 
+    from app.user_settings.views.views import user_settings_bp
+# app.register_blueprint(rbac_bp)
+    app.register_blueprint(user_settings_bp, url_prefix='/api/v1')
     # Register blueprints
     app.register_blueprint(rbac_bp, url_prefix="/api/v1")
 
