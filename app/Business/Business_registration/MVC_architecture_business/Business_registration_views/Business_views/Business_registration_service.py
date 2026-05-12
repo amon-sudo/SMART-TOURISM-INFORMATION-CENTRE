@@ -39,20 +39,8 @@ def register_business_request(user_id: uuid.UUID, data: dict) -> BusinessRegistr
     """
     Create and persist a new business registration request.
 
-    Raises:
-        BusinessServiceError – if the user already has a pending request.
+    A user may submit multiple registration requests over time.
     """
-    existing = db.session.scalar(
-        select(BusinessRegistrationRequest).where(
-            BusinessRegistrationRequest.user_id == user_id,
-            BusinessRegistrationRequest.status == "pending",
-        )
-    )
-    if existing is not None:
-        raise BusinessServiceError(
-            "You already have a pending registration request."
-        )
-
     reg_request = BusinessRegistrationRequest(
         user_id=user_id,
         **data,

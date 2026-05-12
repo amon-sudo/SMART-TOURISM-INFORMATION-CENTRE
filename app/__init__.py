@@ -3,6 +3,7 @@ from flask import Flask, jsonify
 from dotenv import load_dotenv
 from app.extensions import db, migrate, jwt
 from app.Business import register_business_blueprints
+from app.Business.errors_handling import register_business_error_handlers
 
 load_dotenv()
 
@@ -19,6 +20,7 @@ def create_app():
     jwt.init_app(app)
 
     register_business_blueprints(app)
+    register_business_error_handlers(app)
 
     @app.route("/api/v1/health", methods=["GET"])
     def health():

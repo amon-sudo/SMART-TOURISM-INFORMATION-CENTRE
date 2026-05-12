@@ -5,9 +5,10 @@ import math
 from functools import wraps
 from typing import Any
 
-from flask import jsonify
 from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
 from sqlalchemy import select
+
+from app.Business.errors_handling import error_response
 
 
 # ---------------------------------------------------------------------------
@@ -121,7 +122,12 @@ def role_required(role_name: str):
             verify_jwt_in_request()
             uid = get_jwt_identity()
             if not user_has_role(uid, role_name):
-                return jsonify({"error": f"Role '{role_name}' required."}), 403
+                return error_response(
+                    f"Role '{role_name}' required.",
+                    status_code=403,
+                    code="FORBIDDEN",
+                    details={"required_role": role_name},
+                )
             return fn(*args, **kwargs)
         return wrapper
     return decorator
@@ -135,7 +141,12 @@ def admin_required():
             verify_jwt_in_request()
             uid = get_jwt_identity()
             if not user_has_role(uid, "admin"):
-                return jsonify({"error": "Admin access required."}), 403
+                return error_response(
+                    "Admin access required.",
+                    status_code=403,
+                    code="FORBIDDEN",
+                    details={"required_role": "admin"},
+                )
             return fn(*args, **kwargs)
         return wrapper
     return decorator

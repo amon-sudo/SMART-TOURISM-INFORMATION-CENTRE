@@ -3,6 +3,7 @@ import uuid
 
 from flask import Blueprint, jsonify, request
 
+from app.Business.errors_handling import error_response
 from app.Business.Business_Profile.MVC_architecture.Business_profile_models.Business_profile_schema.business_profile_schema import BusinessProfileAdminResponseSchema
 from app.Business.Business_registration.MVC_architecture_business.Business_controllers.Business_controllers import admin_action_registration, admin_get_registration, admin_list_registrations
 
@@ -55,6 +56,6 @@ def admin_get_profile(profile_id: str):
     try:
         profile = get_business_profile_by_id(uuid.UUID(profile_id), public=False)
     except (ValueError, ProfileNotFoundError) as exc:
-        return jsonify({"error": str(exc)}), HTTPStatus.NOT_FOUND
+        return error_response(str(exc), status_code=HTTPStatus.NOT_FOUND, code="PROFILE_NOT_FOUND")
 
     return jsonify({"profile": _admin_profile_schema.dump(profile)}), HTTPStatus.OK

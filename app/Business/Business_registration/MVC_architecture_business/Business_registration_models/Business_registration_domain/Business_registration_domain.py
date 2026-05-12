@@ -1,7 +1,6 @@
-
 import uuid
+
 from app.extensions import db
-from datetime import datetime,timezone
 
 
 class BusinessRegistrationRequest(db.Model):
@@ -37,23 +36,17 @@ class BusinessRegistrationRequest(db.Model):
 		onupdate=db.func.now(),
 	)
 
+	# One registration request creates at most one business profile.
+	business_profile = db.relationship(
+		"BusinessProfile",
+		back_populates="registration_request",
+		uselist=False,
+	)
 
-# Relationships
-user = db.relationship(
-    "User",
-    foreign_keys=[BusinessRegistrationRequest.user_id],
-    back_populates="registration_requests",
-)
-
-reviewer = db.relationship(
-    "User",
-    foreign_keys=[BusinessRegistrationRequest.reviewed_by],
-    back_populates="reviewed_registrations",
-)
-
-business_profile = db.relationship(
-    "BusinessProfile",
-    back_populates="registration_request",
-    uselist=False,
-)
-
+	# Owner-level one-to-many (same user can own multiple business profiles).
+	owner_business_profiles = db.relationship(
+		"BusinessProfile",
+		primaryjoin="foreign(BusinessProfile.user_id) == BusinessRegistrationRequest.user_id",
+		viewonly=True,
+		lazy="selectin",
+	)

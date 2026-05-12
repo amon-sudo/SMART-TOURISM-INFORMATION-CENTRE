@@ -34,6 +34,3 @@ class BusinessProfile(db.Model):
     registration_request = db.relationship("BusinessRegistrationRequest", back_populates="business_profile", uselist=False)
     media = db.relationship("Media", back_populates="business_profile", uselist=False)
     attractions = db.relationship("Attraction", back_populates="business_profile", lazy="dynamic", cascade="all, delete-orphan")
-        
-
-

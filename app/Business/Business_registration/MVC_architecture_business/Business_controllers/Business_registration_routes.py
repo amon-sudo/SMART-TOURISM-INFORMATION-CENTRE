@@ -17,6 +17,7 @@ business_bp = Blueprint(
 
 
 @business_bp.route("", methods=["POST"])
+@business_bp.route("/register", methods=["POST"])
 @jwt_required()
 def register_business_route():
     return register_business()
@@ -32,12 +33,6 @@ def get_my_registration_route():
 @jwt_required()
 def update_my_registration_route(request_id: str):
     return update_my_registration(request_id)
-
-#submitting a new registration request, viewing the user's own registration request, and updating the user's own registration request. The admin routes for managing registration requests are defined in a separate file (Business_registration_routes_admin.py) to keep the user-facing and admin-facing functionalities organized and maintainable.
-@business_bp.route("/registerrequest", methods=["POST"])
-@jwt_required()
-def submit_registration_request():
-    return register_business()  
 
 #businesses to delete their pending registration request if they change their mind or need to correct something before resubmitting. This endpoint allows for better user control and flexibility in managing their registration process, while still ensuring that only the owner of the request can perform this action.
 @business_bp.route("/registration/<string:request_id>", methods=["DELETE"])

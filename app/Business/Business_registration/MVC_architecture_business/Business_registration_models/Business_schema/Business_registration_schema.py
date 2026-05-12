@@ -30,13 +30,18 @@ class BusinessRegistrationRequestCreateSchema(Schema):
 
     business_name = fields.Str(required=True, validate=validate.Length(min=2, max=255))
     business_type = fields.Str(required=True, validate=BUSINESS_TYPE_VALIDATOR)
-    registration_doc = fields.Dict,
-    metadata={
+    registration_doc = fields.Dict(
+        keys=fields.Str(),
+        values=fields.Raw(),
+        required=False,
+        load_default=dict,
+        metadata={
             "description": (
                 "Optional JSONB bag for uploaded doc URLs "
                 "(e.g. registration_certificate_url, tax_pin)"
             )
         },
+    )
 
     @pre_load
     def strip_whitespace(self, data: dict, **kwargs) -> dict:
