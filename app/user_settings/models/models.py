@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from app.extensions import db
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -57,6 +58,7 @@ class UserAccessibility(db.Model):
     large_text = db.Column(db.Boolean, default=False)
     wheelchair_mode = db.Column(db.Boolean, default=False)
     other_needs = db.Column(db.JSON, default={})
+    other_needs = db.Column(JSONB, default={})
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     accessibility_preference = db.Column(db.String(50)) # e.g., 'Screen Reader', 'High Contrast'
     font_size = db.Column(db.Integer, default=14)
@@ -86,6 +88,7 @@ class UserPreference(db.Model):
     budget_level = db.Column(db.String(20))
     pace = db.Column(db.String(20))
     interests = db.Column(db.JSON)
+    interests = db.Column(JSONB)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 class UserBehaviorEmbedding(db.Model):
