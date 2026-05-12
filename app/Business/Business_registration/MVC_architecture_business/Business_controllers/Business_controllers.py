@@ -135,6 +135,7 @@ def admin_list_registrations():
  
     Query params:
         status    str  optional  filter by status
+        search    str  optional  partial business-name match (case-insensitive)
         page      int  default 1
         per_page  int  default 20
  
@@ -142,10 +143,16 @@ def admin_list_registrations():
         200  { registrations: [...], page, per_page, total, total_pages }
     """
     status = request.args.get("status")
+    search_query = request.args.get("search", type=str)
     page = request.args.get("page", 1, type=int)
     per_page = min(request.args.get("per_page", 20, type=int), 100)
  
-    result = list_registration_requests(status=status, page=page, per_page=per_page)
+    result = list_registration_requests(
+        status=status,
+        search_query=search_query,
+        page=page,
+        per_page=per_page,
+    )
     result["registrations"] = [
         _reg_response_schema.dump(r) for r in result.pop("items")
     ]

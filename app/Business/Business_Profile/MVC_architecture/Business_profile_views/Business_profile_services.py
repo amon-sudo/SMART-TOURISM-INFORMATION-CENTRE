@@ -80,7 +80,10 @@ def get_business_profile_by_id(
     return profile
 
 
-def get_all_business_profiles(public: bool = False):
+def get_all_business_profiles(
+    public: bool = False,
+    search_query: Optional[str] = None,
+):
     """Return all business profiles, optionally filtered to active+verified."""
     query = select(BusinessProfile).order_by(BusinessProfile.created_at.desc())
     if public:
@@ -88,6 +91,8 @@ def get_all_business_profiles(public: bool = False):
             BusinessProfile.is_active == True,
             BusinessProfile.verified == True,
         )
+    if search_query:
+        query = query.where(BusinessProfile.business_name.ilike(f"%{search_query}%"))
     result = db.session.execute(query)
     return result.scalars().all()
 

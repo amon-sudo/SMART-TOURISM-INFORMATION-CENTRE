@@ -1,7 +1,7 @@
 from http import HTTPStatus
 import uuid
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 
 from app.Business.Business_Profile.MVC_architecture.Business_profile_models.Business_profile_schema.business_profile_schema import BusinessProfileAdminResponseSchema
 from app.Business.Business_registration.MVC_architecture_business.Business_controllers.Business_controllers import admin_action_registration, admin_get_registration, admin_list_registrations
@@ -44,7 +44,8 @@ def admin_update_registration_request(request_id: str):
 @business_admin_blueprint.route("/profiles", methods=["GET"])
 @admin_required()
 def admin_list_profiles():
-    profiles = get_all_business_profiles(public=False)
+    search_query = request.args.get("search", type=str)
+    profiles = get_all_business_profiles(public=False, search_query=search_query)
     return jsonify([_admin_profile_schema.dump(p) for p in profiles]), HTTPStatus.OK
 
 

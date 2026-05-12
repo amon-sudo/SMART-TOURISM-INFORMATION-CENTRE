@@ -59,3 +59,9 @@ class BusinessProfileRepository:
         except SQLAlchemyError as sae:
             db.session.rollback()
             raise sae
+
+
+#search feature for admin to search for business profiles by name, this will be used in the admin dashboard to manage business profiles.
+    def search_business_profiles_by_name(self, search_query):
+        return BusinessProfile.query.filter(BusinessProfile.business_name.ilike(f"%{search_query}%")).all()
+    

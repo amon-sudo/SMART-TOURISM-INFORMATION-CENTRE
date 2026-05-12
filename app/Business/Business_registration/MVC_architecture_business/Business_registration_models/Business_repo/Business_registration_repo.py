@@ -57,3 +57,10 @@ class BusinessRegistrationRepository:
             db.session.rollback()
             raise sae
         
+
+        #adding a function fo admin to search for registration forms by name, this will be used in the admin dashboard to manage registration requests.
+    def search_registration_requests_by_name(self, search_query):
+        return BusinessRegistrationRequest.query.filter(BusinessRegistrationRequest.business_name.ilike(f"%{search_query}%")).all()
+    
+    
+        

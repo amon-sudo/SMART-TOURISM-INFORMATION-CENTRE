@@ -1,3 +1,5 @@
+from importlib.metadata import metadata
+
 from marshmallow import Schema, ValidationError, fields, pre_load, validate, validates_schema
 
 
@@ -28,7 +30,13 @@ class BusinessRegistrationRequestCreateSchema(Schema):
 
     business_name = fields.Str(required=True, validate=validate.Length(min=2, max=255))
     business_type = fields.Str(required=True, validate=BUSINESS_TYPE_VALIDATOR)
-    registration_doc = fields.Str(load_default=None, allow_none=True, validate=validate.Length(max=255))
+    registration_doc = fields.Dict,
+    metadata={
+            "description": (
+                "Optional JSONB bag for uploaded doc URLs "
+                "(e.g. registration_certificate_url, tax_pin)"
+            )
+        },
 
     @pre_load
     def strip_whitespace(self, data: dict, **kwargs) -> dict:
@@ -44,8 +52,9 @@ class BusinessRegistrationRequestUpdateSchema(Schema):
 
     business_name = fields.Str(validate=validate.Length(min=2, max=255))
     business_type = fields.Str(validate=BUSINESS_TYPE_VALIDATOR)
-    registration_doc = fields.Str(allow_none=True, validate=validate.Length(max=255))
-
+    registration_doc = fields.Dict(
+        keys=fields.Str(), values=fields.Raw(), allow_none=True
+    )
     @validates_schema
     def validate_non_empty_payload(self, data: dict, **kwargs) -> None:
         if not data:
@@ -56,9 +65,13 @@ class BusinessRegistrationRequestAdminActionSchema(Schema):
     """Schema for admin actions on registration requests."""
 
     status = fields.Str(required=True, validate=REGISTRATION_STATUS_VALIDATOR)
-    business_profile_id = fields.UUID(load_default=None, allow_none=True)
-
-
+    rejection_reason = fields.Str(
+        load_default=None,
+        validate=validate.Length(max=1000),
+        metadata={
+            "description": "Mandatory when status is 'rejected' or 'suspended'"
+        },
+    )
 class BusinessRegistrationRequestResponseSchema(Schema):
     """Schema for serializing business registration request records."""
 
@@ -66,8 +79,8 @@ class BusinessRegistrationRequestResponseSchema(Schema):
     user_id = fields.UUID(dump_only=True)
     business_name = fields.Str(dump_only=True)
     business_type = fields.Str(dump_only=True)
-    registration_doc = fields.Str(allow_none=True, dump_only=True)
     status = fields.Str(dump_only=True)
+    rejection_reason = fields.Str(allow_none=True, dump_only=True)
     reviewed_by = fields.UUID(allow_none=True, dump_only=True)
     reviewed_at = fields.DateTime(allow_none=True, dump_only=True)
     business_profile_id = fields.UUID(allow_none=True, dump_only=True)

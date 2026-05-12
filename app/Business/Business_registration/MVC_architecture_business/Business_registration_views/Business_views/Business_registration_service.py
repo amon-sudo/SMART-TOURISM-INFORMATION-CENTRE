@@ -76,6 +76,7 @@ def get_registration_request(request_id: uuid.UUID) -> BusinessRegistrationReque
 
 def list_registration_requests(
     status: Optional[str] = None,
+    search_query: Optional[str] = None,
     page: int = 1,
     per_page: int = 20,
 ) -> dict:
@@ -89,6 +90,11 @@ def list_registration_requests(
     )
     if status:
         query = query.where(BusinessRegistrationRequest.status == status)
+
+    if search_query:
+        query = query.where(
+            BusinessRegistrationRequest.business_name.ilike(f"%{search_query}%")
+        )
 
     return paginate_query(query, page=page, per_page=per_page)
 
