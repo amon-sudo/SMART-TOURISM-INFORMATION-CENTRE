@@ -1,18 +1,14 @@
 from datetime import datetime
-import uuid
 from app.extensions import db
 
 
 class UserRole(db.Model):
     __tablename__ = "user_roles"
 
-    id = db.Column(db.Integer, primary_key=True)
-    uuid = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
-    user_id = db.Column(db.Integer, nullable=False)
-    role_id = db.Column(db.Integer, db.ForeignKey("roles.id"), nullable=False)
-    assigned_by = db.Column(db.Integer, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    user_id = db.Column(db.String(36), primary_key=True, nullable=False)
+    role_id = db.Column(db.String(36), db.ForeignKey("roles.id"), primary_key=True, nullable=False)
+    assigned_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    assigned_by = db.Column(db.String(36), nullable=True)
 
     role = db.relationship("Role", back_populates="users")
 

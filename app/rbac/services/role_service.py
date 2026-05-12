@@ -13,7 +13,7 @@ def create_role(data: dict) -> Role:
     role = Role(
         name=data["name"],
         description=data.get("description"),
-        is_active=data.get("is_active", True)
+        is_system=data.get("is_system", False)
     )
     db.session.add(role)
     db.session.commit()
@@ -21,17 +21,17 @@ def create_role(data: dict) -> Role:
 
 
 def get_all_roles() -> list:
-    return Role.query.filter_by(is_active=True).all()
+    return Role.query.all()
 
 
-def get_role_by_id(role_id: int) -> Role:
+def get_role_by_id(role_id: str) -> Role:
     role = Role.query.get(role_id)
     if not role:
         raise ValueError("Role not found.")
     return role
 
 
-def update_role(role_id: int, data: dict) -> Role:
+def update_role(role_id: str, data: dict) -> Role:
     role = Role.query.get(role_id)
     if not role:
         raise ValueError("Role not found.")
@@ -45,14 +45,14 @@ def update_role(role_id: int, data: dict) -> Role:
     if "description" in data:
         role.description = data["description"]
 
-    if "is_active" in data:
-        role.is_active = data["is_active"]
+    if "is_system" in data:
+        role.is_system = data["is_system"]
 
     db.session.commit()
     return role
 
 
-def delete_role(role_id: int) -> None:
+def delete_role(role_id: str) -> None:
     role = Role.query.get(role_id)
     if not role:
         raise ValueError("Role not found.")
@@ -61,7 +61,7 @@ def delete_role(role_id: int) -> None:
     db.session.commit()
 
 
-def assign_permission_to_role(role_id: int, permission_id: int) -> RolePermission:
+def assign_permission_to_role(role_id: str, permission_id: str) -> RolePermission:
     role = Role.query.get(role_id)
     if not role:
         raise ValueError("Role not found.")
@@ -83,7 +83,7 @@ def assign_permission_to_role(role_id: int, permission_id: int) -> RolePermissio
     return role_permission
 
 
-def assign_role_to_user(user_id: int, role_id: int, assigned_by: int) -> UserRole:
+def assign_role_to_user(user_id: str, role_id: str, assigned_by: str) -> UserRole:
     role = Role.query.get(role_id)
     if not role:
         raise ValueError("Role not found.")
@@ -102,5 +102,5 @@ def assign_role_to_user(user_id: int, role_id: int, assigned_by: int) -> UserRol
     return user_role
 
 
-def get_user_roles(user_id: int) -> list:
+def get_user_roles(user_id: str) -> list:
     return UserRole.query.filter_by(user_id=user_id).all()

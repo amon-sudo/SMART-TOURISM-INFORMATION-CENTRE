@@ -11,7 +11,8 @@ def create_permission(data: dict) -> Permission:
         name=data["name"],
         description=data.get("description"),
         module=data.get("module"),
-        is_active=data.get("is_active", True)
+        action=data.get("action"),
+        scope=data.get("scope")
     )
     db.session.add(permission)
     db.session.commit()
@@ -19,17 +20,17 @@ def create_permission(data: dict) -> Permission:
 
 
 def get_all_permissions() -> list:
-    return Permission.query.filter_by(is_active=True).all()
+    return Permission.query.all()
 
 
-def get_permission_by_id(permission_id: int) -> Permission:
+def get_permission_by_id(permission_id: str) -> Permission:
     permission = Permission.query.get(permission_id)
     if not permission:
         raise ValueError("Permission not found.")
     return permission
 
 
-def update_permission(permission_id: int, data: dict) -> Permission:
+def update_permission(permission_id: str, data: dict) -> Permission:
     permission = Permission.query.get(permission_id)
     if not permission:
         raise ValueError("Permission not found.")
@@ -46,14 +47,17 @@ def update_permission(permission_id: int, data: dict) -> Permission:
     if "module" in data:
         permission.module = data["module"]
 
-    if "is_active" in data:
-        permission.is_active = data["is_active"]
+    if "action" in data:
+        permission.action = data["action"]
+
+    if "scope" in data:
+        permission.scope = data["scope"]
 
     db.session.commit()
     return permission
 
 
-def delete_permission(permission_id: int) -> None:
+def delete_permission(permission_id: str) -> None:
     permission = Permission.query.get(permission_id)
     if not permission:
         raise ValueError("Permission not found.")
