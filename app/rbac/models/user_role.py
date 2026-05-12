@@ -1,12 +1,13 @@
 from datetime import datetime
-from app.extensions import db
 import uuid
+from app.extensions import db
 
 
 class UserRole(db.Model):
     __tablename__ = "user_roles"
 
-    id = db.Column(db.Integer, primary_key=True, default= uuid.uuid4)
+    id = db.Column(db.Integer, primary_key=True)
+    uuid = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     user_id = db.Column(db.Integer, nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey("roles.id"), nullable=False)
     assigned_by = db.Column(db.Integer, nullable=True)

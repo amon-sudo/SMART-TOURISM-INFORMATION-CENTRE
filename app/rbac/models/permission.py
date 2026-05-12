@@ -1,12 +1,13 @@
 from datetime import datetime
-from app.extensions import db
 import uuid
+from app.extensions import db
 
 
 class Permission(db.Model):
     __tablename__ = "permissions"
 
-    id = db.Column(db.Integer, primary_key=True, default=uuid.uuid4)
+    id = db.Column(db.Integer, primary_key=True)
+    uuid = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     name = db.Column(db.String(100), unique=True, nullable=False)
     description = db.Column(db.String(255), nullable=True)
     module = db.Column(db.String(50), nullable=True)

@@ -1,12 +1,13 @@
 from datetime import datetime
-from app.extensions import db
 import uuid
+from app.extensions import db
 
 
 class RolePermission(db.Model):
     __tablename__ = "role_permissions"
 
-    id = db.Column(db.Integer, primary_key=True, default=uuid.uuid4)
+    id = db.Column(db.Integer, primary_key=True)
+    uuid = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     role_id = db.Column(db.Integer, db.ForeignKey("roles.id"), nullable=False)
     permission_id = db.Column(db.Integer, db.ForeignKey("permissions.id"), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
