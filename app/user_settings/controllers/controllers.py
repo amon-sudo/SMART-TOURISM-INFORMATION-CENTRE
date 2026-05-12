@@ -1,4 +1,5 @@
 from app.extensions import db
+from app.utils.responses import ApiResponse
 from ..models.models import (
     UserProfile, UserAccessibility, UserNotification, 
     UserPreference, UserBehaviorEmbedding
@@ -30,18 +31,15 @@ def get_all_settings(user_id):
         notifications = UserNotification.query.filter_by(user_id=user_id).first()
         preferences = UserPreference.query.filter_by(user_id=user_id).first()
         
-        return {
-            "status": "success",
-            "data": {
-                "profile": profile_schema.dump(profile) if profile else {},
-                "accessibility": accessibility_schema.dump(accessibility) if accessibility else {},
-                "notifications": notification_schema.dump(notifications) if notifications else {},
-                "preferences": preference_schema.dump(preferences) if preferences else {}
-            }
-        }, 200
+        return ApiResponse.success(data={
+            "profile": profile_schema.dump(profile) if profile else {},
+            "accessibility": accessibility_schema.dump(accessibility) if accessibility else {},
+            "notifications": notification_schema.dump(notifications) if notifications else {},
+            "preferences": preference_schema.dump(preferences) if preferences else {}
+        })
     except Exception as e:
         logger.error(f"Error fetching settings for user {user_id}: {str(e)}")
-        return {"status": "error", "message": "An internal error occurred while fetching settings."}, 500
+        return ApiResponse.error(message="An internal error occurred while fetching settings.")
 
 def update_user_profile(user_id, data):
     return _update_setting_generic(user_id, data, UserProfile, profile_schema, "Profile")
@@ -70,18 +68,17 @@ def _update_setting_generic(user_id, data, model_class, schema, label):
             db.session.add(record)
             
         db.session.commit()
-        return {
-            "status": "success", 
-            "message": f"{label} updated successfully",
-            "data": schema.dump(record)
-        }, 200
+        return ApiResponse.success(
+            data=schema.dump(record),
+            message=f"{label} updated successfully"
+        )
 
     except ValidationError as err:
-        return {"status": "error", "message": "Validation failed", "errors": err.messages}, 400
+        return ApiResponse.error(message="Validation failed", code="VALIDATION_ERROR", details=err.messages, status_code=400)
     except SQLAlchemyError as e:
         db.session.rollback()
         logger.error(f"Database error updating {label} for user {user_id}: {str(e)}")
-        return {"status": "error", "message": "Database transaction failed."}, 500
+        return ApiResponse.error(message="Database transaction failed.", code="DB_ERROR")
     except Exception as e:
         logger.error(f"Unexpected error updating {label} for user {user_id}: {str(e)}")
-        return {"status": "error", "message": "An unexpected error occurred."}, 500
+        return ApiResponse.error(message="An unexpected error occurred.")

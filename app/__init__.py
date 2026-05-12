@@ -1,3 +1,4 @@
+from app.user_settings.models import models
 import os
 from flask import Flask, jsonify
 # pyrefly: ignore [missing-import]
@@ -20,8 +21,23 @@ def create_app():
     jwt.init_app(app)
 
     from app.user_settings.views.views import user_settings_bp
+    
 # app.register_blueprint(rbac_bp)
     app.register_blueprint(user_settings_bp, url_prefix='/api/v1')
+
+    from app.utils.responses import ApiResponse
+
+    @app.errorhandler(404)
+    def not_found(e):
+        return ApiResponse.error(message="Resource not found", code="NOT_FOUND", status_code=404)
+
+    @app.errorhandler(405)
+    def method_not_allowed(e):
+        return ApiResponse.error(message="Method not allowed", code="METHOD_NOT_ALLOWED", status_code=405)
+
+    @app.errorhandler(500)
+    def internal_error(e):
+        return ApiResponse.error(message="An internal server error occurred", code="INTERNAL_ERROR", status_code=500)
 
     @app.route("/api/v1/health", methods=["GET"])
     def health():
