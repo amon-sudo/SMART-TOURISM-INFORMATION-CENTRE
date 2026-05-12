@@ -14,12 +14,14 @@ def create_app():
 
     db.init_app(app)
     migrate.init_app(app, db)
-    from app.tourismAmenitties.amenities.models import amenities
-    from app.tourismAmenitties.attractions.models import attraction
-    from app.tourismAmenitties.destination.models import destination
-    from app.tourismAmenitties.attraction_translations.models import attraction_tran
-    from app.tourismAmenitties.destination_translation.models import destinationTranslation
-    from app.tourismAmenitties.attraction_amenities.models import attractionAmmenities
+   
+
+    from app.tourism_amenitties import models
+
+
+    from app.tourism_amenitties import register_blueprints
+    
+    register_blueprints(app)
 
     @app.route("/db-test")
     def db_test():
@@ -29,5 +31,5 @@ def create_app():
     @app.route("/api/v1/health")
     def start():
         return {"status": "ok", "version": "1.0.0"}, 200
-
+    # print(app.url_map)
     return app

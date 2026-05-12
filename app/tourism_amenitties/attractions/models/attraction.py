@@ -30,6 +30,18 @@ class Attraction(db.Model):
 
     category = db.Column(db.String)
 
+    amenities = db.relationship(
+    "Amenity",
+    secondary="attraction_amenities",
+    backref="attractions"
+)
+    
+    
+    destination = db.relationship(
+    "Destination",
+    backref="attractions"
+)
+    
     # PostGIS geography column
     # location = db.Column(Geography(geometry_type="POINT", srid=4326))
 

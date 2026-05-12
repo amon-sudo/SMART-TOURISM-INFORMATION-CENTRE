@@ -3,5 +3,9 @@
 .env
 venv
 *.pyc
-
+instance/
 __pycache__/
+
+.vscode/
+
+amo.rest
