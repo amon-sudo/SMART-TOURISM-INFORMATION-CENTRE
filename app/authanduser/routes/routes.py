@@ -13,7 +13,11 @@ password_reset_schema = PasswordResetSchema()
 @auth_bp.route("/signup", methods=["POST"])
 def signup():
     data = request.get_json() or {}
-    user = AuthService.signup(data.get("email"), data.get("password"))
+    email = data.get("email")
+    password = data.get("password")
+    username = data.get("username")   # NEW FIELD
+
+    user = AuthService.signup(email, password, username)
     if not user:
         return jsonify({"error": "Email already exists"}), 400
     return jsonify(user_schema.dump(user)), 201

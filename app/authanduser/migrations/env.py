@@ -16,10 +16,11 @@ if config.config_file_name is not None:
 
 # --- Import your db and models ---
 from app.authanduser.extensions import db
-from app.authanduser.models import models  # ensures tables are registered
+from app.authanduser.models.models import User, RefreshToken, PasswordReset  # import actual models
 
 # --- Target metadata for autogenerate ---
 target_metadata = db.metadata
+
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""

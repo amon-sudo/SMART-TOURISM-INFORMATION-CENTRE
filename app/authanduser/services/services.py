@@ -6,10 +6,17 @@ from flask_jwt_extended import create_access_token
 
 class AuthService:
     @staticmethod
-    def signup(email, password):
+    def signup(email, password, username=None):
+        # check if email already exists
         if User.query.filter_by(email=email).first():
             return None
-        user = User(email=email, password_hash=hash_password(password))
+
+        # create new user with username
+        user = User(
+            email=email,
+            username=username,
+            password_hash=hash_password(password)
+        )
         db.session.add(user)
         db.session.commit()
         return user
@@ -28,7 +35,11 @@ class AuthService:
             )
             db.session.add(rt)
             db.session.commit()
-            return {"access_token": access_token, "refresh_token": refresh_token, "user": user}
+            return {
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "user": user
+            }
         return None
 
     @staticmethod
@@ -65,7 +76,6 @@ class AuthService:
             return True
         return False
 
-    # 🔹 Get user by UUID (for /me)
     @staticmethod
     def get_user(user_id):
         try:
@@ -73,7 +83,6 @@ class AuthService:
         except (ValueError, TypeError):
             return None
 
-    # 🔹 Generate new access token (for /refresh)
     @staticmethod
     def generate_access_token(user_id):
         return create_access_token(identity=str(user_id))
