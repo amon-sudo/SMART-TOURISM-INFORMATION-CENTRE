@@ -1,0 +1,1 @@
+from app.rbac.middlewares.rbac import require_permission
