@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, jsonify
 from dotenv import load_dotenv
 from app import extensions
 from app.routes.payment_routesmpesa import payment_mpesa_bp
@@ -18,6 +18,7 @@ from app.Business import register_business_blueprints
 from app.Business.errors_handling import register_business_error_handlers
 from app.rbac.controllers.routes.role_routes import role_bp
 from app.rbac.controllers.routes.permission_routes import permission_bp
+from app.user_settings import models
 from app.routes.payment_routesmpesa import payment_mpesa_bp
 from app.tourism_amenitties import register_blueprints as register_tourism_blueprints
 from app.user_settings.views.views import user_settings_bp
@@ -31,9 +32,11 @@ from app.tourism_amenitties import models as tourism_models # noqa: F401
 load_dotenv()
 
 def create_app():
-    load_dotenv()
     app = Flask(__name__)
 
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+        "DATABASE_URL",
+        "postgresql://postgres:password@localhost:5432/smart_tourism"
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -56,6 +59,16 @@ def create_app():
         raise RuntimeError("JWT_SECRET_KEY must be set in environment")
     app.config["JWT_SECRET_KEY"] = jwt_secret
 
+    extensions.db.init_app(app)
+    extensions.migrate.init_app(app, extensions.db)
+    extensions.jwt.init_app(app)
+
+    app.register_blueprint(payment_mpesa_bp, url_prefix="/api/payments")
+    register_business_blueprints(app)
+    register_business_error_handlers(app)
+
+    from app.user_settings.views.views import user_settings_bp
+    app.register_blueprint(user_settings_bp, url_prefix='/api/v1')
     # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
