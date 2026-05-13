@@ -1,31 +1,25 @@
 import os
-from flask import Flask, jsonify
+from flask import Flask
 from dotenv import load_dotenv
-from app.extensions import db, migrate, jwt
-from app.routes.rbac import rbac_bp
-
-
-load_dotenv()
+from app.utils import extensions
+from app.routes.payment_routesmpesa import payment_mpesa_bp
 
 def create_app():
+    load_dotenv()
     app = Flask(__name__)
 
-    
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///smart_tourism.db")
+    # Config
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///instance/app.db")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "change-this-in-production")
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "supersecret")
 
-   
-    db.init_app(app)
-    migrate.init_app(app, db)
-    jwt.init_app(app)
+    # Initialize extensions
+    extensions.db.init_app(app)
+    extensions.migrate.init_app(app, extensions.db)
+    extensions.jwt.init_app(app)
 
-   
-    app.register_blueprint(rbac_bp, url_prefix="/api/v1")
-
-    
-    @app.route("/api/v1/health", methods=["GET"])
-    def health():
-        return jsonify({"status": "ok", "version": "1.0.0"}), 200
+    # Register blueprints (only here)
+    app.register_blueprint(payment_mpesa_bp, url_prefix="/api/payments")
 
     return app
+
