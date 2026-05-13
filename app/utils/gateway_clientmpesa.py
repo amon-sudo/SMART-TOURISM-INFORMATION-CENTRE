@@ -6,13 +6,12 @@ import os
 DARAJA_BASE_URL = "https://sandbox.safaricom.co.ke"
 CONSUMER_KEY = os.getenv("MPESA_CONSUMER_KEY")
 CONSUMER_SECRET = os.getenv("MPESA_CONSUMER_SECRET")
-PASSKEY = os.getenv("MPESA_PASSKEY")
-SHORTCODE = os.getenv("MPESA_SHORTCODE")
-CALLBACK_URL = os.getenv("MPESA_CALLBACK_URL")
+PASSKEY = os.getenv("MPESA_PASSKEY", "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f9e0f6a0c8b8f9f0f2c")
+SHORTCODE = os.getenv("MPESA_SHORTCODE", "174379")
+CALLBACK_URL = os.getenv("MPESA_CALLBACK_URL", "http://localhost:5000/api/payments/callback/mpesa")
 
-# Validate env vars at load
-if not all([CONSUMER_KEY, CONSUMER_SECRET, PASSKEY, SHORTCODE, CALLBACK_URL]):
-    raise RuntimeError("Missing required M-Pesa environment variables")
+if not all([CONSUMER_KEY, CONSUMER_SECRET]):
+    raise RuntimeError("Missing required M-Pesa Consumer Key/Secret")
 
 def get_access_token():
     response = requests.get(
