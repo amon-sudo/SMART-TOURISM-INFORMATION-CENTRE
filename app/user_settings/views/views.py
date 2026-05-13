@@ -1,4 +1,5 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
+from app.utils.responses import ApiResponse
 from ..controllers.controllers import (
     get_all_settings, update_user_profile, update_accessibility_settings, 
     update_notification_settings, update_user_preferences
@@ -20,7 +21,6 @@ def patch_profile(user_id=1):
     # user_id = get_jwt_identity()
     data = request.get_json()
     if not data:
-        from app.utils.responses import ApiResponse
         return ApiResponse.error(message="No data provided", status_code=400)
     return update_user_profile(user_id, data)
 
@@ -30,7 +30,6 @@ def patch_accessibility(user_id=1):
     # user_id = get_jwt_identity()
     data = request.get_json()
     if not data:
-        from app.utils.responses import ApiResponse
         return ApiResponse.error(message="No data provided", status_code=400)
     return update_accessibility_settings(user_id, data)
 
@@ -40,7 +39,6 @@ def patch_notifications(user_id=1):
     # user_id = get_jwt_identity()
     data = request.get_json()
     if not data:
-        from app.utils.responses import ApiResponse
         return ApiResponse.error(message="No data provided", status_code=400)
     return update_notification_settings(user_id, data)
 
@@ -50,6 +48,5 @@ def patch_preferences(user_id=1):
     # user_id = get_jwt_identity()
     data = request.get_json()
     if not data:
-        from app.utils.responses import ApiResponse
         return ApiResponse.error(message="No data provided", status_code=400)
     return update_user_preferences(user_id, data)

@@ -1,10 +1,10 @@
 from app.extensions import db
 from app.utils.responses import ApiResponse
-from ..models.models import (
-    UserProfile, UserAccessibility, UserNotification, 
+from ..models import (
+    User, UserProfile, UserAccessibility, UserNotification, 
     UserPreference, UserBehaviorEmbedding
 )
-from ..schemas.schemas import (
+from ..schemas import (
     UserProfileSchema, UserAccessibilitySchema, UserNotificationSchema, 
     UserPreferenceSchema, UserBehaviorEmbeddingSchema
 )
@@ -57,6 +57,11 @@ def _update_setting_generic(user_id, data, model_class, schema, label):
     """Generic helper to update or create a setting record."""
     try:
         validated_data = schema.load(data, partial=True)
+        
+        # Check if user exists
+        if not db.session.get(User, user_id):
+            return ApiResponse.error(message=f"User with ID {user_id} not found.", status_code=404)
+            
         record = model_class.query.filter_by(user_id=user_id).first()
         
         if record:

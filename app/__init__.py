@@ -1,4 +1,4 @@
-from app.user_settings.models import models
+from app.user_settings import models  # noqa: F401 - Ensures models are registered with SQLAlchemy
 import os
 from flask import Flask, jsonify
 # pyrefly: ignore [missing-import]
