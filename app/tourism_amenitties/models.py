@@ -1,0 +1,11 @@
+from app.tourism_amenitties.amenities.models.amenities import Amenity
+
+from app.tourism_amenitties.destination.models.destination import Destination
+
+from app.tourism_amenitties.attractions.models.attraction import Attraction
+
+from app.tourism_amenitties.destination_translation.models.destination_translation import DestinationTranslation
+
+from app.tourism_amenitties.attraction_translations.models.attraction_tran import AttractionTranslation
+
+from app.tourism_amenitties.attraction_amenities.models.attraction_amenities import AttractionAmenity
