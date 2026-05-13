@@ -1,15 +1,8 @@
 import os
-from flask import Flask
-from dotenv import load_dotenv
-from app import extensions
-from app.routes.payment_routesmpesa import payment_mpesa_bp
-
 from flask import Flask, jsonify
 from dotenv import load_dotenv
 from sqlalchemy import text
 
-from app.extensions import db, migrate, jwt
-from app.routes.rbac import rbac_bp
 # Extension imports
 from app.extensions import db, migrate, jwt
 
@@ -19,6 +12,7 @@ from app.Business.errors_handling import register_business_error_handlers
 from app.rbac.controllers.routes.role_routes import role_bp
 from app.rbac.controllers.routes.permission_routes import permission_bp
 from app.routes.payment_routesmpesa import payment_mpesa_bp
+from app.routes.rbac import rbac_bp
 from app.tourism_amenitties import register_blueprints as register_tourism_blueprints
 from app.user_settings.views.views import user_settings_bp
 from app.utils.responses import ApiResponse
@@ -31,16 +25,7 @@ from app.tourism_amenitties import models as tourism_models # noqa: F401
 load_dotenv()
 
 def create_app():
-    load_dotenv()
     app = Flask(__name__)
-
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-    app.config["JWT_SECRET_KEY"] = os.getenv(
-        "JWT_SECRET_KEY",
-        "change-this-in-production"
-    )
     
     # Database Configuration (Strict PostgreSQL)
     database_url = os.getenv("DATABASE_URL") or os.getenv("POSTGRES_URI")
@@ -61,16 +46,6 @@ def create_app():
     migrate.init_app(app, db)
     jwt.init_app(app)
 
-    app.register_blueprint(rbac_bp)
-
-    @app.route("/api/v1/health", methods=["GET"])
-    def health():
-        return jsonify({"status": "ok", "version": "1.0.0"}), 200
-        return ApiResponse.error(
-            message="An internal server error occurred",
-            code="INTERNAL_ERROR",
-            status_code=500
-        )
     # Register Blueprints
     
     # 1. Payments
@@ -89,6 +64,7 @@ def create_app():
     # 5. RBAC (Roles & Permissions)
     app.register_blueprint(role_bp)
     app.register_blueprint(permission_bp)
+    app.register_blueprint(rbac_bp)
 
     # Core Utility Routes
     
