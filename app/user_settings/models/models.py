@@ -12,6 +12,7 @@ class User(BaseUUIDModel):
     notifications = db.relationship('UserNotification', backref='user', uselist=False)
     preferences = db.relationship('UserPreference', backref='user', uselist=False)
     embeddings = db.relationship('UserBehaviorEmbedding', backref='user', uselist=False)
+    business_profile = db.relationship('BusinessProfile', back_populates='user', uselist=False)
 
 class UserProfile(db.Model):
     __tablename__ = 'user_profiles'

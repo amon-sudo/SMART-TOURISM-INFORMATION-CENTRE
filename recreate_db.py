@@ -1,8 +1,8 @@
 from app import create_app
 from app.extensions import db
-from app.user_settings.models.models import User
-
 app = create_app()
+
+from app.user_settings.models.models import User
 
 def recreate_and_seed():
     with app.app_context():
