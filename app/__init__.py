@@ -4,6 +4,8 @@ from flask import Flask, jsonify
 # pyrefly: ignore [missing-import]
 from dotenv import load_dotenv
 from app.extensions import db, migrate, jwt
+from app.Business import register_business_blueprints
+from app.Business.errors_handling import register_business_error_handlers
 
 # Load environment variables
 load_dotenv()
@@ -21,7 +23,11 @@ def create_app():
     migrate.init_app(app, db)
     jwt.init_app(app)
 
-    # Blueprints
+    # Business Blueprints
+    register_business_blueprints(app)
+    register_business_error_handlers(app)
+
+    # User Settings Blueprints
     from app.user_settings.views.views import user_settings_bp
     app.register_blueprint(user_settings_bp, url_prefix='/api/v1')
 
