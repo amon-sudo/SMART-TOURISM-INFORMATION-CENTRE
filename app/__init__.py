@@ -14,7 +14,9 @@ def create_app():
     app = Flask(__name__)
 
     # Config
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///test.db")
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+    if not app.config["SQLALCHEMY_DATABASE_URI"]:
+        raise ValueError("No DATABASE_URL set for the application")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "change-this-in-production")
 
