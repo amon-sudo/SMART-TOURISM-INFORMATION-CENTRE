@@ -1,12 +1,16 @@
 import os
 from dotenv import load_dotenv
-from flask_migrate import Migrate
-from app import create_app, extensions
+from app import create_app
 
+# Load environment variables
 load_dotenv()
 
+# Create the app instance
 app = create_app()
-migrate = Migrate(app, extensions.db)
 
-if __name__ == "__main__":
+if  __name__== "__main__":
+    with app.app_context():
+        from app.extensions import db
+        db.create_all()
+        print("Database tables created/verified.")
     app.run(debug=True)

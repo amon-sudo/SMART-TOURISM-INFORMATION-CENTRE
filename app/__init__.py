@@ -1,7 +1,7 @@
 import os
 from flask import Flask
 from dotenv import load_dotenv
-from app.utils import extensions
+from app import extensions
 from app.routes.payment_routesmpesa import payment_mpesa_bp
 
 def create_app():
@@ -18,8 +18,7 @@ def create_app():
     extensions.migrate.init_app(app, extensions.db)
     extensions.jwt.init_app(app)
 
-    # Register blueprints (only here)
+    # Register blueprints
     app.register_blueprint(payment_mpesa_bp, url_prefix="/api/payments")
 
     return app
-

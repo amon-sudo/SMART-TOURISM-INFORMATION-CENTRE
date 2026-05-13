@@ -1,5 +1,5 @@
 import uuid
-from app.utils.extensions import db
+from app.extensions import db
 from app.models.payment_mpesa import PaymentMpesa
 from app.utils.gateway_clientmpesa import stk_push
 
