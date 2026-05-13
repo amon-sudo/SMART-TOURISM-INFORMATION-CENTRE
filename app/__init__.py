@@ -1,4 +1,4 @@
-from app.user_settings.models import models
+from app.user_settings import models  # noqa: F401 - Ensures models are registered with SQLAlchemy
 import os
 from flask import Flask, jsonify
 # pyrefly: ignore [missing-import]
@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 from app.extensions import db, migrate, jwt
 from app.Business import register_business_blueprints
 from app.Business.errors_handling import register_business_error_handlers
-# from app.routes.rbac import rbac_bp
 
 # Load environment variables
 load_dotenv()
@@ -24,9 +23,11 @@ def create_app():
     migrate.init_app(app, db)
     jwt.init_app(app)
 
+    # Business Blueprints
     register_business_blueprints(app)
     register_business_error_handlers(app)
-    # Blueprints
+
+    # User Settings Blueprints
     from app.user_settings.views.views import user_settings_bp
     app.register_blueprint(user_settings_bp, url_prefix='/api/v1')
 
@@ -44,11 +45,6 @@ def create_app():
     @app.errorhandler(500)
     def internal_error(e):
         return ApiResponse.error(message="An internal server error occurred", code="INTERNAL_ERROR", status_code=500)
-    from app.user_settings.views.views import user_settings_bp
-# app.register_blueprint(rbac_bp)
-    app.register_blueprint(user_settings_bp, url_prefix='/api/v1')
-    # Register blueprints
-    app.register_blueprint(rbac_bp, url_prefix="/api/v1")
 
     @app.route("/api/v1/health", methods=["GET"])
     def health():
