@@ -1,3 +1,4 @@
+from app.user_settings import models  # noqa: F401 - Ensures models are registered with SQLAlchemy
 import os
 from flask import Flask
 from dotenv import load_dotenv
@@ -32,6 +33,10 @@ def create_app():
         os.getenv("DATABASE_URL", "sqlite:///test.db")
     )
 
+    # Config
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+    if not app.config["SQLALCHEMY_DATABASE_URI"]:
+        raise ValueError("No DATABASE_URL set for the application")
     # Config: PostgreSQL connection
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
         "DATABASE_URL",
@@ -64,6 +69,11 @@ def create_app():
     migrate.init_app(app, db)
     jwt.init_app(app)
 
+    # Business Blueprints
+    register_business_blueprints(app)
+    register_business_error_handlers(app)
+
+    # User Settings Blueprints
     
     # REGISTER TOURISM MODULES
     
@@ -136,6 +146,11 @@ def create_app():
 
     @app.errorhandler(500)
     def internal_error(e):
+        return ApiResponse.error(message="An internal server error occurred", code="INTERNAL_ERROR", status_code=500)
+
+    @app.route("/api/v1/health", methods=["GET"])
+    def health():
+        return jsonify({"status": "ok", "version": "1.0.0"}), 200
         return ApiResponse.error(
             message="An internal server error occurred",
             code="INTERNAL_ERROR",
