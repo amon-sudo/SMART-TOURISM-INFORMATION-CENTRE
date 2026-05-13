@@ -164,4 +164,3 @@ def delete_business_profile(user_id: uuid.UUID, profile_id: uuid.UUID) -> bool:
     profile.updated_at = datetime.now(timezone.utc)
     db.session.commit()
     return True
- 

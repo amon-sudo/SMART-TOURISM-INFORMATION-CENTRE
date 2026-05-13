@@ -80,6 +80,3 @@ class BusinessRegistrationRepository:
         except SQLAlchemyError as sae:
             db.session.rollback()
             raise sae
-    
-    
-        

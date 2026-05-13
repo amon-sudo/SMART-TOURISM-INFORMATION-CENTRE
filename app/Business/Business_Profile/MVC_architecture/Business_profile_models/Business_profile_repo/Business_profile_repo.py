@@ -65,3 +65,4 @@ class BusinessProfileRepository:
     def search_business_profiles_by_name(self, search_query):
         return BusinessProfile.query.filter(BusinessProfile.business_name.ilike(f"%{search_query}%")).all()
     
+    
