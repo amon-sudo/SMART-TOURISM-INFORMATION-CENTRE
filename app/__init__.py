@@ -1,3 +1,4 @@
+from app.user_settings import models  # noqa: F401 - Ensures models are registered with SQLAlchemy
 import os
 from flask import Flask, jsonify
 from dotenv import load_dotenv
@@ -21,9 +22,11 @@ def create_app():
     migrate.init_app(app, db)
     jwt.init_app(app)
 
+    # Business Blueprints
     register_business_blueprints(app)
     register_business_error_handlers(app)
 
+    # User Settings Blueprints
     from app.user_settings.views.views import user_settings_bp
     app.register_blueprint(user_settings_bp, url_prefix='/api/v1')
 
