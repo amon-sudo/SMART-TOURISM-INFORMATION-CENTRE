@@ -29,7 +29,7 @@ def process_payment(data):
 def check_status(reference):
     payment = PaymentMpesa.query.filter_by(reference=reference).first()
     if not payment:
-        return {"error": "Payment not found"}
+        raise Exception("Payment not found")
     return {"reference": payment.reference, "status": payment.status}
 
 def handle_callback(callback_data):
@@ -37,8 +37,10 @@ def handle_callback(callback_data):
     result_code = callback_data.get("Body", {}).get("stkCallback", {}).get("ResultCode")
 
     payment = PaymentMpesa.query.filter_by(checkout_request_id=checkout_id).first()
-    if payment:
-        payment.status = "success" if result_code == 0 else "failed"
-        db.session.commit()
+    if not payment:
+        raise Exception("Payment not found")
 
-    return {"checkout_request_id": checkout_id, "status": payment.status if payment else "not found"}
+    payment.status = "success" if result_code == 0 else "failed"
+    db.session.commit()
+
+    return {"checkout_request_id": checkout_id, "status": payment.status}
