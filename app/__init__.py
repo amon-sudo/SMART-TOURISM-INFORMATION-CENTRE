@@ -19,7 +19,6 @@ from app.utils.responses import ApiResponse
 # Ensure models are registered with SQLAlchemy
 from app.user_settings import models as user_settings_models # noqa: F401
 from app.tourism_amenitties import models as tourism_models # noqa: F401
-from app.utils import stubs as stubs_models # noqa: F401
 
 # Load environment variables
 load_dotenv()

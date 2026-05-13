@@ -10,13 +10,11 @@ PASSKEY = os.getenv("MPESA_PASSKEY")
 SHORTCODE = os.getenv("MPESA_SHORTCODE")
 CALLBACK_URL = os.getenv("MPESA_CALLBACK_URL")
 
-# Validate env vars helper
-def _validate_mpesa_config():
-    if not all([CONSUMER_KEY, CONSUMER_SECRET, PASSKEY, SHORTCODE, CALLBACK_URL]):
-        raise RuntimeError("Missing required M-Pesa environment variables in .env")
+# Validate env vars at load
+if not all([CONSUMER_KEY, CONSUMER_SECRET, PASSKEY, SHORTCODE, CALLBACK_URL]):
+    raise RuntimeError("Missing required M-Pesa environment variables")
 
 def get_access_token():
-    _validate_mpesa_config()
     response = requests.get(
         f"{DARAJA_BASE_URL}/oauth/v1/generate?grant_type=client_credentials",
         auth=(CONSUMER_KEY, CONSUMER_SECRET),
