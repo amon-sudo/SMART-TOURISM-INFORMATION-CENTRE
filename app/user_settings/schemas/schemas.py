@@ -2,7 +2,7 @@ from marshmallow import Schema, fields
 
 class UserProfileSchema(Schema):
     id = fields.Integer(dump_only=True)
-    user_id = fields.Integer(required=True)
+    user_id = fields.UUID(required=True)
     full_name = fields.String()
     bio = fields.String()
     profile_picture = fields.String()
@@ -15,7 +15,7 @@ class UserProfileSchema(Schema):
 
 class UserAccessibilitySchema(Schema):
     id = fields.Integer(dump_only=True)
-    user_id = fields.Integer(required=True)
+    user_id = fields.UUID(required=True)
     accessibility_preference = fields.String()
     font_size = fields.Integer()
     voice_navigation = fields.Boolean()
@@ -27,7 +27,7 @@ class UserAccessibilitySchema(Schema):
 
 class UserNotificationSchema(Schema):
     id = fields.Integer(dump_only=True)
-    user_id = fields.Integer(required=True)
+    user_id = fields.UUID(required=True)
     language_preference = fields.String()
     email_alerts = fields.Boolean()
     push_notifications = fields.Boolean()
@@ -41,7 +41,7 @@ class UserNotificationSchema(Schema):
 
 class UserPreferenceSchema(Schema):
     id = fields.Integer(dump_only=True)
-    user_id = fields.Integer(required=True)
+    user_id = fields.UUID(required=True)
     stay_duration_days = fields.Integer()
     budget_level = fields.String()
     pace = fields.String()
@@ -50,7 +50,7 @@ class UserPreferenceSchema(Schema):
 
 class UserBehaviorEmbeddingSchema(Schema):
     id = fields.Integer(dump_only=True)
-    user_id = fields.Integer(required=True)
+    user_id = fields.UUID(required=True)
     embedding_model = fields.String()
     embedding_version = fields.Integer()
     last_updated_at = fields.DateTime(dump_only=True)
