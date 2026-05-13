@@ -1,11 +1,10 @@
 from datetime import datetime
 from app.extensions import db
+from app.utils.base_model import BaseUUIDModel
 
-class User(db.Model):
+class User(BaseUUIDModel):
     __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships
     profile = db.relationship('UserProfile', backref='user', uselist=False)
@@ -13,11 +12,12 @@ class User(db.Model):
     notifications = db.relationship('UserNotification', backref='user', uselist=False)
     preferences = db.relationship('UserPreference', backref='user', uselist=False)
     embeddings = db.relationship('UserBehaviorEmbedding', backref='user', uselist=False)
+    business_profile = db.relationship('BusinessProfile', back_populates='user', uselist=False)
 
 class UserProfile(db.Model):
     __tablename__ = 'user_profiles'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Uuid(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
     full_name = db.Column(db.String(100))
     bio = db.Column(db.Text)
     profile_picture = db.Column(db.String(255))
@@ -31,7 +31,7 @@ class UserProfile(db.Model):
 class UserAccessibility(db.Model):
     __tablename__ = 'user_accessibility'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Uuid(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
     accessibility_preference = db.Column(db.String(50)) # e.g., 'Screen Reader', 'High Contrast'
     font_size = db.Column(db.Integer, default=14)
     voice_navigation = db.Column(db.Boolean, default=False)
@@ -44,7 +44,7 @@ class UserAccessibility(db.Model):
 class UserNotification(db.Model):
     __tablename__ = 'user_notifications'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Uuid(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
     language_preference = db.Column(db.String(10), default='en')
     email_alerts = db.Column(db.Boolean, default=True)
     push_notifications = db.Column(db.Boolean, default=True)
@@ -59,7 +59,7 @@ class UserNotification(db.Model):
 class UserPreference(db.Model):
     __tablename__ = 'user_preferences'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Uuid(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
     stay_duration_days = db.Column(db.Integer)
     budget_level = db.Column(db.String(20))
     pace = db.Column(db.String(20))
@@ -69,7 +69,7 @@ class UserPreference(db.Model):
 class UserBehaviorEmbedding(db.Model):
     __tablename__ = 'user_behavior_embeddings'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Uuid(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
     embedding = db.Column(db.PickleType)
     embedding_model = db.Column(db.String(100))
     embedding_version = db.Column(db.Integer)
@@ -78,7 +78,7 @@ class UserBehaviorEmbedding(db.Model):
 class RefreshToken(db.Model):
     __tablename__ = 'refresh_tokens'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id = db.Column(db.Uuid(as_uuid=True), db.ForeignKey('users.id'))
     token = db.Column(db.String, unique=True, nullable=False)
     revoked = db.Column(db.Boolean, default=False)
     expires_at = db.Column(db.DateTime, nullable=False)
@@ -86,7 +86,7 @@ class RefreshToken(db.Model):
 class PasswordReset(db.Model):
     __tablename__ = 'password_resets'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id = db.Column(db.Uuid(as_uuid=True), db.ForeignKey('users.id'))
     token = db.Column(db.String(255), unique=True, nullable=False)
     expires_at = db.Column(db.DateTime, nullable=False)
     used_at = db.Column(db.DateTime)

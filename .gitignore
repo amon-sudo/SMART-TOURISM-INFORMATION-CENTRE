@@ -21,9 +21,15 @@ htmlcov/
 .env-example
 venv
 *.pyc
-
+instance/
 __pycache__/
 migrations/
+instance/
+
+.vscode/
+
+amo.rest
+
 *.db
 <migrations/
 *.db

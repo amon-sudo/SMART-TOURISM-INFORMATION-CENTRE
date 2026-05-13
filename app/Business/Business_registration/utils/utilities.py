@@ -1,10 +1,11 @@
-
 from __future__ import annotations
 
 import math
+import os
 from functools import wraps
 from typing import Any
 
+from flask import request
 from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
 from sqlalchemy import select
 
@@ -114,13 +115,37 @@ def user_has_role(user_id, role_name: str) -> bool:
         return False
 
 
+def _auth_disabled() -> bool:
+    return os.getenv("DISABLE_AUTH", "false").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _dev_user_id() -> str:
+    return request.headers.get("X-User-Id", "00000000-0000-0000-0000-000000000001")
+
+
+def jwt_or_dev_required():
+    """Route decorator - enforce JWT unless DISABLE_AUTH=true."""
+    def decorator(fn):
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            if _auth_disabled():
+                return fn(*args, **kwargs)
+            verify_jwt_in_request()
+            return fn(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
 def role_required(role_name: str):
     """Route decorator – requires the JWT user to have *role_name*."""
     def decorator(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):
+            if _auth_disabled():
+                return fn(*args, **kwargs)
+
             verify_jwt_in_request()
-            uid = get_jwt_identity()
+            uid = get_jwt_identity() or _dev_user_id()
             if not user_has_role(uid, role_name):
                 return error_response(
                     f"Role '{role_name}' required.",
@@ -138,8 +163,11 @@ def admin_required():
     def decorator(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):
+            if _auth_disabled():
+                return fn(*args, **kwargs)
+
             verify_jwt_in_request()
-            uid = get_jwt_identity()
+            uid = get_jwt_identity() or _dev_user_id()
             if not user_has_role(uid, "admin"):
                 return error_response(
                     "Admin access required.",
@@ -150,4 +178,3 @@ def admin_required():
             return fn(*args, **kwargs)
         return wrapper
     return decorator
-
