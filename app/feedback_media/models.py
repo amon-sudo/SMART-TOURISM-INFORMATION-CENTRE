@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+import os
 
 from sqlalchemy import Index, UniqueConstraint
 from app.extensions import db
@@ -11,11 +12,16 @@ try:
 except Exception:
     UUID_TYPE = db.String(36)
 
-# Try to import Geography from geoalchemy2; fallback to Text if unavailable
-try:
-    from geoalchemy2 import Geography
-    GEOGRAPHY_AVAILABLE = True
-except Exception:
+# PostGIS geography is disabled by default for local SQLite smoke tests.
+USE_POSTGIS = os.getenv("USE_POSTGIS", "false").strip().lower() in {"1", "true", "yes", "on"}
+if USE_POSTGIS:
+    try:
+        from geoalchemy2 import Geography
+        GEOGRAPHY_AVAILABLE = True
+    except Exception:
+        Geography = None
+        GEOGRAPHY_AVAILABLE = False
+else:
     Geography = None
     GEOGRAPHY_AVAILABLE = False
 

@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy.exc import IntegrityError
+import uuid
 
-from extensions import db
+from app.extensions import db
 
 from app.tourism_amenitties.attraction_amenities.models.attraction_amenities import AttractionAmenity
 
@@ -40,8 +41,8 @@ def create_attraction_amenity():
             }), 400
 
         existing_relation = AttractionAmenity.query.filter_by(
-            attraction_id=data["attraction_id"],
-            amenity_id=data["amenity_id"]
+            attraction_id=uuid.UUID(str(data["attraction_id"])),
+            amenity_id=uuid.UUID(str(data["amenity_id"]))
         ).first()
 
         if existing_relation:
@@ -51,8 +52,8 @@ def create_attraction_amenity():
             }), 409
 
         attraction_amenity = AttractionAmenity(
-            attraction_id=data["attraction_id"],
-            amenity_id=data["amenity_id"]
+            attraction_id=uuid.UUID(str(data["attraction_id"])),
+            amenity_id=uuid.UUID(str(data["amenity_id"]))
         )
 
         db.session.add(attraction_amenity)

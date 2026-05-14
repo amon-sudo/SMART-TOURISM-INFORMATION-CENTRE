@@ -6,7 +6,7 @@ from .models import Review, MediaGallery, EmergencyContact
 class ReviewSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Review
-        load_instance = True
+        load_instance = False
         include_fk = True
         ordered = True
 
@@ -23,7 +23,7 @@ class ReviewSchema(ma.SQLAlchemyAutoSchema):
 class MediaGallerySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = MediaGallery
-        load_instance = True
+        load_instance = False
         ordered = True
 
     id = fields.UUID(dump_only=True)
@@ -38,7 +38,7 @@ class MediaGallerySchema(ma.SQLAlchemyAutoSchema):
 class EmergencyContactSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = EmergencyContact
-        load_instance = True
+        load_instance = False
         include_fk = True
         ordered = True
 

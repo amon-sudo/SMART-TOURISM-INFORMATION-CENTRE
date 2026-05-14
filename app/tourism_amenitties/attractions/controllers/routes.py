@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy.exc import IntegrityError
+import uuid
 
-from extensions import db, cache
+from app.extensions import db, cache
 
 from app.tourism_amenitties.attractions.models.attraction import Attraction
 from app.tourism_amenitties.attractions.schemas.attraction import AttractionSchema
@@ -39,8 +40,8 @@ def create_attraction():
             }), 400
 
         attraction = Attraction(
-            destination_id=data["destination_id"],
-            business_owner_id=data["business_owner_id"],
+            destination_id=uuid.UUID(str(data["destination_id"])),
+            business_owner_id=uuid.UUID(str(data["business_owner_id"])),
             name=data["name"],
             description=data.get("description"),
             category=data.get("category"),

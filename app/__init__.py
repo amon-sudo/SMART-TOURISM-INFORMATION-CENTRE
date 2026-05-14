@@ -1,180 +1,198 @@
-# app/__init__.py
+from __future__ import annotations
 
 import os
 from logging.config import dictConfig
+
+from dotenv import load_dotenv
 from flask import Flask, jsonify
 from flask_cors import CORS
-from dotenv import load_dotenv
 from sqlalchemy import text
 
-from app.extensions import db, migrate, jwt, ma
-from app.routes.payment_routesmpesa import payment_mpesa_bp
-from app.routes.rbac import rbac_bp
 from app.Business import register_business_blueprints
-from app.Business.errors_handling import register_business_error_handlers
-from app.rbac.controllers.routes.role_routes import role_bp
+from app.audit.controllers.routes.audit_log_routes import audit_bp
+from app.extensions import cache, db, jwt, ma, migrate
+from app.feedback_media import feedback_bp
+from app.payment_stripe.controllers.controllers import payment_stripe_bp
 from app.rbac.controllers.routes.permission_routes import permission_bp
+from app.rbac.controllers.routes.role_routes import role_bp
+from app.routes.payment_routesmpesa import payment_mpesa_bp
 from app.tourism_amenitties import register_blueprints as register_tourism_blueprints
+from app.tourism_amenitties import redis_configure
 from app.user_settings.views.views import user_settings_bp
-from app.utils.responses import ApiResponse
-
-# Ensure models are registered with SQLAlchemy
-from app.user_settings import models as user_settings_models  # noqa: F401
-from app.tourism_amenitties import models as tourism_models   # noqa: F401
 
 load_dotenv()
 
 
 class Config:
-    SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI", "sqlite:///dev.db")
-    SQLALCHEMY_TRACK_MODIFICATIONS = os.getenv(
-        "SQLALCHEMY_TRACK_MODIFICATIONS", "False"
-    ).lower() in ("1", "true", "yes")
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        "DATABASE_URL",
+        os.getenv("SQLALCHEMY_DATABASE_URI", "sqlite:///dev.db"),
+    )
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret")
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "jwt-secret")
     PROPAGATE_EXCEPTIONS = True
     JSON_SORT_KEYS = False
 
 
-def configure_logging():
-    dictConfig({
-        "version": 1,
-        "formatters": {
-            "default": {"format": "[%(asctime)s] %(levelname)s in %(module)s: %(message)s"}
-        },
-        "handlers": {
-            "wsgi": {
-                "class": "logging.StreamHandler",
-                "stream": "ext://sys.stdout",
-                "formatter": "default"
-            }
-        },
-        "root": {"level": os.getenv("LOG_LEVEL", "INFO"), "handlers": ["wsgi"]}
-    })
+def configure_logging() -> None:
+    dictConfig(
+        {
+            "version": 1,
+            "formatters": {
+                "default": {
+                    "format": "[%(asctime)s] %(levelname)s in %(module)s: %(message)s"
+                }
+            },
+            "handlers": {
+                "wsgi": {
+                    "class": "logging.StreamHandler",
+                    "stream": "ext://sys.stdout",
+                    "formatter": "default",
+                }
+            },
+            "root": {"level": os.getenv("LOG_LEVEL", "INFO"), "handlers": ["wsgi"]},
+        }
+    )
 
 
-def register_blueprints(flask_app):
-    """Register blueprints safely to avoid circular imports."""
+def register_blueprints(flask_app: Flask) -> None:
+    """Register all application blueprints."""
     try:
-        # Core modules
         flask_app.register_blueprint(payment_mpesa_bp, url_prefix="/api/payments")
+        flask_app.register_blueprint(payment_stripe_bp, url_prefix="/api/v1/payments/stripe")
         register_business_blueprints(flask_app)
-        register_business_error_handlers(flask_app)
         register_tourism_blueprints(flask_app)
         flask_app.register_blueprint(user_settings_bp, url_prefix="/api/v1")
-        flask_app.register_blueprint(rbac_bp)
         flask_app.register_blueprint(role_bp)
         flask_app.register_blueprint(permission_bp)
-
-        # Feedback & Media
-        from app.feedback_media import feedback_bp
+        flask_app.register_blueprint(audit_bp)
         flask_app.register_blueprint(feedback_bp)
-
         flask_app.logger.info("Registered all blueprints successfully")
     except Exception as exc:
         flask_app.logger.exception("Failed to register blueprints: %s", exc)
 
 
-def register_error_handlers(flask_app):
+def register_error_handlers(flask_app: Flask) -> None:
     from werkzeug.exceptions import HTTPException
 
     @flask_app.errorhandler(HTTPException)
-    def handle_http_exception(e):
-        return jsonify({"error": e.name, "message": e.description}), e.code
+    def handle_http_exception(error):
+        return jsonify({"error": error.name, "message": error.description}), error.code
 
     @flask_app.errorhandler(404)
-    def not_found(e):
-        return ApiResponse.error(message="Resource not found", code="NOT_FOUND", status_code=404)
+    def not_found(error):
+        return jsonify({"error": "not_found", "message": "Resource not found"}), 404
 
     @flask_app.errorhandler(500)
-    def handle_500(e):
+    def handle_500(error):
         flask_app.logger.exception("Unhandled exception")
-        return jsonify({
-            "error": "internal_server_error",
-            "message": "An internal error occurred"
-        }), 500
+        return jsonify(
+            {"error": "internal_server_error", "message": "An internal error occurred"}
+        ), 500
 
 
 def create_app(config_class=Config):
     """Application factory. Returns a configured Flask app instance."""
     configure_logging()
-    flask_app = Flask(__name__, instance_relative_config=False)
-    flask_app.config.from_object(config_class)
 
-    # Initialize extensions
-    db.init_app(flask_app)
-    migrate.init_app(flask_app, db)
-    jwt.init_app(flask_app)
-    ma.init_app(flask_app)
-
-    # Enable CORS
-    CORS(flask_app, resources={r"/api/*": {"origins": "*"}})
-
-    # Import models so Alembic sees them
-    import app.feedback_media.models
-
-    # Register blueprints and error handlers
-    register_blueprints(flask_app)
-    register_error_handlers(flask_app)
-
-    @flask_app.route("/api/v1/health", methods=["GET"])
-from dotenv import load_dotenv
-from app.extensions import db, migrate, jwt
-from app.rbac.controllers.routes.role_routes import role_bp
-from app.rbac.controllers.routes.permission_routes import permission_bp
-from app.audit.controllers.routes.audit_log_routes import audit_bp
-from app.tourism_amenitties import  redis_configure
-from app.user_settings import models  # noqa: F401
-
-load_dotenv()
-
-
-def create_app():
-    app = Flask(__name__)
-    
-    
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
-    "POSTGRES_URI",
-    os.getenv("DATABASE_URL", "sqlite:///test.db")
-)
-
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///test.db")
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "change-this-in-production")
+    app = Flask(__name__, instance_relative_config=False)
+    app.config.from_object(config_class)
 
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
-    #  redis init
-    redis_configure(app) 
+    ma.init_app(app)
 
-    app.register_blueprint(role_bp)
-    app.register_blueprint(permission_bp)
-    app.register_blueprint(audit_bp)
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    redis_configure(app)
+    cache.init_app(app)
+
+    # Import representative models so migrations and metadata see them.
+    from app.feedback_media import models as feedback_media_models  # noqa: F401
+    from app.tourism_amenitties import models as tourism_models  # noqa: F401
+    from app.user_settings import models as user_settings_models  # noqa: F401
+
+    with app.app_context():
+        # Ensure missing tables exist in local development DBs.
+        db.create_all()
+
+        # Lightweight sqlite compatibility for historical schema drift.
+        if db.engine.dialect.name == "sqlite":
+            conn = db.session.connection()
+
+            def has_column(table_name: str, column_name: str) -> bool:
+                rows = conn.execute(text(f"PRAGMA table_info({table_name})")).fetchall()
+                return any(row[1] == column_name for row in rows)
+
+            def column_type(table_name: str, column_name: str) -> str | None:
+                rows = conn.execute(text(f"PRAGMA table_info({table_name})")).fetchall()
+                for row in rows:
+                    if row[1] == column_name:
+                        return str(row[2]).upper()
+                return None
+
+            # Migrate legacy integer users.id to UUID-text style for current models.
+            if column_type("users", "id") == "INTEGER":
+                conn.execute(text("PRAGMA foreign_keys=OFF"))
+                conn.execute(
+                    text(
+                        """
+                        CREATE TABLE IF NOT EXISTS users_new (
+                            id VARCHAR(36) PRIMARY KEY,
+                            email VARCHAR(255) NOT NULL UNIQUE,
+                            password_hash VARCHAR(255),
+                            created_at DATETIME,
+                            updated_at DATETIME
+                        )
+                        """
+                    )
+                )
+                conn.execute(
+                    text(
+                        """
+                        INSERT INTO users_new (id, email, password_hash, created_at, updated_at)
+                        SELECT lower(hex(randomblob(16))), email, password_hash, created_at, updated_at
+                        FROM users
+                        """
+                    )
+                )
+                conn.execute(text("DROP TABLE users"))
+                conn.execute(text("ALTER TABLE users_new RENAME TO users"))
+                conn.execute(text("PRAGMA foreign_keys=ON"))
+
+            if has_column("users", "id") and not has_column("users", "password_hash"):
+                conn.execute(text("ALTER TABLE users ADD COLUMN password_hash VARCHAR(255)"))
+
+            if has_column("users", "id") and not has_column("users", "updated_at"):
+                conn.execute(text("ALTER TABLE users ADD COLUMN updated_at DATETIME"))
+
+            if has_column("destinations", "id") and not has_column("destinations", "canonical_name"):
+                conn.execute(text("ALTER TABLE destinations ADD COLUMN canonical_name VARCHAR"))
+
+            if has_column("destinations", "id") and not has_column("destinations", "slug"):
+                conn.execute(text("ALTER TABLE destinations ADD COLUMN slug VARCHAR"))
+
+            if has_column("destinations", "id") and not has_column("destinations", "updated_at"):
+                conn.execute(text("ALTER TABLE destinations ADD COLUMN updated_at DATETIME"))
+
+            db.session.commit()
+
+    register_blueprints(app)
+    register_error_handlers(app)
+
     @app.route("/api/v1/health", methods=["GET"])
-     # Debugging line to check registered routes
     def health():
-        return jsonify({
-            "status": "ok",
-            "version": "1.0.0",
-            "message": "Smart Tourism API is running"
-        }), 200
+        return jsonify({"status": "ok", "message": "Smart Tourism API is running"}), 200
 
-    @flask_app.route("/db-test")
+    @app.route("/db-test")
     def db_test():
         try:
+            from sqlalchemy import text
+
             db.session.execute(text("SELECT 1"))
-            return {"db": "connected"}
-        except Exception as e:
-            return {"db": "error", "message": str(e)}, 500
+            return jsonify({"db": "connected"})
+        except Exception as exc:
+            return jsonify({"db": "error", "message": str(exc)}), 500
 
-    @flask_app.cli.command("create-tables")
-    def create_tables():
-        """Create DB tables (development only). Prefer migrations for production."""
-        with flask_app.app_context():
-            import app.feedback_media.models  # ensure all models are loaded
-            db.create_all()
-            print("Database tables created/verified.")
-
-    return flask_app
     return app

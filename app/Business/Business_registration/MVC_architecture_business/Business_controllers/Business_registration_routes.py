@@ -1,9 +1,5 @@
 from flask import Blueprint, jsonify, request
-<<<<<<< HEAD
 from app.Business.Business_registration.utils.utilities import jwt_or_dev_required
-=======
-from flask_jwt_extended import jwt_required
->>>>>>> development
 
 
 from ..Business_controllers.Business_controllers import (

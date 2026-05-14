@@ -4,7 +4,17 @@ from geoalchemy2.shape import from_shape
 from shapely.geometry import Point
 from .models import Review, MediaGallery, EmergencyContact
 
+
+def _as_dict(payload):
+    if isinstance(payload, dict):
+        return payload
+    try:
+        return payload.__dict__
+    except Exception:
+        raise TypeError("Payload must be a dictionary-like object")
+
 def create_review(payload: dict) -> Review:
+    payload = _as_dict(payload)
     review = Review(
         tourist_id=payload["tourist_id"],
         target_type=payload["target_type"],
@@ -22,6 +32,7 @@ def create_review(payload: dict) -> Review:
     return review
 
 def add_media(payload: dict) -> MediaGallery:
+    payload = _as_dict(payload)
     target_type = payload["target_type"]
     target_id = payload["target_id"]
     is_primary = bool(payload.get("is_primary", False))
@@ -51,6 +62,7 @@ def add_media(payload: dict) -> MediaGallery:
     return media
 
 def add_contact(payload: dict) -> EmergencyContact:
+    payload = _as_dict(payload)
     # Accept location as "POINT(lon lat)" or "lon,lat"
     loc = payload.get("location")
     geo = None
@@ -65,7 +77,10 @@ def add_contact(payload: dict) -> EmergencyContact:
             lon = float(lon_str)
             lat = float(lat_str)
             point = Point(lon, lat)
-            geo = from_shape(point, srid=4326)  # geoalchemy2 object
+            try:
+                geo = from_shape(point, srid=4326)  # geoalchemy2 object
+            except Exception:
+                geo = f"POINT({lon} {lat})"
 
     contact = EmergencyContact(
         destination_id=payload["destination_id"],

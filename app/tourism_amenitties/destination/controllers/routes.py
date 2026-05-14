@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy.exc import IntegrityError
+from datetime import datetime
 
-from extensions import db, cache
+from app.extensions import db, cache
 
 from app.tourism_amenitties.destination.models.destination import Destination
 from app.tourism_amenitties.destination.schemas.destination import DestinationSchema
@@ -52,6 +53,13 @@ def create_destination():
             canonical_name=data["canonical_name"],
             slug=data["slug"]
         )
+        # Compatibility with older destinations table shape.
+        if hasattr(destination, "name"):
+            destination.name = data["canonical_name"]
+        if hasattr(destination, "created_at") and destination.created_at is None:
+            destination.created_at = datetime.utcnow()
+        if hasattr(destination, "updated_at") and destination.updated_at is None:
+            destination.updated_at = datetime.utcnow()
 
         db.session.add(destination)
         db.session.commit()

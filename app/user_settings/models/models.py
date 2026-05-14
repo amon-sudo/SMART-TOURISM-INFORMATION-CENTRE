@@ -4,6 +4,7 @@ from app.utils.base_model import BaseUUIDModel
 
 class User(BaseUUIDModel):
     __tablename__ = 'users'
+    __table_args__ = {'extend_existing': True}
     email = db.Column(db.String(120), unique=True, nullable=False)
     
     # Relationships

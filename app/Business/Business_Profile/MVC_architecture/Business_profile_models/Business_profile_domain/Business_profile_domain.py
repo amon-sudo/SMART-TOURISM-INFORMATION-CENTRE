@@ -31,7 +31,11 @@ class BusinessProfile(db.Model):
     )
 
     #relationships
-    user = db.relationship("User", back_populates="business_profile", uselist=False)
+    user = db.relationship(
+        "app.user_settings.models.models.User",
+        back_populates="business_profile",
+        uselist=False,
+    )
     registration_request = db.relationship("BusinessRegistrationRequest", back_populates="business_profile", uselist=False)
     # # MISSING MEDIA TABLE - COMMENTED OUT (relationship to non-existent Media model)
     # media = db.relationship("Media", back_populates="business_profile", uselist=False)

@@ -7,19 +7,21 @@ jinja2 = "==3.1.6"
 markupsafe = "==3.0.3"
 python-dotenv = "==1.2.2"
 werkzeug = "==3.1.8"
-
 # Core ORM and extensions
 sqlalchemy = "*"
 flask-sqlalchemy = "*"
 flask-migrate = "*"
 flask-jwt-extended = "*"
-
+flask-cors = "*"
 # Database drivers and helpers
 psycopg2-binary = "*"
 geoalchemy = "*"
 alembic = "*"
-
 # Serialization
 marshmallow = "*"
-alembic = "*"
 requests = "*"
+flask-marshmallow = "*"
+flask-caching = "*"
+marshmallow-sqlalchemy = "*"
+shapely = "*"
+stripe = "*"

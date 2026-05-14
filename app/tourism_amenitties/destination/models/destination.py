@@ -1,9 +1,10 @@
 import uuid
-from extensions import db
+from app.extensions import db
 
 
 class Destination(db.Model):
     __tablename__ = "destinations"
+    __table_args__ = {"extend_existing": True}
 
     id = db.Column(
         db.UUID(as_uuid=True),

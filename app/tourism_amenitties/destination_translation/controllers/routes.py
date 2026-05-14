@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy.exc import IntegrityError
+import uuid
 
-from extensions import db
+from app.extensions import db
 
 from app.tourism_amenitties.destination_translation.models.destination_translation import DestinationTranslation
 from app.tourism_amenitties.destination_translation.schemas.destination_translation import DestinationTranslationSchema
@@ -39,7 +40,7 @@ def create_destination_translation():
             }), 400
 
         existing_translation = DestinationTranslation.query.filter_by(
-            destination_id=data["destination_id"],
+            destination_id=uuid.UUID(str(data["destination_id"])),
             locale=data["locale"]
         ).first()
 
@@ -50,7 +51,7 @@ def create_destination_translation():
             }), 409
 
         translation = DestinationTranslation(
-            destination_id=data["destination_id"],
+            destination_id=uuid.UUID(str(data["destination_id"])),
             locale=data["locale"],
             name=data["name"],
             overview=data.get("overview"),

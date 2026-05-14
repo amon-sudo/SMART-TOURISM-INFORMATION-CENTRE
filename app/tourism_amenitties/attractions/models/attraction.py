@@ -1,5 +1,5 @@
 import uuid
-from extensions import db
+from app.extensions import db
 from sqlalchemy.dialects.postgresql import UUID, TSVECTOR
 # from geoalchemy2 import Geography
 
@@ -38,7 +38,7 @@ class Attraction(db.Model):
     
     
     destination = db.relationship(
-    "Destination",
+    "app.tourism_amenitties.destination.models.destination.Destination",
     backref="attractions"
 )
     

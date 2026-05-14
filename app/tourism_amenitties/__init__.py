@@ -40,7 +40,6 @@ def register_blueprints(app):
     
     
 def redis_configure(app):
-    app.config["CACHE_TYPE"] = "RedisCache"
-    app.config["CACHE_REDIS_HOST"] = "localhost"
-    app.config["CACHE_REDIS_PORT"] = 6379
+    # Use a local-safe default cache backend for development and smoke tests.
+    app.config["CACHE_TYPE"] = "SimpleCache"
     app.config["CACHE_DEFAULT_TIMEOUT"] = 300
