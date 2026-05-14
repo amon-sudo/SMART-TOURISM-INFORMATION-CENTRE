@@ -1,14 +1,14 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy.exc import IntegrityError
 
-from extensions import db
+from extensions import db, cache
 
 from app.tourism_amenitties.amenities.models.amenities import Amenity
 from app.tourism_amenitties.amenities.schemas.amenity import AmenitySchema
 
 
-amenity_bp = Blueprint(
-    "amenity_bp",
+amenities_bp = Blueprint(
+    "amenities_bp",
     __name__,
     url_prefix="/api/v1/amenities"
 )
@@ -17,7 +17,10 @@ amenity_schema = AmenitySchema()
 amenities_schema = AmenitySchema(many=True)
 
 
-@amenity_bp.route("/", methods=["POST"])
+# -------------------------
+# CREATE AMENITY (unchanged)
+# -------------------------
+@amenities_bp.route("/", methods=["POST"])
 def create_amenity():
 
     try:
@@ -25,26 +28,21 @@ def create_amenity():
         data = request.get_json()
 
         if not data:
-            return jsonify({
-                "success": False,
-                "error": "No input data provided"
-            }), 400
+            return jsonify({"success": False, "error": "No input data"}), 400
 
         errors = amenity_schema.validate(data)
-
         if errors:
-            return jsonify({
-                "success": False,
-                "errors": errors
-            }), 400
+            return jsonify({"success": False, "errors": errors}), 400
 
         amenity = Amenity(
             name=data["name"],
-            icon_url=data.get("icon_url")
+            description=data.get("description")
         )
 
         db.session.add(amenity)
         db.session.commit()
+
+        cache.clear()  # simple invalidation for now
 
         return jsonify({
             "success": True,
@@ -52,71 +50,94 @@ def create_amenity():
         }), 201
 
     except IntegrityError:
-
         db.session.rollback()
-
-        return jsonify({
-            "success": False,
-            "error": "Database integrity error"
-        }), 400
+        return jsonify({"success": False, "error": "Integrity error"}), 400
 
     except Exception as e:
-
         db.session.rollback()
-
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
-@amenity_bp.route("/", methods=["GET"])
+# -------------------------
+# GET AMENITIES (REDIS + PAGINATION)
+# -------------------------
+@amenities_bp.route("/", methods=["GET"])
 def get_amenities():
 
     try:
 
-        amenities = Amenity.query.all()
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 10, type=int)
 
-        return jsonify({
+        cache_key = f"amenities:list:page:{page}:size:{per_page}"
+
+        cached = cache.get(cache_key)
+        if cached:
+            return jsonify(cached), 200
+
+        pagination = Amenity.query.paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+
+        response = {
             "success": True,
-            "data": amenities_schema.dump(amenities)
-        }), 200
+            "data": amenities_schema.dump(pagination.items),
+            "pagination": {
+                "page": pagination.page,
+                "per_page": pagination.per_page,
+                "total": pagination.total,
+                "pages": pagination.pages,
+                "has_next": pagination.has_next,
+                "has_prev": pagination.has_prev
+            }
+        }
+
+        cache.set(cache_key, response, timeout=300)
+
+        return jsonify(response), 200
 
     except Exception as e:
-
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
-@amenity_bp.route("/<uuid:id>", methods=["GET"])
+# -------------------------
+# GET SINGLE AMENITY (optional cache)
+# -------------------------
+@amenities_bp.route("/<uuid:id>", methods=["GET"])
 def get_amenity(id):
 
     try:
 
+        cache_key = f"amenities:detail:{id}"
+        cached = cache.get(cache_key)
+
+        if cached:
+            return jsonify(cached), 200
+
         amenity = Amenity.query.get(id)
 
         if not amenity:
-            return jsonify({
-                "success": False,
-                "error": "Amenity not found"
-            }), 404
+            return jsonify({"success": False, "error": "Not found"}), 404
 
-        return jsonify({
+        response = {
             "success": True,
             "data": amenity_schema.dump(amenity)
-        }), 200
+        }
+
+        cache.set(cache_key, response, timeout=300)
+
+        return jsonify(response), 200
 
     except Exception as e:
-
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
-@amenity_bp.route("/<uuid:id>", methods=["PATCH"])
+# -------------------------
+# UPDATE (cache invalidation only)
+# -------------------------
+@amenities_bp.route("/<uuid:id>", methods=["PATCH"])
 def update_amenity(id):
 
     try:
@@ -124,24 +145,19 @@ def update_amenity(id):
         amenity = Amenity.query.get(id)
 
         if not amenity:
-            return jsonify({
-                "success": False,
-                "error": "Amenity not found"
-            }), 404
+            return jsonify({"success": False, "error": "Not found"}), 404
 
         data = request.get_json()
 
-        allowed_fields = [
-            "name",
-            "icon_url"
-        ]
+        if "name" in data:
+            amenity.name = data["name"]
 
-        for field in allowed_fields:
-
-            if field in data:
-                setattr(amenity, field, data[field])
+        if "description" in data:
+            amenity.description = data["description"]
 
         db.session.commit()
+
+        cache.clear()  # later we improve this
 
         return jsonify({
             "success": True,
@@ -149,16 +165,14 @@ def update_amenity(id):
         }), 200
 
     except Exception as e:
-
         db.session.rollback()
-
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
-@amenity_bp.route("/<uuid:id>", methods=["DELETE"])
+# -------------------------
+# DELETE
+# -------------------------
+@amenities_bp.route("/<uuid:id>", methods=["DELETE"])
 def delete_amenity(id):
 
     try:
@@ -166,24 +180,18 @@ def delete_amenity(id):
         amenity = Amenity.query.get(id)
 
         if not amenity:
-            return jsonify({
-                "success": False,
-                "error": "Amenity not found"
-            }), 404
+            return jsonify({"success": False, "error": "Not found"}), 404
 
         db.session.delete(amenity)
         db.session.commit()
 
+        cache.clear()
+
         return jsonify({
             "success": True,
-            "message": "Amenity deleted successfully"
+            "message": "Deleted successfully"
         }), 200
 
     except Exception as e:
-
         db.session.rollback()
-
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
