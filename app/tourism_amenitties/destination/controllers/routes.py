@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy.exc import IntegrityError
 
-from extensions import db
+from extensions import db, cache
 
 from app.tourism_amenitties.destination.models.destination import Destination
 from app.tourism_amenitties.destination.schemas.destination import DestinationSchema
@@ -56,6 +56,8 @@ def create_destination():
         db.session.add(destination)
         db.session.commit()
 
+        cache.clear()
+
         return jsonify({
             "success": True,
             "data": destination_schema.dump(destination)
@@ -85,12 +87,37 @@ def get_destinations():
 
     try:
 
-        destinations = Destination.query.all()
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 10, type=int)
 
-        return jsonify({
+        cache_key = f"destinations:{page}:{per_page}"
+
+        cached = cache.get(cache_key)
+        if cached:
+            return jsonify(cached), 200
+
+        pagination = Destination.query.paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+
+        result = {
             "success": True,
-            "data": destinations_schema.dump(destinations)
-        }), 200
+            "data": destinations_schema.dump(pagination.items),
+            "pagination": {
+                "page": page,
+                "per_page": per_page,
+                "total": pagination.total,
+                "pages": pagination.pages,
+                "has_next": pagination.has_next,
+                "has_prev": pagination.has_prev
+            }
+        }
+
+        cache.set(cache_key, result)
+
+        return jsonify(result), 200
 
     except Exception as e:
 
@@ -105,6 +132,12 @@ def get_destination(id):
 
     try:
 
+        cache_key = f"destination:{id}"
+
+        cached = cache.get(cache_key)
+        if cached:
+            return jsonify(cached), 200
+
         destination = Destination.query.get(id)
 
         if not destination:
@@ -113,10 +146,14 @@ def get_destination(id):
                 "error": "Destination not found"
             }), 404
 
-        return jsonify({
+        result = {
             "success": True,
             "data": destination_schema.dump(destination)
-        }), 200
+        }
+
+        cache.set(cache_key, result)
+
+        return jsonify(result), 200
 
     except Exception as e:
 
@@ -153,11 +190,12 @@ def update_destination(id):
         ]
 
         for field in allowed_fields:
-
             if field in data:
                 setattr(destination, field, data[field])
 
         db.session.commit()
+
+        cache.clear()
 
         return jsonify({
             "success": True,
@@ -198,6 +236,8 @@ def delete_destination(id):
 
         db.session.delete(destination)
         db.session.commit()
+
+        cache.clear()
 
         return jsonify({
             "success": True,

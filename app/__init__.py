@@ -1,3 +1,4 @@
+
 import os
 from flask import Flask, jsonify
 from dotenv import load_dotenv
@@ -5,12 +6,20 @@ from app.extensions import db, migrate, jwt
 from app.rbac.controllers.routes.role_routes import role_bp
 from app.rbac.controllers.routes.permission_routes import permission_bp
 from app.audit.controllers.routes.audit_log_routes import audit_bp
+from app.tourism_amenitties import  redis_configure
+from app.user_settings import models  # noqa: F401
 
 load_dotenv()
 
 
 def create_app():
     app = Flask(__name__)
+    
+    
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+    "POSTGRES_URI",
+    os.getenv("DATABASE_URL", "sqlite:///test.db")
+)
 
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///test.db")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -19,6 +28,8 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
+    #  redis init
+    redis_configure(app) 
 
     app.register_blueprint(role_bp)
     app.register_blueprint(permission_bp)
