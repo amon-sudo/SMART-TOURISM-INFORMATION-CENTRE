@@ -23,6 +23,8 @@ venv
 *.pyc
 instance/
 __pycache__/
+migrations/
+instance/
 
 .vscode/
 

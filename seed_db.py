@@ -6,16 +6,16 @@ app = create_app()
 
 def seed_data():
     with app.app_context():
-        # Check if test user exists
-        user = User.query.get(1)
+        # Check if test user exists by email (since IDs are now UUIDs)
+        user = User.query.filter_by(email="test@example.com").first()
         if not user:
-            print("Creating test user with ID 1...")
-            new_user = User(id=1, email="test@example.com")
+            print("Creating test user...")
+            new_user = User(email="test@example.com")
             db.session.add(new_user)
             db.session.commit()
-            print("Test user created successfully.")
+            print(f"Test user created successfully with ID: {new_user.id}")
         else:
-            print("Test user already exists.")
+            print(f"Test user already exists with ID: {user.id}")
 
 if __name__ == "__main__":
     seed_data()
