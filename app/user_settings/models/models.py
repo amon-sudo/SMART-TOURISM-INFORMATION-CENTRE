@@ -1,5 +1,6 @@
 from datetime import datetime
 from app.extensions import db
+from app.Business.Business_Profile.MVC_architecture.Business_profile_models.Business_profile_domain.Business_profile_domain import BusinessProfile
 from app.utils.base_model import BaseUUIDModel
 
 class User(BaseUUIDModel):

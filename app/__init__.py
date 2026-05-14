@@ -119,11 +119,11 @@ def create_app(config_class=Config):
 
     @flask_app.route("/api/v1/health", methods=["GET"])
 from dotenv import load_dotenv
-from app.extensions import db, migrate, jwt
+from app.extensions import db, migrate, jwt, cache
 from app.rbac.controllers.routes.role_routes import role_bp
 from app.rbac.controllers.routes.permission_routes import permission_bp
 from app.audit.controllers.routes.audit_log_routes import audit_bp
-from app.tourism_amenitties import  redis_configure
+from app.tourism_amenitties.registry import  redis_configure, register_blueprints
 from app.user_settings import models  # noqa: F401
 
 load_dotenv()
@@ -134,7 +134,7 @@ def create_app():
     
     
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
-    "POSTGRES_URI",
+    "DATABASE_URL",
     os.getenv("DATABASE_URL", "sqlite:///test.db")
 )
 
@@ -146,11 +146,15 @@ def create_app():
     migrate.init_app(app, db)
     jwt.init_app(app)
     #  redis init
-    redis_configure(app) 
-
+    redis_configure(app)
+    cache.init_app(app)
+    
     app.register_blueprint(role_bp)
     app.register_blueprint(permission_bp)
     app.register_blueprint(audit_bp)
+    register_blueprints(app)
+    
+    
     @app.route("/api/v1/health", methods=["GET"])
      # Debugging line to check registered routes
     def health():

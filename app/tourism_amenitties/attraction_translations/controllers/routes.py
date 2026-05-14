@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy.exc import IntegrityError
 
-from extensions import db, cache
+from app.extensions import db, cache
 
 from app.tourism_amenitties.attraction_translations.models.attraction_tran import AttractionTranslation
 from app.tourism_amenitties.attraction_translations.schemas.attraction_translation import AttractionTranslationSchema

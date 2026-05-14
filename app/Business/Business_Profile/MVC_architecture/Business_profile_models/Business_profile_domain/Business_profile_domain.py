@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime, timezone
 
 from app.extensions import db
+from app.Business.Business_registration.MVC_architecture_business.Business_registration_models.Business_registration_domain.Business_registration_domain import BusinessRegistrationRequest
 
 
 class BusinessProfile(db.Model):
