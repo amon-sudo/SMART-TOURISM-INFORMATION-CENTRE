@@ -3,7 +3,7 @@ from app.tourism_amenitties.destination.controllers.routes import (
 )
 
 from app.tourism_amenitties.amenities.controllers.routes import (
-    amenity_bp
+    amenities_bp
 )
 
 from app.tourism_amenitties.attractions.controllers.routes import (
@@ -27,7 +27,7 @@ def register_blueprints(app):
 
     app.register_blueprint(destination_bp)
 
-    app.register_blueprint(amenity_bp)
+    app.register_blueprint(amenities_bp)
 
     app.register_blueprint(attraction_bp)
 
@@ -36,3 +36,11 @@ def register_blueprints(app):
     app.register_blueprint(attraction_translation_bp)
 
     app.register_blueprint(attraction_amenity_bp)
+    
+    
+    
+def redis_configure(app):
+    app.config["CACHE_TYPE"] = "RedisCache"
+    app.config["CACHE_REDIS_HOST"] = "localhost"
+    app.config["CACHE_REDIS_PORT"] = 6379
+    app.config["CACHE_DEFAULT_TIMEOUT"] = 300

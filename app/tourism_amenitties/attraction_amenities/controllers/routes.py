@@ -86,12 +86,31 @@ def create_attraction_amenity():
 def get_attraction_amenities():
 
     try:
-
-        relationships = AttractionAmenity.query.all()
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 5, type=int)
+        pagination = AttractionAmenity.query.paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+        
+        pagination = AttractionAmenity.query.paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
 
         return jsonify({
             "success": True,
-            "data": attraction_amenities_schema.dump(relationships)
+            "data": attraction_amenities_schema.dump(pagination.items),
+            "pagination": {
+                "page": page,
+                "per_page": per_page,
+                "total": pagination.total,
+                "pages": pagination.pages,
+                "has_next": pagination.has_next,
+                "has_prev": pagination.has_prev
+            }
         }), 200
 
     except Exception as e:

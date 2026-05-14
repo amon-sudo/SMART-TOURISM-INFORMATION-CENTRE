@@ -4,7 +4,6 @@ from sqlalchemy.exc import IntegrityError
 from extensions import db
 
 from app.tourism_amenitties.destination_translation.models.destination_translation import DestinationTranslation
-
 from app.tourism_amenitties.destination_translation.schemas.destination_translation import DestinationTranslationSchema
 
 
@@ -92,11 +91,37 @@ def get_destination_translations():
 
     try:
 
-        translations = DestinationTranslation.query.all()
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 10, type=int)
+
+        destination_id = request.args.get("destination_id")
+        locale = request.args.get("locale")
+
+        query = DestinationTranslation.query
+
+        if destination_id:
+            query = query.filter_by(destination_id=destination_id)
+
+        if locale:
+            query = query.filter_by(locale=locale)
+
+        pagination = query.paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
 
         return jsonify({
             "success": True,
-            "data": translations_schema.dump(translations)
+            "data": translations_schema.dump(pagination.items),
+            "pagination": {
+                "page": page,
+                "per_page": per_page,
+                "total": pagination.total,
+                "pages": pagination.pages,
+                "has_next": pagination.has_next,
+                "has_prev": pagination.has_prev
+            }
         }), 200
 
     except Exception as e:
@@ -169,7 +194,6 @@ def update_destination_translation(destination_id, locale):
         ]
 
         for field in allowed_fields:
-
             if field in data:
                 setattr(translation, field, data[field])
 

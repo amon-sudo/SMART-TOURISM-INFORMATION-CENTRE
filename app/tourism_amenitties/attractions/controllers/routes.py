@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy.exc import IntegrityError
 
-from extensions import db
+from extensions import db, cache
 
 from app.tourism_amenitties.attractions.models.attraction import Attraction
 from app.tourism_amenitties.attractions.schemas.attraction import AttractionSchema
@@ -45,15 +45,15 @@ def create_attraction():
             description=data.get("description"),
             category=data.get("category"),
             status=data.get("status"),
-            is_wheelchair_accessible=data.get(
-                "is_wheelchair_accessible",
-                False
-            ),
+            is_wheelchair_accessible=data.get("is_wheelchair_accessible", False),
             entry_fee=data.get("entry_fee")
         )
 
         db.session.add(attraction)
         db.session.commit()
+
+        # clear cache after write
+        cache.clear()
 
         return jsonify({
             "success": True,
@@ -84,12 +84,38 @@ def get_attractions():
 
     try:
 
-        attractions = Attraction.query.all()
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 10, type=int)
 
-        return jsonify({
+        cache_key = f"attractions_page_{page}_per_page_{per_page}"
+
+        # 1. check redis first
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            return jsonify(cached_data), 200
+
+        # 2. query DB
+        pagination = Attraction.query.paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+
+        response = {
             "success": True,
-            "data": attractions_schema.dump(attractions)
-        }), 200
+            "data": attractions_schema.dump(pagination.items),
+            "pagination": {
+                "page": pagination.page,
+                "per_page": pagination.per_page,
+                "total_pages": pagination.pages,
+                "total_items": pagination.total
+            }
+        }
+
+        # 3. store in redis
+        cache.set(cache_key, response, timeout=300)
+
+        return jsonify(response), 200
 
     except Exception as e:
 
@@ -150,11 +176,13 @@ def update_attraction(id):
         ]
 
         for field in allowed_fields:
-
             if field in data:
                 setattr(attraction, field, data[field])
 
         db.session.commit()
+
+        # clear cache after update
+        cache.clear()
 
         return jsonify({
             "success": True,
@@ -186,6 +214,9 @@ def delete_attraction(id):
 
         db.session.delete(attraction)
         db.session.commit()
+
+        # clear cache after delete
+        cache.clear()
 
         return jsonify({
             "success": True,
