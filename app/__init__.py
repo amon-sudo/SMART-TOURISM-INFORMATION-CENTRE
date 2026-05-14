@@ -8,8 +8,6 @@ load_dotenv()
 
 # Extension imports
 from app.extensions import db, migrate, jwt
-from app.rbac import role_bp, permission_bp
-from app.routes.payment_routesmpesa import payment_mpesa_bp
 
 # Ensure models are registered with SQLAlchemy
 from app.user_settings import models as user_settings_models # noqa: F401
@@ -29,17 +27,9 @@ from app.user_settings.views.views import user_settings_bp
 from app.utils.responses import ApiResponse
 
 def create_app():
-    load_dotenv()
     app = Flask(__name__)
-
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-    app.config["JWT_SECRET_KEY"] = os.getenv(
-        "JWT_SECRET_KEY",
-        "change-this-in-production"
-    )
     
+
     # Database Configuration (Strict PostgreSQL)
     database_url = os.getenv("DATABASE_URL") or os.getenv("POSTGRES_URI")
     if not database_url:
