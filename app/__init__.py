@@ -2,7 +2,7 @@ import os
 from flask import Flask, jsonify
 from dotenv import load_dotenv
 from app.extensions import db, migrate, jwt
-from app.Business import register_business_blueprints
+from app.transport_feature import create_transport_feature_blueprint
 
 load_dotenv()
 
@@ -18,7 +18,8 @@ def create_app():
     migrate.init_app(app, db)
     jwt.init_app(app)
 
-    register_business_blueprints(app)
+    transport_feature_bp = create_transport_feature_blueprint()
+    app.register_blueprint(transport_feature_bp)
 
     @app.route("/api/v1/health", methods=["GET"])
     def health():
