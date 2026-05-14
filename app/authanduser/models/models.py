@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from app.extensions import db
 from app.utils.base_model import BaseUUIDModel
+from app.rbac.models.user_role import UserRole
 
 class User(BaseUUIDModel):
     __tablename__ = 'users'
@@ -20,6 +21,8 @@ class User(BaseUUIDModel):
     # Auth Relationships
     refresh_tokens = db.relationship("RefreshToken", backref="user", lazy=True)
     password_resets = db.relationship("PasswordReset", backref="user", lazy=True)
+    roles = db.relationship("UserRole", backref="user", lazy=True, cascade="all, delete-orphan", foreign_keys="[UserRole.user_id]")
+
 
 class RefreshToken(BaseUUIDModel):
     __tablename__ = "refresh_tokens"

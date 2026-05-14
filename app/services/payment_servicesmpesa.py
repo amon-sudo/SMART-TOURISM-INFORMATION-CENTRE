@@ -41,6 +41,11 @@ def handle_callback(callback_data):
         raise Exception("Payment not found")
 
     payment.status = "success" if result_code == 0 else "failed"
+    
+    # Unified update
+    from app.services.unified_payment_service import UnifiedPaymentService
+    UnifiedPaymentService.update_payment_status(checkout_id, payment.status, "mpesa", callback_data)
+    
     db.session.commit()
 
     return {"checkout_request_id": checkout_id, "status": payment.status}

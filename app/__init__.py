@@ -14,6 +14,8 @@ from app.user_settings import models as user_settings_models # noqa: F401
 from app.tourism_amenitties import models as tourism_models # noqa: F401
 from app.Business.Business_registration.MVC_architecture_business.Business_registration_models.Business_registration_domain import Business_registration_domain as business_registration_models # noqa: F401
 from app.Business.Business_Profile.MVC_architecture.Business_profile_models.Business_profile_domain import Business_profile_domain as business_profile_models # noqa: F401
+from app.payment_stripe.models.models import PaymentStripe, StripeWebhookEvent # noqa: F401
+from app.models.booking_payment import Booking, Payment # noqa: F401
 
 # Module-specific imports
 from app.Business import register_business_blueprints
@@ -22,6 +24,8 @@ from app.authanduser.routes.routes import auth_bp
 from app.rbac.controllers.routes.role_routes import role_bp
 from app.rbac.controllers.routes.permission_routes import permission_bp
 from app.routes.payment_routesmpesa import payment_mpesa_bp
+from app.routes.unified_payment_routes import unified_payment_bp
+from app.payment_stripe.controllers.controllers import payment_stripe_bp
 from app.tourism_amenitties import register_blueprints as register_tourism_blueprints
 from app.user_settings.views.views import user_settings_bp
 from app.utils.responses import ApiResponse
@@ -57,6 +61,8 @@ def create_app():
     
     # 1. Payments
     app.register_blueprint(payment_mpesa_bp, url_prefix="/api/payments")
+    app.register_blueprint(payment_stripe_bp, url_prefix="/api/payments/stripe")
+    app.register_blueprint(unified_payment_bp, url_prefix="/api/payments/unified")
     
     # 2. Business
     register_business_blueprints(app)

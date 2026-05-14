@@ -6,7 +6,7 @@ from app.extensions import db
 class Permission(db.Model):
     __tablename__ = "permissions"
 
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = db.Column(db.Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = db.Column(db.String(100), unique=True, nullable=False)
     description = db.Column(db.Text, nullable=True)
     module = db.Column(db.String(50), nullable=True)
@@ -15,7 +15,7 @@ class Permission(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
-    roles = db.relationship("RolePermission", back_populates="permission", lazy="dynamic")
+    roles = db.relationship("RolePermission", back_populates="permission", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Permission {self.name}>"

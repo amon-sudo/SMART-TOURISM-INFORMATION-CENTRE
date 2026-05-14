@@ -1,5 +1,5 @@
 import uuid
-from extensions import db
+from app.extensions import db
 
 
 class Destination(db.Model):

@@ -1,5 +1,5 @@
 import uuid, datetime
-from app.authanduser.extensions import db
+from app.extensions import db
 from app.authanduser.models.models import User, RefreshToken, PasswordReset
 from app.authanduser.utils.utils import hash_password, verify_password
 from flask_jwt_extended import create_access_token
