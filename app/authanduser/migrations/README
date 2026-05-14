@@ -1,5 +1,0 @@
-Generic single-database configuration.
-verify my tables in psql 
-psql -d smart_tourism_db -U alvin_ndichu -W -c "\d users"
-psql -d smart_tourism_db -U alvin_ndichu -W -c "\d refresh_tokens"
-psql -d smart_tourism_db -U alvin_ndichu -W -c "\d password_resets"

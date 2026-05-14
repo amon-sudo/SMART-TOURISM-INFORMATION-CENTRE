@@ -1,53 +1,100 @@
-from app.user_settings.models import models
+# app/__init__.py
 import os
+from logging.config import dictConfig
 from flask import Flask, jsonify
-# pyrefly: ignore [missing-import]
 from dotenv import load_dotenv
-from app.extensions import db, migrate, jwt
-# from app.routes.rbac import rbac_bp
+from flask_cors import CORS
 
-# Load environment variables
+from app.extensions import db, migrate, jwt, ma
+
 load_dotenv()
 
-def create_app():
-    app = Flask(__name__)
+class Config:
+    SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI", "sqlite:///dev.db")
+    SQLALCHEMY_TRACK_MODIFICATIONS = os.getenv(
+        "SQLALCHEMY_TRACK_MODIFICATIONS", "False"
+    ).lower() in ("1", "true", "yes")
+    SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret")
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "jwt-secret")
+    PROPAGATE_EXCEPTIONS = True
+    JSON_SORT_KEYS = False
 
-    # Config
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///test.db")
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "change-this-in-production")
 
-    # Init extensions
-    db.init_app(app)
-    migrate.init_app(app, db)
-    jwt.init_app(app)
+def configure_logging():
+    dictConfig({
+        "version": 1,
+        "formatters": {
+            "default": {"format": "[%(asctime)s] %(levelname)s in %(module)s: %(message)s"}
+        },
+        "handlers": {
+            "wsgi": {
+                "class": "logging.StreamHandler",
+                "stream": "ext://sys.stdout",
+                "formatter": "default"
+            }
+        },
+        "root": {"level": os.getenv("LOG_LEVEL", "INFO"), "handlers": ["wsgi"]}
+    })
 
-    # Blueprints
-    from app.user_settings.views.views import user_settings_bp
-    app.register_blueprint(user_settings_bp, url_prefix='/api/v1')
 
-    # Global Error Handlers (Standardized Enveloping)
-    from app.utils.responses import ApiResponse
+def register_blueprints(flask_app):
+    """Register blueprints safely to avoid circular imports."""
+    try:
+        from app.feedback_media import feedback_bp
+        flask_app.register_blueprint(feedback_bp)
+        flask_app.logger.info("Registered feedback_media blueprint")
+    except Exception as exc:
+        flask_app.logger.exception("Failed to register feedback_media blueprint: %s", exc)
 
-    @app.errorhandler(404)
-    def not_found(e):
-        return ApiResponse.error(message="Resource not found", code="NOT_FOUND", status_code=404)
 
-    @app.errorhandler(405)
-    def method_not_allowed(e):
-        return ApiResponse.error(message="Method not allowed", code="METHOD_NOT_ALLOWED", status_code=405)
+def register_error_handlers(flask_app):
+    from werkzeug.exceptions import HTTPException
 
-    @app.errorhandler(500)
-    def internal_error(e):
-        return ApiResponse.error(message="An internal server error occurred", code="INTERNAL_ERROR", status_code=500)
-    from app.user_settings.views.views import user_settings_bp
-# app.register_blueprint(rbac_bp)
-    app.register_blueprint(user_settings_bp, url_prefix='/api/v1')
-    # Register blueprints
-    app.register_blueprint(rbac_bp, url_prefix="/api/v1")
+    @flask_app.errorhandler(HTTPException)
+    def handle_http_exception(e):
+        return jsonify({"error": e.name, "message": e.description}), e.code
 
-    @app.route("/api/v1/health", methods=["GET"])
+    @flask_app.errorhandler(500)
+    def handle_500(e):
+        flask_app.logger.exception("Unhandled exception")
+        return jsonify({
+            "error": "internal_server_error",
+            "message": "An internal error occurred"
+        }), 500
+
+
+def create_app(config_class=Config):
+    """Application factory. Returns a configured Flask app instance."""
+    configure_logging()
+    flask_app = Flask(__name__, instance_relative_config=False)
+    flask_app.config.from_object(config_class)
+
+    # Initialize extensions
+    db.init_app(flask_app)
+    migrate.init_app(flask_app, db)
+    jwt.init_app(flask_app)
+    ma.init_app(flask_app)
+
+    # Enable CORS
+    CORS(flask_app, resources={r"/api/*": {"origins": "*"}})
+
+    # Import models so Alembic sees them
+    import app.feedback_media.models  
+
+    # Register blueprints and error handlers
+    register_blueprints(flask_app)
+    register_error_handlers(flask_app)
+
+    @flask_app.route("/api/v1/health", methods=["GET"])
     def health():
         return jsonify({"status": "ok", "version": "1.0.0"}), 200
 
-    return app
+    @flask_app.cli.command("create-tables")
+    def create_tables():
+        """Create DB tables (development only). Prefer migrations for production."""
+        with flask_app.app_context():
+            import app.feedback_media.models  # ensure all models are loaded
+            db.create_all()
+            print("Database tables created/verified.")
+
+    return flask_app
