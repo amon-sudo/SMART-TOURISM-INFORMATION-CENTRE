@@ -10,11 +10,17 @@ PASSKEY = os.getenv("MPESA_PASSKEY")
 SHORTCODE = os.getenv("MPESA_SHORTCODE")
 CALLBACK_URL = os.getenv("MPESA_CALLBACK_URL")
 
-# Validate env vars at load
-if not all([CONSUMER_KEY, CONSUMER_SECRET, PASSKEY, SHORTCODE, CALLBACK_URL]):
-    raise RuntimeError("Missing required M-Pesa environment variables")
+# Validate env vars helper
+def _validate_mpesa_config():
+    if not all([CONSUMER_KEY, CONSUMER_SECRET, PASSKEY, SHORTCODE, CALLBACK_URL]):
+        # We only log a warning here instead of crashing the whole app
+        print("WARNING: M-Pesa environment variables are missing. Payment features will be disabled.")
+        return False
+    return True
 
 def get_access_token():
+    if not _validate_mpesa_config():
+        return None
     response = requests.get(
         f"{DARAJA_BASE_URL}/oauth/v1/generate?grant_type=client_credentials",
         auth=(CONSUMER_KEY, CONSUMER_SECRET),
@@ -27,7 +33,7 @@ def get_access_token():
 def stk_push(phone_number, amount, reference):
     token = get_access_token()
     if not token:
-        raise Exception("Access token is None")
+        raise Exception("M-Pesa is not configured. Access token is None")
 
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     password = base64.b64encode((SHORTCODE + PASSKEY + timestamp).encode()).decode()

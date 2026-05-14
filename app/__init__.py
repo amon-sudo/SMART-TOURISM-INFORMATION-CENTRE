@@ -1,28 +1,31 @@
 import os
-from flask import Flask, jsonify
 from dotenv import load_dotenv
+
+# Load environment variables immediately
+load_dotenv()
+
+from flask import Flask, jsonify
 from sqlalchemy import text
 
 # Extension imports
 from app.extensions import db, migrate, jwt
 
-# Module-specific imports
-from app.Business import register_business_blueprints
-from app.Business.errors_handling import register_business_error_handlers
-from app.rbac.controllers.routes.role_routes import role_bp
-from app.rbac.controllers.routes.permission_routes import permission_bp
-from app.routes.payment_routesmpesa import payment_mpesa_bp
-from app.routes.rbac import rbac_bp
-from app.tourism_amenitties import register_blueprints as register_tourism_blueprints
-from app.user_settings.views.views import user_settings_bp
-from app.utils.responses import ApiResponse
-
 # Ensure models are registered with SQLAlchemy
 from app.user_settings import models as user_settings_models # noqa: F401
 from app.tourism_amenitties import models as tourism_models # noqa: F401
+from app.Business.Business_registration.MVC_architecture_business.Business_registration_models.Business_registration_domain import Business_registration_domain as business_registration_models # noqa: F401
+from app.Business.Business_Profile.MVC_architecture.Business_profile_models.Business_profile_domain import Business_profile_domain as business_profile_models # noqa: F401
 
-# Load environment variables
-load_dotenv()
+# Module-specific imports
+from app.Business import register_business_blueprints
+from app.Business.errors_handling import register_business_error_handlers
+from app.authanduser.routes.routes import auth_bp
+from app.rbac.controllers.routes.role_routes import role_bp
+from app.rbac.controllers.routes.permission_routes import permission_bp
+from app.routes.payment_routesmpesa import payment_mpesa_bp
+from app.tourism_amenitties import register_blueprints as register_tourism_blueprints
+from app.user_settings.views.views import user_settings_bp
+from app.utils.responses import ApiResponse
 
 def create_app():
     app = Flask(__name__)
@@ -48,6 +51,9 @@ def create_app():
 
     # Register Blueprints
     
+    # 0. Authentication
+    app.register_blueprint(auth_bp, url_prefix="/api/v1/auth")
+    
     # 1. Payments
     app.register_blueprint(payment_mpesa_bp, url_prefix="/api/payments")
     
@@ -64,7 +70,6 @@ def create_app():
     # 5. RBAC (Roles & Permissions)
     app.register_blueprint(role_bp)
     app.register_blueprint(permission_bp)
-    app.register_blueprint(rbac_bp)
 
     # Core Utility Routes
     
