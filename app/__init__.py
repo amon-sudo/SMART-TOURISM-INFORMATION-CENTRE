@@ -34,8 +34,8 @@ def create_app():
     app.register_blueprint(role_bp)
     app.register_blueprint(permission_bp)
     app.register_blueprint(audit_bp)
-
     @app.route("/api/v1/health", methods=["GET"])
+     # Debugging line to check registered routes
     def health():
         return jsonify({
             "status": "ok",
