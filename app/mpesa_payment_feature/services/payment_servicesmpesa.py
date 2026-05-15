@@ -1,6 +1,6 @@
 import uuid
 from app.extensions import db
-from app.models.payment_mpesa import PaymentMpesa
+from app.mpesa_payment_feature.models.payment_mpesa import PaymentMpesa
 from app.utils.gateway_clientmpesa import stk_push
 
 def process_payment(data):

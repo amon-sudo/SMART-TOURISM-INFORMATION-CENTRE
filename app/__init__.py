@@ -15,7 +15,7 @@ from app.feedback_media import feedback_bp
 from app.payment_stripe.controllers.controllers import payment_stripe_bp
 from app.rbac.controllers.routes.permission_routes import permission_bp
 from app.rbac.controllers.routes.role_routes import role_bp
-from app.routes.payment_routesmpesa import payment_mpesa_bp
+from app.mpesa_payment_feature.routes.payment_routesmpesa import payment_mpesa_bp
 from app.tourism_amenitties import register_blueprints as register_tourism_blueprints
 from app.tourism_amenitties import redis_configure
 from app.user_settings.views.views import user_settings_bp

@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from app.services.payment_servicesmpesa import process_payment, check_status, handle_callback
+from app.mpesa_payment_feature.services.payment_servicesmpesa import process_payment, check_status, handle_callback
 
 payment_mpesa_bp = Blueprint("payment_mpesa_bp", __name__)
 
