@@ -5,6 +5,12 @@ from app.utils.gateway_clientmpesa import stk_push
 
 def process_payment(data):
     reference = data.get("reference", str(uuid.uuid4()))
+    user_id_raw = data.get("user_id")
+    try:
+        user_id = user_id_raw if isinstance(user_id_raw, uuid.UUID) else uuid.UUID(str(user_id_raw))
+    except Exception as exc:
+        raise ValueError("user_id must be a valid UUID") from exc
+
     try:
         response = stk_push(data["phone_number"], data["amount"], reference)
     except RuntimeError:
@@ -18,7 +24,7 @@ def process_payment(data):
     result_desc = response.get("ResponseDescription")
 
     payment = PaymentMpesa(
-        user_id=data["user_id"],
+        user_id=user_id,
         amount=data["amount"],
         reference=reference,
         checkout_request_id=checkout_id,

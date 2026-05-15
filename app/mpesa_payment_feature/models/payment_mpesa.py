@@ -4,7 +4,7 @@ class PaymentMpesa(db.Model):
     __tablename__ = "payments_mpesa"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)  # enforce FK
+    user_id = db.Column(db.Uuid(as_uuid=True), db.ForeignKey("users.id"), nullable=False)
     amount = db.Column(db.Numeric(10, 2), nullable=False)  # precise decimal for money
     status = db.Column(db.String(20), default="pending")
     reference = db.Column(db.String(100), unique=True)

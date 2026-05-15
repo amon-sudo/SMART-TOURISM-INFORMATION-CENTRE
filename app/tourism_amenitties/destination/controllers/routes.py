@@ -252,6 +252,15 @@ def delete_destination(id):
             "message": "Destination deleted successfully"
         }), 200
 
+    except IntegrityError:
+
+        db.session.rollback()
+
+        return jsonify({
+            "success": False,
+            "error": "Destination has dependent records and cannot be deleted"
+        }), 409
+
     except Exception as e:
 
         db.session.rollback()

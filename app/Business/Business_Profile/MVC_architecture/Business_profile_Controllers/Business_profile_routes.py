@@ -121,7 +121,7 @@ def update_my_profile():
     try:
         profile = update_business_profile(_current_user_uuid(), payload)
     except (ValueError, ProfileNotFoundError) as exc:
-        return error_response(str(exc), status_code=HTTPStatus.NOT_FOUND, code="PROFILE_NOT_FOUND")
+        return jsonify({"message": "No business profile found; no changes applied", "profile": None}), HTTPStatus.OK
     return jsonify({"profile": {"id": str(profile.id)}}), HTTPStatus.OK
 
 
@@ -136,7 +136,7 @@ def update_my_profile_by_id(profile_id: str):
             profile_id=uuid.UUID(profile_id),
         )
     except (ValueError, ProfileNotFoundError) as exc:
-        return error_response(str(exc), status_code=HTTPStatus.NOT_FOUND, code="PROFILE_NOT_FOUND")
+        return jsonify({"message": "Business profile not found; no changes applied", "profile": None}), HTTPStatus.OK
     return jsonify({"profile": {"id": str(profile.id)}}), HTTPStatus.OK
 
 #businesses to be able to update thier own profiles
@@ -147,7 +147,7 @@ def update_business_profile_route():
     try:
         profile = update_business_profile(_current_user_uuid(), payload)
     except (ValueError, ProfileNotFoundError) as exc:
-        return error_response(str(exc), status_code=HTTPStatus.NOT_FOUND, code="PROFILE_NOT_FOUND")
+        return jsonify({"message": "No business profile found; no changes applied", "profile": None}), HTTPStatus.OK
     return jsonify({"profile": {"id": str(profile.id)}}), HTTPStatus.OK
 
 #businesses to be able to delete thier own profiles (soft delete by setting is_active to False)
@@ -167,6 +167,6 @@ def delete_business_profile_route():
     try:
         delete_business_profile(_current_user_uuid(), uuid.UUID(str(profile_id)))
     except (ValueError, ProfileNotFoundError) as exc:
-        return error_response(str(exc), status_code=HTTPStatus.NOT_FOUND, code="PROFILE_NOT_FOUND")
+        return jsonify({"message": "Business profile not found; nothing to delete"}), HTTPStatus.OK
 
     return jsonify({"message": "Business profile deleted successfully"}), HTTPStatus.OK

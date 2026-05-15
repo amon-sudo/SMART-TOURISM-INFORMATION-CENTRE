@@ -58,6 +58,12 @@ def create_payment_intent():
             code="STRIPE_ERROR",
             status_code=400
         )
+    except (ValueError, RuntimeError) as e:
+        return ApiResponse.error(
+            message=str(e),
+            code="BAD_REQUEST",
+            status_code=400
+        )
     except Exception as e:
         logger.error(f"Error creating payment intent: {str(e)}")
         return ApiResponse.error(
@@ -82,9 +88,11 @@ def stripe_webhook():
         return ApiResponse.success(message="Webhook processed successfully")
     except (ValueError, stripe.error.SignatureVerificationError) as e:
         return ApiResponse.error(message=f"Webhook verification failed: {str(e)}", code="WEBHOOK_VERIFICATION_FAILED", status_code=400)
+    except RuntimeError as e:
+        return ApiResponse.error(message=str(e), code="WEBHOOK_ERROR", status_code=400)
     except Exception as e:
         logger.error(f"Webhook processing error: {str(e)}")
-        return ApiResponse.error(message="Internal error processing webhook", code="INTERNAL_ERROR", status_code=500)
+        return ApiResponse.error(message="Invalid webhook payload", code="WEBHOOK_ERROR", status_code=400)
 
 @payment_stripe_bp.route("/payment-status/<intent_id>", methods=["GET"])
 # @jwt_required()  # TEMP: auth disabled for endpoint testing

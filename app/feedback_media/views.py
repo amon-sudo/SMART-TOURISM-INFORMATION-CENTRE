@@ -97,8 +97,12 @@ def delete_user_route(user_id):
     user = User.query.get(user_id)
     if not user:
         return error_response(404, "not_found", "User not found")
-    db.session.delete(user)
-    db.session.commit()
+    try:
+        db.session.delete(user)
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return error_response(409, "conflict", "User cannot be deleted because related records exist")
     return jsonify({"message": "User deleted"}), 200
 
 

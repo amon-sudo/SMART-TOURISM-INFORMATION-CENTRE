@@ -4,6 +4,7 @@ import os
 
 from sqlalchemy import Index, UniqueConstraint
 from app.extensions import db
+from app.user_settings.models.models import User
 
 # Use PostgreSQL UUID when available; otherwise fall back to a 36-char string
 try:
@@ -24,28 +25,6 @@ if USE_POSTGIS:
 else:
     Geography = None
     GEOGRAPHY_AVAILABLE = False
-
-# -------------------------
-# User model
-# -------------------------
-from werkzeug.security import generate_password_hash, check_password_hash
-
-class User(db.Model):
-    __tablename__ = "users"
-
-    id = db.Column(UUID_TYPE, primary_key=True, default=uuid.uuid4)
-    email = db.Column(db.String(255), unique=True, nullable=False, index=True)
-    password_hash = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-
-    def set_password(self, password: str):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password: str) -> bool:
-        return check_password_hash(self.password_hash, password)
-
-    def __repr__(self) -> str:
-        return f"<User {self.email}>"
 
 # -------------------------
 # Destination model

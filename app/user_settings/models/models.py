@@ -1,11 +1,14 @@
 from datetime import datetime
 from app.extensions import db
 from app.utils.base_model import BaseUUIDModel
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class User(BaseUUIDModel):
     __tablename__ = 'users'
     __table_args__ = {'extend_existing': True}
     email = db.Column(db.String(120), unique=True, nullable=False)
+    username = db.Column(db.String(80), unique=True, nullable=True)
+    password_hash = db.Column(db.String(255), nullable=False)
     
     # Relationships
     profile = db.relationship('UserProfile', backref='user', uselist=False)
@@ -13,7 +16,12 @@ class User(BaseUUIDModel):
     notifications = db.relationship('UserNotification', backref='user', uselist=False)
     preferences = db.relationship('UserPreference', backref='user', uselist=False)
     embeddings = db.relationship('UserBehaviorEmbedding', backref='user', uselist=False)
-    business_profile = db.relationship('BusinessProfile', back_populates='user', uselist=False)
+
+    def set_password(self, password: str):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password: str) -> bool:
+        return check_password_hash(self.password_hash, password)
 
 class UserProfile(db.Model):
     __tablename__ = 'user_profiles'
@@ -75,20 +83,3 @@ class UserBehaviorEmbedding(db.Model):
     embedding_model = db.Column(db.String(100))
     embedding_version = db.Column(db.Integer)
     last_updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-class RefreshToken(db.Model):
-    __tablename__ = 'refresh_tokens'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Uuid(as_uuid=True), db.ForeignKey('users.id'))
-    token = db.Column(db.String, unique=True, nullable=False)
-    revoked = db.Column(db.Boolean, default=False)
-    expires_at = db.Column(db.DateTime, nullable=False)
-
-class PasswordReset(db.Model):
-    __tablename__ = 'password_resets'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Uuid(as_uuid=True), db.ForeignKey('users.id'))
-    token = db.Column(db.String(255), unique=True, nullable=False)
-    expires_at = db.Column(db.DateTime, nullable=False)
-    used_at = db.Column(db.DateTime)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)

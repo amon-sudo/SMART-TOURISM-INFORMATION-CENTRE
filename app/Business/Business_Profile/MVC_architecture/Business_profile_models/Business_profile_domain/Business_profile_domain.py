@@ -33,7 +33,7 @@ class BusinessProfile(db.Model):
     #relationships
     user = db.relationship(
         "app.user_settings.models.models.User",
-        back_populates="business_profile",
+        backref=db.backref("business_profile", uselist=False),
         uselist=False,
     )
     registration_request = db.relationship("BusinessRegistrationRequest", back_populates="business_profile", uselist=False)

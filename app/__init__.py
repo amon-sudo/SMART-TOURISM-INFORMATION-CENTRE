@@ -10,12 +10,14 @@ from sqlalchemy import text
 
 from app.Business import register_business_blueprints
 from app.audit.controllers.routes.audit_log_routes import audit_bp
+from app.authanduser.routes.routes import auth_bp
 from app.extensions import cache, db, jwt, ma, migrate
 from app.feedback_media import feedback_bp
 from app.payment_stripe.controllers.controllers import payment_stripe_bp
 from app.rbac.controllers.routes.permission_routes import permission_bp
 from app.rbac.controllers.routes.role_routes import role_bp
 from app.mpesa_payment_feature.routes.payment_routesmpesa import payment_mpesa_bp
+from app.transport_feature import create_transport_feature_blueprint
 from app.tourism_amenitties import register_blueprints as register_tourism_blueprints
 from app.tourism_amenitties import redis_configure
 from app.user_settings.views.views import user_settings_bp
@@ -61,6 +63,8 @@ def register_blueprints(flask_app: Flask) -> None:
     try:
         flask_app.register_blueprint(payment_mpesa_bp, url_prefix="/api/payments")
         flask_app.register_blueprint(payment_stripe_bp, url_prefix="/api/v1/payments/stripe")
+        flask_app.register_blueprint(auth_bp, url_prefix="/api/v1/auth")
+        flask_app.register_blueprint(create_transport_feature_blueprint())
         register_business_blueprints(flask_app)
         register_tourism_blueprints(flask_app)
         flask_app.register_blueprint(user_settings_bp, url_prefix="/api/v1")

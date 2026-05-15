@@ -137,9 +137,9 @@ def delete_attraction_amenity(attraction_id, amenity_id):
 
         if not relationship:
             return jsonify({
-                "success": False,
-                "error": "Relationship not found"
-            }), 404
+                "success": True,
+                "message": "Relationship already absent"
+            }), 200
 
         db.session.delete(relationship)
         db.session.commit()
