@@ -83,7 +83,6 @@ class Booking(BaseModel):
     # Nullable — null for web/mobile bookings
     kiosk_id = Column(
         UUID(as_uuid=True),
-        db.ForeignKey("kiosks.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
         comment="Physical kiosk where booking originated; NULL for web/mobile",
@@ -92,7 +91,6 @@ class Booking(BaseModel):
     # Full session trace for analytics and dispute resolution
     kiosk_session_id = Column(
         UUID(as_uuid=True),
-        db.ForeignKey("kiosk_sessions.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
         comment="Kiosk session trace for audit and revenue attribution",
@@ -149,33 +147,20 @@ class Booking(BaseModel):
     )
 
     # ── Relationships ─────────────────────────────────────────────────────────
-    user = relationship("User", back_populates="bookings", lazy="select")
-
-    kiosk = relationship(
-        "Kiosk",
+    user = relationship(
+        "app.user_settings.models.models.User",
         back_populates="bookings",
         lazy="select",
-        foreign_keys=[kiosk_id],
     )
 
-    kiosk_session = relationship(
-        "KioskSession",
-        back_populates="bookings",
-        lazy="select",
-        foreign_keys=[kiosk_session_id],
-    )
+    # Kiosk and kiosk session relationships are intentionally omitted here
+    # because these models are loaded from a separate feature module.
 
     items = relationship(
         "BookingItem",
         back_populates="booking",
         cascade="all, delete-orphan",
         lazy="select",
-    )
-
-    payments = relationship(
-        "Payment",
-        back_populates="booking",
-        lazy="dynamic",
     )
 
     # Polymorphic QR codes

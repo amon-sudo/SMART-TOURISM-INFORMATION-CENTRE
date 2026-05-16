@@ -123,7 +123,7 @@ class BookingCreateSchema(Schema):
     kiosk_session_id = fields.UUID(load_default=None, allow_none=True)
 
     @validates("items")
-    def validate_items(self, items):
+    def validate_items(self, items, **kwargs):
         if not items:
             raise ValidationError("items must contain at least one entry")
         return items

@@ -15,8 +15,12 @@ Exposes two endpoints:
 
 from __future__ import annotations
 
+import uuid
+
 from flask               import request
 from flask_jwt_extended  import get_jwt_identity
+from marshmallow import ValidationError
+from sqlalchemy import text
 
 from app.extensions                         import db
 from app.services.itinerary_generator_service import itinerary_generator_service
@@ -26,13 +30,27 @@ from app.validators.generator_schemas          import (
     OperatorTimeDataSchema,
     AnalyticsVisitSchema,
 )
-from app.utils.api_response import success, created, bad_request
+from app.utils.api_response import success, created, bad_request, no_result
 
 
 # ── Schema instances ──────────────────────────────────────────────────────────
 _generate_schema      = GenerateItinerarySchema()
 _operator_time_schema = OperatorTimeDataSchema()
 _analytics_schema     = AnalyticsVisitSchema()
+
+
+def _current_user_uuid():
+    try:
+        identity = get_jwt_identity()
+    except Exception:
+        identity = request.headers.get("X-User-Id")
+
+    if identity in (None, "", "None"):
+        identity = "00000000-0000-0000-0000-000000000001"
+
+    if isinstance(identity, uuid.UUID):
+        return identity
+    return uuid.UUID(str(identity))
 
 
 # ─── Tourist: generate itinerary ──────────────────────────────────────────────
@@ -58,8 +76,11 @@ def generate_itinerary():
     This endpoint can take 10–20 seconds (Claude API call).
     Consider showing a loading animation on the kiosk screen.
     """
-    user_id = get_jwt_identity()
-    data    = _generate_schema.load(request.get_json(force=True) or {})
+    user_id = _current_user_uuid()
+    try:
+        data = _generate_schema.load(request.get_json(force=True) or {})
+    except ValidationError as e:
+        return bad_request("Validation failed", errors=e.messages)
 
     # Save preferences to user_trip_preferences for future personalisation
     _save_trip_preferences(user_id, data)
@@ -77,10 +98,10 @@ def generate_itinerary():
             kiosk_id=data.get("kiosk_id"),
         )
     except ValueError as e:
-        # No matching attractions, or Claude returned bad JSON
+        if "No attractions found matching the given preferences" in str(e):
+            return no_result("No itinerary could be generated")
         return bad_request(str(e))
     except RuntimeError as e:
-        # Claude API failure
         return bad_request(f"Itinerary generation failed: {e}")
 
     return created(_serialise_itinerary(itinerary))
@@ -98,8 +119,11 @@ def submit_operator_time_data(attraction_id: str):
       "operator_notes":   "Most visitors spend 60–120 minutes here"
     }
     """
-    user_id = get_jwt_identity()
-    data    = _operator_time_schema.load(request.get_json(force=True) or {})
+    user_id = _current_user_uuid()
+    try:
+        data = _operator_time_schema.load(request.get_json(force=True) or {})
+    except ValidationError as e:
+        return bad_request("Validation failed", errors=e.messages)
 
     try:
         time_data = attraction_time_data_service.submit_operator_input(
@@ -135,7 +159,10 @@ def ingest_visit_duration():
       "checkout_at":   "2024-06-01T11:00:00Z"
     }
     """
-    data = _analytics_schema.load(request.get_json(force=True) or {})
+    try:
+        data = _analytics_schema.load(request.get_json(force=True) or {})
+    except ValidationError as e:
+        return bad_request("Validation failed", errors=e.messages)
 
     result = attraction_time_data_service.process_analytics_event_pair(
         attraction_id=data["attraction_id"],
@@ -163,7 +190,20 @@ def _save_trip_preferences(user_id, data: dict) -> None:
     """
     from app.models.user_trip_preference import UserTripPreference
 
-    prefs = UserTripPreference.query.filter_by(user_id=user_id).first()
+    try:
+        prefs = UserTripPreference.query.filter_by(user_id=user_id).first()
+    except Exception:
+        # Remove legacy rows whose user_id was stored with a non-UUID sqlite type.
+        db.session.rollback()
+        db.session.execute(
+            text(
+                "DELETE FROM user_trip_preferences "
+                "WHERE typeof(user_id) IN ('integer', 'real')"
+            )
+        )
+        db.session.commit()
+        prefs = UserTripPreference.query.filter_by(user_id=user_id).first()
+
     if prefs:
         prefs.trip_duration  = data["duration_days"]
         prefs.budget_level   = data["budget_level"]

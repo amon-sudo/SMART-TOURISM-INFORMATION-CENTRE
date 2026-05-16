@@ -6,13 +6,13 @@ Flow:
   1. Load tourist preferences (from DB + request body)
   2. Query available attractions filtered by interests / budget / accessibility
   3. Resolve avg_minutes for each attraction via the fallback chain
-  4. Build a context payload and call Claude (claude-sonnet-4-20250514)
+    4. Build a context payload and call Gemini
   5. Parse the structured JSON response
   6. Persist Itinerary → ItineraryDay → ItineraryDayAttraction rows
   7. Generate QR code
   8. Return the complete itinerary
 
-Claude is asked to return ONLY a JSON object (no markdown fences).
+Gemini is asked to return ONLY a JSON object (no markdown fences).
 The prompt is carefully structured so the output is deterministic
 and machine-parseable on every call.
 """
@@ -36,8 +36,8 @@ from app.models.attraction_time_data       import (
 from app.services.qr_code_service          import qr_code_service
 
 # ── Constants ─────────────────────────────────────────────────────────────────
-CLAUDE_API_URL = "https://api.anthropic.com/v1/messages"
-CLAUDE_MODEL   = "claude-sonnet-4-20250514"
+GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models"
+GEMINI_MODEL   = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 MAX_TOKENS     = 4096
 
 # Usable touring hours per day: 09:00 – 18:00 = 540 minutes
@@ -102,7 +102,7 @@ class ItineraryGeneratorService:
         # ── 2. Resolve avg_minutes for each attraction ─────────────────────────
         enriched = self._enrich_with_time_data(attractions)
 
-        # ── 3. Build Claude prompt ─────────────────────────────────────────────
+        # ── 3. Build model prompt ──────────────────────────────────────────────
         prompt = self._build_prompt(
             duration_days=duration_days,
             interests=interests,
@@ -114,11 +114,11 @@ class ItineraryGeneratorService:
             attractions=enriched,
         )
 
-        # ── 4. Call Claude ─────────────────────────────────────────────────────
-        claude_response = self._call_claude(prompt)
+        # ── 4. Call Gemini ─────────────────────────────────────────────────────
+        model_response = self._call_llm(prompt)
 
         # ── 5. Parse response ──────────────────────────────────────────────────
-        plan = self._parse_response(claude_response)
+        plan = self._parse_response(model_response)
 
         # ── 6. Persist everything ──────────────────────────────────────────────
         itinerary = self._persist(
@@ -156,24 +156,27 @@ class ItineraryGeneratorService:
         from app.models.attraction import Attraction   # local import to avoid circular
 
         budget_ceiling = BUDGET_CEILINGS.get(budget_level, BUDGET_CEILINGS["medium"])
+        price_column = getattr(Attraction, "ticket_fee", None) or getattr(Attraction, "entry_fee", None)
+        rating_column = getattr(Attraction, "rating", None) or getattr(Attraction, "avg_rating", None)
 
-        query = (
-            Attraction.query
-            .filter(Attraction.status == "approved")
-            .filter(Attraction.category.in_(interests))
-            .filter(
+        query = Attraction.query.filter(Attraction.status == "approved").filter(
+            Attraction.category.in_(interests)
+        )
+
+        if price_column is not None:
+            query = query.filter(
                 db.or_(
-                    Attraction.ticket_fee == None,
-                    Attraction.ticket_fee <= budget_ceiling,
+                    price_column == None,
+                    price_column <= budget_ceiling,
                 )
             )
-        )
 
         if accessibility_required:
             query = query.filter(Attraction.is_wheelchair_accessible == True)
 
-        # Order by rating descending so Claude gets the best options first
-        query = query.order_by(Attraction.rating.desc().nullslast())
+        # Order by rating descending so the model gets the best options first
+        if rating_column is not None:
+            query = query.order_by(rating_column.desc().nullslast())
 
         return query.all()
 
@@ -182,14 +185,14 @@ class ItineraryGeneratorService:
     def _enrich_with_time_data(self, attractions: list) -> list[dict]:
         """
         For each attraction, resolve avg_minutes via the fallback chain.
-        Returns a list of dicts ready to be included in the Claude prompt.
+        Returns a list of dicts ready to be included in the model prompt.
 
         Fallback chain:
           analytics (samples >= 10, confidence >= 0.5)
           → operator_input (confidence >= 0.7)
           → analytics (any)
           → ai_estimate (any stored)
-          → inline Claude estimate (requested inside the main prompt)
+          → inline model estimate (requested inside the main prompt)
         """
         enriched = []
 
@@ -201,11 +204,11 @@ class ItineraryGeneratorService:
                 time_source   = best.source.value
                 time_confidence = best.confidence
             else:
-                # No stored data — mark for inline Claude estimation
+                # No stored data — mark for inline model estimation
                 category_default = CATEGORY_DEFAULTS.get(
                     attr.category, CATEGORY_DEFAULTS["default"]
                 )
-                avg_minutes     = None          # Claude will estimate this
+                avg_minutes     = None          # Model will estimate this
                 time_source     = "unknown"
                 time_confidence = 0.0
 
@@ -214,14 +217,26 @@ class ItineraryGeneratorService:
                 "name":                  attr.name,
                 "category":              attr.category,
                 "description":           attr.description or "",
-                "location":              attr.location or "",
-                "ticket_fee":            float(attr.ticket_fee) if attr.ticket_fee else 0,
-                "rating":                float(attr.rating) if attr.rating else None,
+                "location":              getattr(attr, "location", "") or "",
+                "ticket_fee":            float(
+                    getattr(attr, "ticket_fee", None)
+                    or getattr(attr, "entry_fee", None)
+                    or 0
+                ),
+                "rating":                (
+                    float(getattr(attr, "rating", None))
+                    if getattr(attr, "rating", None) is not None
+                    else (
+                        float(getattr(attr, "avg_rating", None))
+                        if getattr(attr, "avg_rating", None) is not None
+                        else None
+                    )
+                ),
                 "is_wheelchair_accessible": attr.is_wheelchair_accessible,
-                "avg_minutes":           avg_minutes,       # None = Claude estimates
+                "avg_minutes":           avg_minutes,       # None = model estimates
                 "time_source":           time_source,
                 "time_confidence":       time_confidence,
-                # Hint Claude uses when avg_minutes is None
+                # Hint model uses when avg_minutes is None
                 "category_default_minutes": CATEGORY_DEFAULTS.get(
                     attr.category, CATEGORY_DEFAULTS["default"]
                 ),
@@ -229,7 +244,7 @@ class ItineraryGeneratorService:
 
         return enriched
 
-    # ── Step 3: Build Claude prompt ────────────────────────────────────────────
+    # ── Step 3: Build prompt ───────────────────────────────────────────────────
 
     def _build_prompt(
         self,
@@ -243,7 +258,7 @@ class ItineraryGeneratorService:
         attractions: list[dict],
     ) -> str:
         """
-        Build the structured system + user prompt sent to Claude.
+        Build the structured system + user prompt sent to Gemini.
         The system prompt is strict about JSON-only output.
         """
         pace_description = {
@@ -321,68 +336,72 @@ class ItineraryGeneratorService:
             "user":   user_prompt,
         })
 
-    # ── Step 4: Call Claude API ────────────────────────────────────────────────
+    # ── Step 4: Call Gemini API ───────────────────────────────────────────────
 
-    def _call_claude(self, prompt_json: str) -> str:
-        """
-        Call the Claude API and return the raw text response.
-        Raises RuntimeError on API failure.
-        """
+    def _call_llm(self, prompt_json: str) -> str:
+        """Call Gemini API and return the raw text response."""
         prompts = json.loads(prompt_json)
 
-        api_key = os.getenv("ANTHROPIC_API_KEY")
+        api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
             raise RuntimeError(
-                "ANTHROPIC_API_KEY environment variable is not set. "
+                "GEMINI_API_KEY environment variable is not set. "
                 "Add it to your .env file."
             )
 
-        headers = {
-            "Content-Type":      "application/json",
-            "anthropic-version": "2023-06-01",
-        }
-
+        endpoint = f"{GEMINI_API_URL}/{GEMINI_MODEL}:generateContent?key={api_key}"
+        merged_prompt = (
+            "System instructions:\n"
+            f"{prompts['system']}\n\n"
+            "User request:\n"
+            f"{prompts['user']}"
+        )
         payload = {
-            "model":      CLAUDE_MODEL,
-            "max_tokens": MAX_TOKENS,
-            "system":     prompts["system"],
-            "messages": [
-                {"role": "user", "content": prompts["user"]}
+            "contents": [
+                {
+                    "parts": [
+                        {"text": merged_prompt}
+                    ]
+                }
             ],
+            "generationConfig": {
+                "maxOutputTokens": MAX_TOKENS,
+                "temperature": 0.2,
+                "responseMimeType": "application/json",
+            },
         }
 
         try:
             response = requests.post(
-                CLAUDE_API_URL,
-                headers=headers,
+                endpoint,
                 json=payload,
                 timeout=60,
             )
             response.raise_for_status()
         except requests.exceptions.Timeout:
-            raise RuntimeError("Claude API request timed out after 60 seconds")
+            raise RuntimeError("Gemini API request timed out after 60 seconds")
         except requests.exceptions.RequestException as e:
-            raise RuntimeError(f"Claude API request failed: {e}")
+            raise RuntimeError(f"Gemini API request failed: {e}")
 
         data = response.json()
 
-        # Extract text from the response content blocks
-        text_blocks = [
-            block["text"]
-            for block in data.get("content", [])
-            if block.get("type") == "text"
-        ]
+        candidates = data.get("candidates", [])
+        if not candidates:
+            raise RuntimeError("Gemini returned no candidates")
+
+        parts = (candidates[0].get("content") or {}).get("parts") or []
+        text_blocks = [p.get("text", "") for p in parts if "text" in p]
         if not text_blocks:
-            raise RuntimeError("Claude returned an empty response")
+            raise RuntimeError("Gemini returned an empty response")
 
         return "".join(text_blocks)
 
-    # ── Step 5: Parse Claude response ─────────────────────────────────────────
+    # ── Step 5: Parse model response ──────────────────────────────────────────
 
     def _parse_response(self, raw: str) -> dict:
         """
-        Parse and validate the JSON response from Claude.
-        Strips accidental markdown fences if Claude adds them despite instructions.
+        Parse and validate the JSON response from Gemini.
+        Strips accidental markdown fences if model adds them despite instructions.
         Raises ValueError with a clear message if the schema is wrong.
         """
         # Strip markdown fences defensively
@@ -399,7 +418,7 @@ class ItineraryGeneratorService:
             plan = json.loads(clean)
         except json.JSONDecodeError as e:
             raise ValueError(
-                f"Claude returned invalid JSON: {e}\n"
+                f"Model returned invalid JSON: {e}\n"
                 f"Raw response (first 500 chars): {raw[:500]}"
             )
 
@@ -407,10 +426,10 @@ class ItineraryGeneratorService:
         required_top = {"title", "summary", "days"}
         missing = required_top - set(plan.keys())
         if missing:
-            raise ValueError(f"Claude response missing required fields: {missing}")
+            raise ValueError(f"Model response missing required fields: {missing}")
 
         if not isinstance(plan["days"], list) or len(plan["days"]) == 0:
-            raise ValueError("Claude response 'days' must be a non-empty list")
+            raise ValueError("Model response 'days' must be a non-empty list")
 
         for day in plan["days"]:
             required_day = {"day_number", "day_title", "narrative", "attractions"}
@@ -449,7 +468,7 @@ class ItineraryGeneratorService:
         in a single transaction.
 
         Also back-fills AttractionTimeData with AI estimates for any
-        attraction whose avg_minutes was None (Claude estimated them inline).
+        attraction whose avg_minutes was None (model estimated them inline).
         """
         from app.models.itinerary_day import ItineraryDay  # avoid circular
 

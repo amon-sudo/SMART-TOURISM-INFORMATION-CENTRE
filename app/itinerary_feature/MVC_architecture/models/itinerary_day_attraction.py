@@ -79,11 +79,6 @@ class ItineraryDayAttraction(db.Model):
     )
 
     # ── Relationships ─────────────────────────────────────────────────────────
-    itinerary_day = relationship(
-        "ItineraryDay",
-        back_populates="day_attractions",
-    )
-
     attraction = relationship(
         "Attraction",
         lazy="joined",   # always load with parent — needed for display

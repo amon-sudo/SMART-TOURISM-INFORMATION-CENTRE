@@ -35,6 +35,13 @@ class Attraction(db.Model):
     secondary="attraction_amenities",
     backref="attractions"
 )
+
+    time_data = db.relationship(
+        "AttractionTimeData",
+        back_populates="attraction",
+        lazy="dynamic",
+        cascade="all, delete-orphan",
+    )
     
     
     destination = db.relationship(

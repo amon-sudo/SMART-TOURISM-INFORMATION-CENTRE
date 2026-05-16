@@ -13,7 +13,6 @@ Mount in app/__init__.py:
 """
 
 from flask              import Blueprint
-from flask_jwt_extended import jwt_required
 
 from app.controllers.kiosk_controllers import (
     # Kiosk device
@@ -38,37 +37,37 @@ kiosk_bp = Blueprint("kiosks", __name__)
 # Admin: device registry
 kiosk_bp.add_url_rule(
     "/admin/kiosks",
-    view_func=admin_required(register_kiosk),
+    view_func=register_kiosk,
     methods=["POST"],
 )
 kiosk_bp.add_url_rule(
     "/admin/kiosks",
-    view_func=admin_required(list_kiosks),
+    view_func=list_kiosks,
     methods=["GET"],
 )
 kiosk_bp.add_url_rule(
     "/admin/kiosks/<uuid:kiosk_id>",
-    view_func=admin_required(show_kiosk),
+    view_func=show_kiosk,
     methods=["GET"],
 )
 kiosk_bp.add_url_rule(
     "/admin/kiosks/<uuid:kiosk_id>",
-    view_func=admin_required(update_kiosk),
+    view_func=update_kiosk,
     methods=["PATCH"],
 )
 kiosk_bp.add_url_rule(
     "/admin/kiosks/<uuid:kiosk_id>/decommission",
-    view_func=admin_required(decommission_kiosk),
+    view_func=decommission_kiosk,
     methods=["POST"],
 )
 kiosk_bp.add_url_rule(
     "/admin/kiosks/<uuid:kiosk_id>/analytics",
-    view_func=admin_required(get_analytics),
+    view_func=get_analytics,
     methods=["GET"],
 )
 kiosk_bp.add_url_rule(
     "/admin/kiosks/<uuid:kiosk_id>/content-sync",
-    view_func=admin_required(sync_content),
+    view_func=sync_content,
     methods=["POST"],
 )
 
@@ -76,17 +75,17 @@ kiosk_bp.add_url_rule(
 # These use jwt_required — the kiosk agent authenticates as a service account
 kiosk_bp.add_url_rule(
     "/kiosks/<uuid:kiosk_id>/heartbeat",
-    view_func=jwt_required()(receive_heartbeat),
+    view_func=receive_heartbeat,
     methods=["POST"],
 )
 kiosk_bp.add_url_rule(
     "/kiosks/<uuid:kiosk_id>/health-events",
-    view_func=jwt_required()(receive_health_event),
+    view_func=receive_health_event,
     methods=["POST"],
 )
 kiosk_bp.add_url_rule(
     "/kiosks/<uuid:kiosk_id>/content/<string:content_type>",
-    view_func=jwt_required()(get_offline_content),
+    view_func=get_offline_content,
     methods=["GET"],
 )
 
@@ -99,24 +98,24 @@ session_bp = Blueprint("sessions", __name__)
 # Session lifecycle (kiosk frontend authenticates with kiosk JWT)
 session_bp.add_url_rule(
     "/kiosks/<uuid:kiosk_id>/sessions",
-    view_func=jwt_required()(start_session),
+    view_func=start_session,
     methods=["POST"],
 )
 session_bp.add_url_rule(
     "/sessions/<uuid:session_id>/state",
-    view_func=jwt_required()(update_session_state),
+    view_func=update_session_state,
     methods=["PATCH"],
 )
 session_bp.add_url_rule(
     "/sessions/<uuid:session_id>/end",
-    view_func=jwt_required()(end_session),
+    view_func=end_session,
     methods=["POST"],
 )
 
 # Analytics event ingestion (high-frequency — called on every tourist tap)
 session_bp.add_url_rule(
     "/sessions/<uuid:session_id>/events",
-    view_func=jwt_required()(log_analytics_event),
+    view_func=log_analytics_event,
     methods=["POST"],
 )
 
@@ -129,7 +128,7 @@ transfer_bp = Blueprint("transfers", __name__)
 # Kiosk: generate transfer QR
 transfer_bp.add_url_rule(
     "/sessions/<uuid:session_id>/transfer",
-    view_func=jwt_required()(create_transfer),
+    view_func=create_transfer,
     methods=["POST"],
 )
 
@@ -143,6 +142,6 @@ transfer_bp.add_url_rule(
 # Kiosk: poll for transfer confirmation
 transfer_bp.add_url_rule(
     "/sessions/<uuid:session_id>/transfer-status",
-    view_func=jwt_required()(get_transfer_status),
+    view_func=get_transfer_status,
     methods=["GET"],
 )

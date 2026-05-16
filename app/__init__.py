@@ -11,11 +11,10 @@ from sqlalchemy import text
 from app.Business import register_business_blueprints
 from app.audit.controllers.routes.audit_log_routes import audit_bp
 from app.authandusers.routes.routes import auth_bp
-# Note: booking_feature and itinerary_feature are not yet fully implemented
-# from app.booking_feature.controllers.routes.booking_routes import booking_bp
-# from app.booking_feature.controllers.routes.qr_code_routes import qr_bp as booking_qr_bp
-# from app.itinerary_feature.MVC_architecture.controllers.routes.itinerary_routes import itinerary_bp
-# from app.itinerary_feature.MVC_architecture.controllers.routes.generator_routes import generator_bp
+from app.booking_feature.controllers.routes.booking_routes import booking_bp
+from app.booking_feature.controllers.routes.qr_code_routes import qr_bp as booking_qr_bp
+from app.itinerary_feature.MVC_architecture.controllers.routes.itinerary_routes import itinerary_bp
+from app.itinerary_feature.MVC_architecture.controllers.routes.generator_routes import generator_bp
 from app.extensions import cache, db, jwt, ma, migrate
 from app.feedback_media import feedback_bp
 from app.payment_stripe.controllers.controllers import payment_stripe_bp
@@ -74,11 +73,10 @@ def register_blueprints(flask_app: Flask) -> None:
         flask_app.register_blueprint(payment_mpesa_bp, url_prefix="/api/v1/payments")
         flask_app.register_blueprint(payment_stripe_bp, url_prefix="/api/v1/payments/stripe")
         flask_app.register_blueprint(auth_bp, url_prefix="/api/v1/auth")
-        # Note: booking_feature and itinerary_feature registration commented out until they're fixed
-        # flask_app.register_blueprint(booking_bp, url_prefix="/api/v1")
-        # flask_app.register_blueprint(booking_qr_bp, url_prefix="/api/v1")
-        # flask_app.register_blueprint(itinerary_bp, url_prefix="/api/v1")
-        # flask_app.register_blueprint(generator_bp, url_prefix="/api/v1")
+        flask_app.register_blueprint(booking_bp, url_prefix="/api/v1")
+        flask_app.register_blueprint(booking_qr_bp, url_prefix="/api/v1")
+        flask_app.register_blueprint(itinerary_bp, url_prefix="/api/v1")
+        flask_app.register_blueprint(generator_bp, url_prefix="/api/v1")
         flask_app.register_blueprint(create_transport_feature_blueprint())
         register_business_blueprints(flask_app)
         register_tourism_blueprints(flask_app)
@@ -133,6 +131,14 @@ def create_app(config_class=Config):
     from app.feedback_media import models as feedback_media_models  # noqa: F401
     from app.tourism_amenitties import models as tourism_models  # noqa: F401
     from app.user_settings import models as user_settings_models  # noqa: F401
+    from app.models.booking import Booking, BookingItem  # noqa: F401
+    from app.models.itinerary import Itinerary  # noqa: F401
+    from app.models.itinerary_day import ItineraryDay  # noqa: F401
+    from app.models.itinerary_day_attraction import ItineraryDayAttraction  # noqa: F401
+    from app.models.qr_code import QrCode  # noqa: F401
+    from app.models.attraction_time_data import AttractionTimeData  # noqa: F401
+    from app.models.user_trip_preference import UserTripPreference  # noqa: F401
+    from app.Business.Business_Profile.MVC_architecture.Business_profile_models.Business_profile_domain.Business_profile_domain import BusinessProfile  # noqa: F401
 
     with app.app_context():
         # Ensure missing tables exist in local development DBs.
@@ -276,6 +282,13 @@ def create_app(config_class=Config):
                 conn.execute(text("DELETE FROM attraction_translations WHERE typeof(attraction_id) = 'real'"))
             if has_table("destination_translations") and has_column("destination_translations", "destination_id"):
                 conn.execute(text("DELETE FROM destination_translations WHERE typeof(destination_id) = 'real'"))
+            if has_table("user_trip_preferences") and has_column("user_trip_preferences", "user_id"):
+                conn.execute(
+                    text(
+                        "DELETE FROM user_trip_preferences "
+                        "WHERE typeof(user_id) IN ('integer', 'real')"
+                    )
+                )
 
             db.session.commit()
 

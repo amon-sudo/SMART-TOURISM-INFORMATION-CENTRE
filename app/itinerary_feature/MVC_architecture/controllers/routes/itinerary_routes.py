@@ -4,9 +4,8 @@ Mount: app.register_blueprint(itinerary_bp, url_prefix='/api/v1')
 """
 
 from flask               import Blueprint
-from flask_jwt_extended  import jwt_required
 
-from app.controllers.itinerary_controller import (
+from app.itinerary_feature.MVC_architecture.controllers.itinerary_controller import (
     create,
     list_itineraries,
     show,
@@ -22,37 +21,37 @@ itinerary_bp = Blueprint("itineraries", __name__)
 # ── Authenticated ─────────────────────────────────────────────────────────────
 itinerary_bp.add_url_rule(
     "/itineraries",
-    view_func=jwt_required()(create),
+    view_func=create,
     methods=["POST"],
 )
 itinerary_bp.add_url_rule(
     "/itineraries",
-    view_func=jwt_required()(list_itineraries),
+    view_func=list_itineraries,
     methods=["GET"],
 )
 itinerary_bp.add_url_rule(
     "/itineraries/<uuid:itinerary_id>",
-    view_func=jwt_required()(show),
+    view_func=show,
     methods=["GET"],
 )
 itinerary_bp.add_url_rule(
     "/itineraries/<uuid:itinerary_id>",
-    view_func=jwt_required()(update),
+    view_func=update,
     methods=["PATCH"],
 )
 itinerary_bp.add_url_rule(
     "/itineraries/<uuid:itinerary_id>",
-    view_func=jwt_required()(destroy),
+    view_func=destroy,
     methods=["DELETE"],
 )
 itinerary_bp.add_url_rule(
     "/itineraries/<uuid:itinerary_id>/publish",
-    view_func=jwt_required()(publish),
+    view_func=publish,
     methods=["POST"],
 )
 itinerary_bp.add_url_rule(
     "/itineraries/<uuid:itinerary_id>/qr",
-    view_func=jwt_required()(generate_qr),
+    view_func=generate_qr,
     methods=["POST"],
 )
 

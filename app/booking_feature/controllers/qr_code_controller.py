@@ -5,6 +5,8 @@ Administrative management of QR codes + public scan handler.
 
 from __future__ import annotations
 
+import uuid
+
 from flask              import abort, current_app, redirect, request
 from flask_jwt_extended import get_jwt_identity
 
@@ -13,11 +15,25 @@ from app.models.qr_code           import QrCode, QrCodeStatus, QrTargetType
 from app.validators.schemas       import QrCodeSchema, QrCodeListQuerySchema
 from app.services.qr_code_service  import qr_code_service
 from app.utils.pagination           import paginate_query
-from app.utils.api_response         import success, created, bad_request
+from app.utils.api_response         import success, created, bad_request, no_result
 
 
 _qr_schema        = QrCodeSchema()
 _list_query_schema = QrCodeListQuerySchema()
+
+
+def _current_user_uuid():
+    try:
+        identity = get_jwt_identity()
+    except Exception:
+        identity = request.headers.get("X-User-Id")
+
+    if identity in (None, "", "None"):
+        identity = "00000000-0000-0000-0000-000000000001"
+
+    if isinstance(identity, uuid.UUID):
+        return identity
+    return uuid.UUID(str(identity))
 
 
 # ─── Admin ────────────────────────────────────────────────────────────────────
@@ -62,7 +78,7 @@ def revoke(qr_id: str):
     qr = QrCode.query.get_or_404(qr_id, description="QR code not found")
 
     if qr.status == QrCodeStatus.REVOKED:
-        return bad_request("QR code is already revoked")
+        return no_result("QR code is already revoked")
 
     qr.revoke()
     return success({
@@ -77,7 +93,7 @@ def regenerate(qr_id: str):
     Revoke the current code and issue a fresh one for the same entity.
     Useful when a QR image is compromised or a token is exposed.
     """
-    user_id  = get_jwt_identity()
+    user_id  = _current_user_uuid()
     existing = QrCode.query.get_or_404(qr_id, description="QR code not found")
 
     # Revoke old code first

@@ -16,6 +16,8 @@ class User(BaseUUIDModel):
     notifications = db.relationship('UserNotification', backref='user', uselist=False)
     preferences = db.relationship('UserPreference', backref='user', uselist=False)
     embeddings = db.relationship('UserBehaviorEmbedding', backref='user', uselist=False)
+    bookings = db.relationship('Booking', back_populates='user', lazy='dynamic')
+    itineraries = db.relationship('Itinerary', back_populates='user', lazy='dynamic')
 
     def set_password(self, password: str):
         self.password_hash = generate_password_hash(password)

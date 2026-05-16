@@ -19,7 +19,7 @@ from app.validators.kiosk_schemas import (
     SessionStartSchema, SessionStateUpdateSchema,
     SessionAnalyticsQuerySchema,
 )
-from app.utils.api_response import success, created, bad_request
+from app.utils.api_response import success, created, bad_request, no_result
 from app.utils.pagination   import paginate_query
 
 
@@ -142,7 +142,7 @@ def get_offline_content(kiosk_id: str, content_type: str):
         content_type=content_type,
     ).first()
     if not cache:
-        return bad_request(f"No content cache found for type: {content_type}")
+        return no_result(f"No content cache found for type: {content_type}")
     return success({
         "content_type": cache.content_type,
         "payload":      cache.payload,

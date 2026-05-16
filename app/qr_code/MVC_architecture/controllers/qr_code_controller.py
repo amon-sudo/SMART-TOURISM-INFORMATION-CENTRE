@@ -36,6 +36,11 @@ def bad_request(message="Bad request"):
     return ApiResponse.error(message=message, status_code=400)
 
 
+def no_result(message="No result"):
+    """Wrapper for ApiResponse.success() with a null data payload."""
+    return ApiResponse.success(data=None, message=message, status_code=200)
+
+
 def _current_user_id():
     """Resolve current user from JWT or testing header fallback."""
     try:
@@ -98,7 +103,7 @@ def revoke(qr_id: str):
     qr = QrCode.query.get_or_404(qr_id, description="QR code not found")
 
     if qr.status == QrCodeStatus.REVOKED:
-        return bad_request("QR code is already revoked")
+        return no_result("QR code is already revoked")
 
     qr.revoke()
     return success({

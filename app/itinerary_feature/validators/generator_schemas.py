@@ -61,7 +61,7 @@ class GenerateItinerarySchema(Schema):
     kiosk_id = fields.UUID(load_default=None, allow_none=True)
 
     @validates("interests")
-    def validate_interests(self, value):
+    def validate_interests(self, value, **kwargs):
         if not value:
             raise ValidationError("At least one interest is required")
         unknown = set(value) - set(VALID_INTERESTS)

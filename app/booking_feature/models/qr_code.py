@@ -120,7 +120,7 @@ class QrCode(BaseModel):
 
     # ── Relationships ─────────────────────────────────────────────────────────
     creator = relationship(
-        "User",
+        "app.user_settings.models.models.User",
         foreign_keys=[created_by],
         lazy="select",
     )

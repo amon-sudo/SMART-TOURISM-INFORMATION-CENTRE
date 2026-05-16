@@ -65,16 +65,8 @@ class Itinerary(BaseModel):
 
     # ── Relationships ─────────────────────────────────────────────────────────
     user = relationship(
-        "User",
+        "app.user_settings.models.models.User",
         back_populates="itineraries",
-        lazy="select",
-    )
-
-    days = relationship(
-        "ItineraryDay",
-        back_populates="itinerary",
-        order_by="ItineraryDay.day_number",
-        cascade="all, delete-orphan",
         lazy="select",
     )
 

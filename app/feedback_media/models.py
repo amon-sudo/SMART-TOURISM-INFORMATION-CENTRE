@@ -31,6 +31,7 @@ else:
 # -------------------------
 class Destination(db.Model):
     __tablename__ = "destinations"
+    __table_args__ = {"extend_existing": True}
 
     id = db.Column(UUID_TYPE, primary_key=True, default=uuid.uuid4)
     name = db.Column(db.String(255), nullable=False, index=True)

@@ -3,6 +3,7 @@ from sqlalchemy.exc import IntegrityError
 import uuid
 
 from app.extensions import db
+from app.utils.api_response import no_result
 
 from app.tourism_amenitties.attraction_amenities.models.attraction_amenities import AttractionAmenity
 
@@ -46,10 +47,7 @@ def create_attraction_amenity():
         ).first()
 
         if existing_relation:
-            return jsonify({
-                "success": False,
-                "error": "Relationship already exists"
-            }), 409
+            return no_result("Relationship already exists")
 
         attraction_amenity = AttractionAmenity(
             attraction_id=uuid.UUID(str(data["attraction_id"])),

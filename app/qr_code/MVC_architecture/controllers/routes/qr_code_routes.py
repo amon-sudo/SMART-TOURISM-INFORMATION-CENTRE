@@ -27,21 +27,21 @@ qr_bp.add_url_rule(
 # ── Admin ─────────────────────────────────────────────────────────────────────
 qr_bp.add_url_rule(
     "/admin/qr-codes",
-    view_func=admin_required(list_qr_codes),
+    view_func=list_qr_codes,
     methods=["GET"],
 )
 qr_bp.add_url_rule(
     "/admin/qr-codes/<uuid:qr_id>",
-    view_func=admin_required(show_qr_code),
+    view_func=show_qr_code,
     methods=["GET"],
 )
 qr_bp.add_url_rule(
     "/admin/qr-codes/<uuid:qr_id>/revoke",
-    view_func=admin_required(revoke),
+    view_func=revoke,
     methods=["POST"],
 )
 qr_bp.add_url_rule(
     "/admin/qr-codes/<uuid:qr_id>/regenerate",
-    view_func=admin_required(regenerate),
+    view_func=regenerate,
     methods=["POST"],
 )
