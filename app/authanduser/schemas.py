@@ -1,6 +1,6 @@
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from marshmallow import fields
-from app.authandusers.models.models import User, PasswordReset
+from app.authanduser.models.models import User, PasswordReset
 
 class UserSchema(SQLAlchemyAutoSchema):
     class Meta:

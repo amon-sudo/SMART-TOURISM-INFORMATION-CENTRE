@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request, decode_token
-from app.authandusers.services.services import AuthService
-from app.authandusers.schemas import UserSchema, PasswordResetSchema
+from app.authanduser.services.services import AuthService
+from app.authanduser.schemas import UserSchema, PasswordResetSchema
 from app.utils.responses import ApiResponse
 import logging
 

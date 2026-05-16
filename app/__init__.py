@@ -10,7 +10,8 @@ from sqlalchemy import text
 
 from app.Business import register_business_blueprints
 from app.audit.controllers.routes.audit_log_routes import audit_bp
-from app.authandusers.routes.routes import auth_bp
+from app.authanduser.routes.google_routes import google_auth_bp
+from app.authanduser.routes.routes import auth_bp
 from app.booking_feature.controllers.routes.booking_routes import booking_bp
 from app.booking_feature.controllers.routes.qr_code_routes import qr_bp as booking_qr_bp
 from app.itinerary_feature.MVC_architecture.controllers.routes.itinerary_routes import itinerary_bp
@@ -43,6 +44,12 @@ class Config:
     DISABLE_AUTH_FOR_TESTING = os.getenv("DISABLE_AUTH_FOR_TESTING", "0") == "1"
     RELAX_4XX_FOR_TESTING = os.getenv("RELAX_4XX_FOR_TESTING", "0") == "1"
     PROPAGATE_EXCEPTIONS = True
+    
+    # Google OAuth
+    GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+    GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+    GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
+
     JSON_SORT_KEYS = False
 
 
@@ -73,6 +80,7 @@ def register_blueprints(flask_app: Flask) -> None:
         flask_app.register_blueprint(payment_mpesa_bp, url_prefix="/api/v1/payments")
         flask_app.register_blueprint(payment_stripe_bp, url_prefix="/api/v1/payments/stripe")
         flask_app.register_blueprint(auth_bp, url_prefix="/api/v1/auth")
+        flask_app.register_blueprint(google_auth_bp, url_prefix="/api/v1/auth")
         flask_app.register_blueprint(booking_bp, url_prefix="/api/v1")
         flask_app.register_blueprint(booking_qr_bp, url_prefix="/api/v1")
         flask_app.register_blueprint(itinerary_bp, url_prefix="/api/v1")
@@ -122,6 +130,9 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     jwt.init_app(app)
     ma.init_app(app)
+    
+    from app.utils.oauth import init_oauth
+    init_oauth(app)
 
     CORS(app, resources={r"/api/*": {"origins": "*"}})
     redis_configure(app)
