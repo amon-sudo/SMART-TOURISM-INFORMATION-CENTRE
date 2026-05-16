@@ -124,6 +124,36 @@ class StripeService:
             elif UnifiedPaymentService and event.get('type') == 'payment_intent.payment_failed':
                 payment_intent = event['data']['object']
                 UnifiedPaymentService.update_payment_status(payment_intent.id, "failed", "stripe", event)
+            elif event.get('type') == 'payment_intent.succeeded':
+                # Local fallback when UnifiedPaymentService is not available.
+                payment_intent = event['data']['object']
+                intent_id = payment_intent.get('id') if isinstance(payment_intent, dict) else None
+                payment = PaymentStripe.query.filter_by(stripe_payment_intent_id=intent_id).first()
+                if payment:
+                    payment.status = "succeeded"
+                    metadata = payment.payment_metadata or {}
+                    booking_id = metadata.get('booking_id')
+                    if booking_id:
+                        try:
+                            from app.models.booking import Booking, BookingStatus
+                            from app.services.qr_code_service import qr_code_service
+
+                            booking = Booking.query.get(booking_id)
+                            if booking and booking.status != BookingStatus.CONFIRMED:
+                                booking.status = BookingStatus.CONFIRMED
+                                qr_code_service.generate_or_refresh(
+                                    target_type="booking",
+                                    target_id=booking.id,
+                                    created_by=booking.user_id,
+                                )
+                        except Exception as booking_exc:
+                            logger.warning(f"Booking confirmation/QR auto-generation skipped: {booking_exc}")
+            elif event.get('type') == 'payment_intent.payment_failed':
+                payment_intent = event['data']['object']
+                intent_id = payment_intent.get('id') if isinstance(payment_intent, dict) else None
+                payment = PaymentStripe.query.filter_by(stripe_payment_intent_id=intent_id).first()
+                if payment:
+                    payment.status = "failed"
             
             if 'webhook_event' in locals():
                 webhook_event.processed_at = db.func.now()
