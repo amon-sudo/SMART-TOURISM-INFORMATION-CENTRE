@@ -38,16 +38,18 @@ def _current_user_id():
     return str(identity) if identity is not None else None
 
 # Signup
-@auth_bp.route("/register", methods=["POST"])
+@auth_bp.post("/signup")
 def signup():
-    data = request.get_json() or {}
+    data = request.get_json()
     email = data.get("email")
     password = data.get("password")
-    
+    username = data.get("username")
+
     if not email or not password:
         return ApiResponse.error(message="Email and password required", code="MISSING_DATA", status_code=400)
 
-    user = AuthService.signup(email, password)
+    user = AuthService.signup(email, password, username=username)
+
     if not user:
         return ApiResponse.error(message="Email already exists", code="CONFLICT", status_code=409)
     return ApiResponse.success(data=user_schema.dump(user), message="Account created successfully", status_code=201)

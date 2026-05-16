@@ -14,7 +14,11 @@ class Destination(db.Model):
 
     canonical_name = db.Column(db.String, nullable=False)
 
+    name = db.Column(db.String(255), nullable=True, index=True)
+
     slug = db.Column(db.String, unique=True, nullable=False)
+
+    description = db.Column(db.Text, nullable=True)
 
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 

@@ -6,10 +6,11 @@ from flask_jwt_extended import create_access_token, create_refresh_token
 
 class AuthService:
     @staticmethod
-    def signup(email, password):
+    def signup(email, password, username=None):
         if User.query.filter_by(email=email).first():
             return None
-        user = User(email=email, password_hash=hash_password(password))
+        user = User(email=email, username=username)
+        user.set_password(password)
         db.session.add(user)
         db.session.commit()
         return user

@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 from app.extensions import db
 from app.utils.base_model import BaseUUIDModel
@@ -18,12 +19,41 @@ class User(BaseUUIDModel):
     embeddings = db.relationship('UserBehaviorEmbedding', backref='user', uselist=False)
     bookings = db.relationship('Booking', back_populates='user', lazy='dynamic')
     itineraries = db.relationship('Itinerary', back_populates='user', lazy='dynamic')
+    refresh_tokens = db.relationship("RefreshToken", backref="user", lazy=True)
+    password_resets = db.relationship("PasswordReset", backref="user", lazy=True)
 
     def set_password(self, password: str):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password: str) -> bool:
         return check_password_hash(self.password_hash, password)
+
+class RefreshToken(db.Model):
+    __tablename__ = "refresh_tokens"
+    id = db.Column(db.Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = db.Column(db.Uuid(as_uuid=True), db.ForeignKey("users.id"), nullable=False)
+    token = db.Column(db.String(512), nullable=False)
+    revoked = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    expires_at = db.Column(db.DateTime, nullable=False)
+
+    def revoke(self):
+        self.revoked = True
+        db.session.commit()
+
+
+class PasswordReset(db.Model):
+    __tablename__ = "password_resets"
+    id = db.Column(db.Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = db.Column(db.Uuid(as_uuid=True), db.ForeignKey("users.id"), nullable=False)
+    token = db.Column(db.String(512), nullable=False)
+    used_at = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    expires_at = db.Column(db.DateTime, nullable=False)
+
+    def mark_used(self):
+        self.used_at = datetime.utcnow()
+        db.session.commit()
 
 class UserProfile(db.Model):
     __tablename__ = 'user_profiles'

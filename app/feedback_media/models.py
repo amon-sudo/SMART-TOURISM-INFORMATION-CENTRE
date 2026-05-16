@@ -26,20 +26,7 @@ else:
     Geography = None
     GEOGRAPHY_AVAILABLE = False
 
-# -------------------------
-# Destination model
-# -------------------------
-class Destination(db.Model):
-    __tablename__ = "destinations"
-    __table_args__ = {"extend_existing": True}
-
-    id = db.Column(UUID_TYPE, primary_key=True, default=uuid.uuid4)
-    name = db.Column(db.String(255), nullable=False, index=True)
-    description = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-
-    def __repr__(self) -> str:
-        return f"<Destination {self.name} ({self.id})>"
+from app.tourism_amenitties.destination.models.destination import Destination
 
 # -------------------------
 # Feedback / Media models

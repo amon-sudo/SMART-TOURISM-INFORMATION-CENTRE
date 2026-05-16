@@ -120,7 +120,7 @@ class QrCode(BaseModel):
 
     # ── Relationships ─────────────────────────────────────────────────────────
     creator = relationship(
-        "app.authanduser.models.models.User",
+        "User",
         foreign_keys=[created_by],
         lazy="select",
     )

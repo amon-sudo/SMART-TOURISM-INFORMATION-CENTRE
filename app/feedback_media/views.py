@@ -276,7 +276,15 @@ def create_destination_route():
         return error_response(400, "validation_error", "Name required")
 
     try:
-        dest = Destination(name=name, description=description, created_at=datetime.utcnow())
+        canonical_name = payload.get("canonical_name", name)
+        slug = payload.get("slug", name.lower().replace(" ", "-"))
+        dest = Destination(
+            name=name, 
+            canonical_name=canonical_name,
+            slug=slug,
+            description=description, 
+            created_at=datetime.utcnow()
+        )
         db.session.add(dest)
         db.session.commit()
     except Exception:

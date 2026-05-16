@@ -295,17 +295,29 @@ def build_runner():
             pass
 
     def seed_all():
+        print("--- Starting Seeding ---")
         seed_auth()
+        print(f"Auth seeded. User ID: {state.get('user_id')}")
         seed_destination()
+        print(f"Destination seeded. ID: {state.get('destination_id')}")
         seed_amenity()
+        print(f"Amenity seeded. ID: {state.get('amenity_id')}")
         seed_attraction()
+        print(f"Attraction seeded. ID: {state.get('attraction_id')}")
         seed_feedback_objects()
+        print(f"Feedback objects seeded. User: {state.get('feedback_user_id')}, Dest: {state.get('feedback_destination_id')}")
         seed_rbac()
+        print(f"RBAC seeded.")
         seed_transport()
+        print(f"Transport seeded.")
         seed_business_and_profile()
+        print(f"Business seeded.")
         seed_audit()
+        print(f"Audit seeded.")
         seed_payments()
+        print(f"Payments seeded.")
         seed_auth_password_reset_token()
+        print("--- Seeding Complete ---")
 
     def replace_path(rule, method):
         if rule.startswith("/api/v1/amenities/<uuid:id>"):

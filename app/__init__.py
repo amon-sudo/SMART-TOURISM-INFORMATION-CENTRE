@@ -8,26 +8,9 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from sqlalchemy import text
 
-from app.Business import register_business_blueprints
-from app.audit.controllers.routes.audit_log_routes import audit_bp
-from app.authanduser.routes.google_routes import google_auth_bp
-from app.authanduser.routes.routes import auth_bp
-from app.booking_feature.controllers.routes.booking_routes import booking_bp
-from app.booking_feature.controllers.routes.qr_code_routes import qr_bp as booking_qr_bp
-from app.itinerary_feature.MVC_architecture.controllers.routes.itinerary_routes import itinerary_bp
-from app.itinerary_feature.MVC_architecture.controllers.routes.generator_routes import generator_bp
 from app.extensions import cache, db, jwt, ma, migrate
-from app.feedback_media import feedback_bp
-from app.payment_stripe.controllers.controllers import payment_stripe_bp
-from app.qr_code.MVC_architecture.controllers.routes.qr_code_routes import qr_bp
-from app.qr_code.MVC_architecture.controllers.routes.handoff_routes import handoff_bp
-from app.rbac.controllers.routes.permission_routes import permission_bp
-from app.rbac.controllers.routes.role_routes import role_bp
-from app.mpesa_payment_feature.routes.payment_routesmpesa import payment_mpesa_bp
-from app.transport_feature import create_transport_feature_blueprint
 from app.tourism_amenitties import register_blueprints as register_tourism_blueprints
 from app.tourism_amenitties import redis_configure
-from app.user_settings.views.views import user_settings_bp
 
 load_dotenv()
 
@@ -76,6 +59,26 @@ def configure_logging() -> None:
 
 def register_blueprints(flask_app: Flask) -> None:
     """Register all application blueprints."""
+    from app.Business import register_business_blueprints
+    from app.audit.controllers.routes.audit_log_routes import audit_bp
+    from app.authanduser.routes.google_routes import google_auth_bp
+    from app.authanduser.routes.routes import auth_bp
+    from app.booking_feature.controllers.routes.booking_routes import booking_bp
+    from app.booking_feature.controllers.routes.qr_code_routes import qr_bp as booking_qr_bp
+    from app.itinerary_feature.MVC_architecture.controllers.routes.itinerary_routes import itinerary_bp
+    from app.itinerary_feature.MVC_architecture.controllers.routes.generator_routes import generator_bp
+    from app.feedback_media import feedback_bp
+    from app.payment_stripe.controllers.controllers import payment_stripe_bp
+    from app.qr_code.MVC_architecture.controllers.routes.qr_code_routes import qr_bp
+    from app.qr_code.MVC_architecture.controllers.routes.handoff_routes import handoff_bp
+    from app.rbac.controllers.routes.permission_routes import permission_bp
+    from app.rbac.controllers.routes.role_routes import role_bp
+    from app.mpesa_payment_feature.routes.payment_routesmpesa import payment_mpesa_bp
+    from app.transport_feature import create_transport_feature_blueprint
+    from app.tourism_amenitties import register_blueprints as register_tourism_blueprints
+    from app.tourism_amenitties import redis_configure
+    from app.user_settings.views.views import user_settings_bp
+
     try:
         flask_app.register_blueprint(payment_mpesa_bp, url_prefix="/api/v1/payments")
         flask_app.register_blueprint(payment_stripe_bp, url_prefix="/api/v1/payments/stripe")
@@ -95,6 +98,7 @@ def register_blueprints(flask_app: Flask) -> None:
         flask_app.register_blueprint(handoff_bp, url_prefix="/api/v1")
         flask_app.register_blueprint(audit_bp, url_prefix="/api/v1")
         flask_app.register_blueprint(feedback_bp, url_prefix="/api/v1/feedback")
+        redis_configure(flask_app)
         flask_app.logger.info("Registered all blueprints successfully")
     except Exception as exc:
         flask_app.logger.exception("Failed to register blueprints: %s", exc)
@@ -139,17 +143,18 @@ def create_app(config_class=Config):
     cache.init_app(app)
 
     # Import representative models so migrations and metadata see them.
-    from app.feedback_media import models as feedback_media_models  # noqa: F401
-    from app.tourism_amenitties import models as tourism_models  # noqa: F401
-    from app.user_settings import models as user_settings_models  # noqa: F401
+    from app.models.attraction_time_data import AttractionTimeData  # noqa: F401
     from app.models.booking import Booking, BookingItem  # noqa: F401
     from app.models.itinerary import Itinerary  # noqa: F401
     from app.models.itinerary_day import ItineraryDay  # noqa: F401
     from app.models.itinerary_day_attraction import ItineraryDayAttraction  # noqa: F401
     from app.models.qr_code import QrCode  # noqa: F401
-    from app.models.attraction_time_data import AttractionTimeData  # noqa: F401
     from app.models.user_trip_preference import UserTripPreference  # noqa: F401
+    from app.user_settings import models as user_settings_models  # noqa: F401
+    from app.tourism_amenitties import models as tourism_models  # noqa: F401
+    from app.feedback_media import models as feedback_media_models  # noqa: F401
     from app.Business.Business_Profile.MVC_architecture.Business_profile_models.Business_profile_domain.Business_profile_domain import BusinessProfile  # noqa: F401
+    from app.Business.Business_registration.MVC_architecture_business.Business_registration_models.Business_registration_domain.Business_registration_domain import BusinessRegistrationRequest  # noqa: F401
 
     with app.app_context():
         # Ensure missing tables exist in local development DBs.
