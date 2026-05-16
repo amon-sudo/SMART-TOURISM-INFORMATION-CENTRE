@@ -123,6 +123,18 @@ def create():
 
     # Refresh to load items relationship
     db.session.refresh(booking)
+
+    # Auto-generate voucher QR if the booking is already confirmed.
+    # Current flow creates PENDING bookings; this keeps behavior ready for
+    # future confirmation-at-create flows without changing API contracts.
+    if booking.status == BookingStatus.CONFIRMED:
+        qr = qr_code_service.generate_or_refresh(
+            target_type="booking",
+            target_id=booking.id,
+            created_by=user_id,
+        )
+        setattr(booking, "qr_code", qr)
+
     return created(_booking_schema.dump(booking))
 
 

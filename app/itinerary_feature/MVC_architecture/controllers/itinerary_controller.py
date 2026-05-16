@@ -179,6 +179,14 @@ def publish(itinerary_id: str):
         return bad_request("Add at least one day before publishing")
 
     itinerary.status = ItineraryStatus.PUBLISHED
+
+    # Auto-generate a QR code when the itinerary becomes publishable for tourists.
+    qr = qr_code_service.generate_or_refresh(
+        target_type="itinerary",
+        target_id=itinerary.id,
+        created_by=user_id,
+    )
+    itinerary.qr_code_url = qr.url
     db.session.commit()
 
     return success({
