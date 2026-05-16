@@ -1,4 +1,5 @@
 from flask import Blueprint, request
+from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
 from app.mpesa_payment_feature.services.payment_servicesmpesa import process_payment, check_status, handle_callback
 
 payment_mpesa_bp = Blueprint("payment_mpesa_bp", __name__)
@@ -13,7 +14,14 @@ def error_response(message, code=400):
 @payment_mpesa_bp.route("/pay/mpesa", methods=["POST"])
 def pay_mpesa():
     try:
-        data = request.json
+        data = request.json or {}
+        if not data.get("user_id"):
+            try:
+                verify_jwt_in_request(optional=True)
+                identity = get_jwt_identity()
+            except Exception:
+                identity = None
+            data["user_id"] = identity or request.headers.get("X-User-Id")
         result = process_payment(data)
         return success_response(result)
     except Exception as e:

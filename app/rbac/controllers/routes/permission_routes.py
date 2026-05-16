@@ -8,7 +8,7 @@ from app.rbac.services.permission_service import (
     delete_permission
 )
 
-permission_bp = Blueprint("permissions", __name__, url_prefix="/api/v1")
+permission_bp = Blueprint("permissions", __name__)
 
 permission_create_schema = PermissionCreateSchema()
 permission_response_schema = PermissionResponseSchema()

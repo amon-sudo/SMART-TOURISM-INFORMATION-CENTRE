@@ -15,7 +15,7 @@ from .services import (
 )
 from app.feedback_media.models import User  # <-- make sure User model exists
 
-feedback_bp = Blueprint("feedback_media", __name__, url_prefix="/api/v1/feedback")
+feedback_bp = Blueprint("feedback_media", __name__)
 
 
 def error_response(code, error, message=None, details=None):

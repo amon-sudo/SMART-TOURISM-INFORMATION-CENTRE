@@ -4,15 +4,16 @@ from ..controllers.controllers import (
     get_all_settings, update_user_profile, update_accessibility_settings, 
     update_notification_settings, update_user_preferences
 )
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request
 
 user_settings_bp = Blueprint('user_settings', __name__)
 
 
 def _current_user_id():
     try:
+        verify_jwt_in_request(optional=True)
         return get_jwt_identity() or request.headers.get("X-User-Id")
-    except RuntimeError:
+    except Exception:
         return request.headers.get("X-User-Id")
 
 @user_settings_bp.route('/settings', methods=['GET'])

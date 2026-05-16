@@ -10,7 +10,7 @@ from app.audit.services.audit_log_service import (
     delete_audit_log
 )
 
-audit_bp = Blueprint("audit", __name__, url_prefix="/api/v1")
+audit_bp = Blueprint("audit", __name__)
 
 audit_log_create_schema = AuditLogCreateSchema()
 audit_log_response_schema = AuditLogResponseSchema()

@@ -282,7 +282,7 @@ def build_runner():
         req("POST", "/api/v1/auth/password-reset", {"email": state["email"]})
         try:
             from app.extensions import db
-            from app.authanduser.models.models import PasswordReset
+            from app.authandusers.models.models import PasswordReset
 
             token_obj = (
                 db.session.query(PasswordReset)

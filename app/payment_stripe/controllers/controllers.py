@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request
 from app.payment_stripe.views.views import StripeService
 from app.payment_stripe.schemas import StripePaymentIntentSchema, StripePaymentResponseSchema
 from app.utils.responses import ApiResponse
@@ -16,8 +16,9 @@ payment_response_schema = StripePaymentResponseSchema()
 
 def _current_user_id():
     try:
+        verify_jwt_in_request(optional=True)
         return get_jwt_identity() or request.headers.get("X-User-Id")
-    except RuntimeError:
+    except Exception:
         return request.headers.get("X-User-Id")
 
 @payment_stripe_bp.route("/create-payment-intent", methods=["POST"])

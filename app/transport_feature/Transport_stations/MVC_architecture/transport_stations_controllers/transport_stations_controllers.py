@@ -165,16 +165,3 @@ def get_stations_by_country_handler(country: str):
         return jsonify({"error": str(e)}), 500
 
 
-def delete_station_handler(station_id: str):
-    try:
-        repository = TransportStationRepository()
-        success = repository.delete_station(station_id)
-        if success:
-            return jsonify({"message": "Station deleted successfully"}), 200
-        else:
-            return jsonify({"error": "Station not found"}), 404
-    except ValueError:
-        return jsonify({"error": "Invalid station_id format. Expected UUID."}), 400
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    

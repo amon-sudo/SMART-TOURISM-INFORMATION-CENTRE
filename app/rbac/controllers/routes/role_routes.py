@@ -14,7 +14,7 @@ from app.rbac.services.role_service import (
     get_user_roles
 )
 
-role_bp = Blueprint("roles", __name__, url_prefix="/api/v1")
+role_bp = Blueprint("roles", __name__)
 
 role_create_schema = RoleCreateSchema()
 role_response_schema = RoleResponseSchema()
