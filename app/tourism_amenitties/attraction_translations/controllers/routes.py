@@ -8,11 +8,7 @@ from app.tourism_amenitties.attraction_translations.models.attraction_tran impor
 from app.tourism_amenitties.attraction_translations.schemas.attraction_translation import AttractionTranslationSchema
 
 
-attraction_translation_bp = Blueprint(
-    "attraction_translation_bp",
-    __name__,
-    url_prefix="/api/v1/attraction-translations"
-)
+attraction_translation_bp = Blueprint("attraction_translation_bp", __name__)
 
 translation_schema = AttractionTranslationSchema()
 translations_schema = AttractionTranslationSchema(many=True)

@@ -8,11 +8,7 @@ from app.tourism_amenitties.destination_translation.models.destination_translati
 from app.tourism_amenitties.destination_translation.schemas.destination_translation import DestinationTranslationSchema
 
 
-destination_translation_bp = Blueprint(
-    "destination_translation_bp",
-    __name__,
-    url_prefix="/api/v1/destination-translations"
-)
+destination_translation_bp = Blueprint("destination_translation_bp", __name__)
 
 translation_schema = DestinationTranslationSchema()
 translations_schema = DestinationTranslationSchema(many=True)

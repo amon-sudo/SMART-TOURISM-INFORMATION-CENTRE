@@ -8,11 +8,7 @@ from app.tourism_amenitties.destination.models.destination import Destination
 from app.tourism_amenitties.destination.schemas.destination import DestinationSchema
 
 
-destination_bp = Blueprint(
-    "destination_bp",
-    __name__,
-    url_prefix="/api/v1/destinations"
-)
+destination_bp = Blueprint("destination_bp", __name__)
 
 destination_schema = DestinationSchema()
 destinations_schema = DestinationSchema(many=True)

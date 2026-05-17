@@ -10,11 +10,7 @@ from app.tourism_amenitties.attraction_amenities.models.attraction_amenities imp
 from app.tourism_amenitties.attraction_amenities.schemas.attraction_amenity import AttractionAmenitySchema
 
 
-attraction_amenity_bp = Blueprint(
-    "attraction_amenity_bp",
-    __name__,
-    url_prefix="/api/v1/attraction-amenities"
-)
+attraction_amenity_bp = Blueprint("attraction_amenity_bp", __name__)
 
 attraction_amenity_schema = AttractionAmenitySchema()
 attraction_amenities_schema = AttractionAmenitySchema(many=True)

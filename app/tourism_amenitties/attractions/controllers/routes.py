@@ -8,11 +8,7 @@ from app.tourism_amenitties.attractions.models.attraction import Attraction
 from app.tourism_amenitties.attractions.schemas.attraction import AttractionSchema
 
 
-attraction_bp = Blueprint(
-    "attraction_bp",
-    __name__,
-    url_prefix="/api/v1/attractions"
-)
+attraction_bp = Blueprint("attraction_bp", __name__)
 
 attraction_schema = AttractionSchema()
 attractions_schema = AttractionSchema(many=True)

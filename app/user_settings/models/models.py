@@ -1,8 +1,13 @@
 import uuid
 from datetime import datetime
+from sqlalchemy.orm import validates
 from app.extensions import db
 from app.utils.base_model import BaseUUIDModel
 from werkzeug.security import generate_password_hash, check_password_hash
+
+# Vocabulary from STORY024 — keep here so the schema layer can reuse them.
+ALLOWED_BUDGET_LEVELS = {"Budget", "Mid-Range", "High", "Luxury"}
+ALLOWED_PACES = {"Relaxed", "Moderate", "Packed"}
 
 class User(BaseUUIDModel):
     __tablename__ = 'users'
@@ -106,6 +111,34 @@ class UserPreference(db.Model):
     pace = db.Column(db.String(20))
     interests = db.Column(db.JSON)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    @validates("budget_level")
+    def _validate_budget_level(self, key, value):
+        if value is None:
+            return value
+        if value not in ALLOWED_BUDGET_LEVELS:
+            raise ValueError(
+                f"budget_level must be one of {sorted(ALLOWED_BUDGET_LEVELS)}"
+            )
+        return value
+
+    @validates("pace")
+    def _validate_pace(self, key, value):
+        if value is None:
+            return value
+        if value not in ALLOWED_PACES:
+            raise ValueError(
+                f"pace must be one of {sorted(ALLOWED_PACES)}"
+            )
+        return value
+
+    @validates("stay_duration_days")
+    def _validate_stay_duration(self, key, value):
+        if value is None:
+            return value
+        if not (1 <= int(value) <= 365):
+            raise ValueError("stay_duration_days must be between 1 and 365")
+        return value
 
 class UserBehaviorEmbedding(db.Model):
     __tablename__ = 'user_behavior_embeddings'

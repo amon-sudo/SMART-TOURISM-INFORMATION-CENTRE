@@ -7,11 +7,7 @@ from app.tourism_amenitties.amenities.models.amenities import Amenity
 from app.tourism_amenitties.amenities.schemas.amenity import AmenitySchema
 
 
-amenities_bp = Blueprint(
-    "amenities_bp",
-    __name__,
-    url_prefix="/api/v1/amenities"
-)
+amenities_bp = Blueprint("amenities_bp", __name__)
 
 amenity_schema = AmenitySchema()
 amenities_schema = AmenitySchema(many=True)
