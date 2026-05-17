@@ -28,6 +28,9 @@ class AuthService:
                     expires_at=datetime.datetime.utcnow() + datetime.timedelta(days=7)
                 )
                 db.session.add(rt)
+                # STORY012: track last successful login on the user's profile.
+                if getattr(user, "profile", None) is not None:
+                    user.profile.last_login_at = datetime.datetime.utcnow()
                 db.session.commit()
             except Exception:
                 db.session.rollback()
@@ -35,12 +38,22 @@ class AuthService:
         return None
 
     @staticmethod
-    def logout(refresh_token):
+    def logout(refresh_token, user_id=None, revoke_all: bool = False):
+        """Revoke the supplied refresh token. When revoke_all is True (or no
+        token was supplied but a user_id is known), revoke every active
+        refresh token for the user — used by password reset and by the
+        'log out everywhere' flow.
+        """
         try:
-            rt = RefreshToken.query.filter_by(token=refresh_token).first()
-            if rt:
-                rt.revoked = True
-                db.session.commit()
+            if revoke_all and user_id is not None:
+                RefreshToken.query.filter_by(user_id=user_id, revoked=False).update(
+                    {"revoked": True}
+                )
+            elif refresh_token:
+                rt = RefreshToken.query.filter_by(token=refresh_token).first()
+                if rt:
+                    rt.revoked = True
+            db.session.commit()
         except Exception:
             db.session.rollback()
         return True
@@ -72,12 +85,19 @@ class AuthService:
         if hasattr(pr, "used") and getattr(pr, "used"): return False
         if hasattr(pr, "used_at") and getattr(pr, "used_at") is not None: return False
 
-        user = User.query.get(pr.user_id)
+        user = db.session.get(User, pr.user_id)
         if not user: return False
 
         user.password_hash = hash_password(new_password)
         if hasattr(pr, "used"): pr.used = True
         if hasattr(pr, "used_at"): pr.used_at = datetime.datetime.utcnow()
+
+        # STORY014: revoke every active refresh token so any device that
+        # was logged in with the old password is forced to re-authenticate.
+        RefreshToken.query.filter_by(user_id=user.id, revoked=False).update(
+            {"revoked": True}
+        )
+
         db.session.commit()
         return True
 

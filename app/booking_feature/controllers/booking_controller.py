@@ -208,6 +208,10 @@ def cancel(booking_id: str):
     except ValidationError as e:
         return bad_request("Validation failed", errors=e.messages)
 
+    # Capture the status BEFORE cancel() mutates it so the refund branch
+    # below is actually reachable for previously-confirmed bookings.
+    pre_cancel_status = booking.status
+
     try:
         booking.cancel(reason=data.get("cancellation_reason"))
 
@@ -215,7 +219,7 @@ def cancel(booking_id: str):
         qr_code_service.revoke_for_target("booking", booking.id)
 
         # Trigger refund assessment for previously confirmed bookings
-        if booking.status == BookingStatus.CONFIRMED:
+        if pre_cancel_status == BookingStatus.CONFIRMED:
             from app.services.payment_service import PaymentService
             PaymentService.initiate_refund_assessment(booking.id)
 

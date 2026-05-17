@@ -100,7 +100,13 @@ def me():
 @jwt_required()
 def logout():
     data = request.get_json() or {}
-    AuthService.logout(data.get("refresh_token"))
+    user_id = _current_user_id()
+    revoke_all = bool(data.get("revoke_all"))
+    AuthService.logout(
+        data.get("refresh_token"),
+        user_id=user_id,
+        revoke_all=revoke_all,
+    )
     return jsonify({"message": "Logged out"}), 200
 
 # Password reset request

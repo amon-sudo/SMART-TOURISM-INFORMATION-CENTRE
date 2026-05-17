@@ -87,8 +87,11 @@ def get_attractions():
 
         page = request.args.get("page", 1, type=int)
         per_page = request.args.get("per_page", 10, type=int)
+        # Public/tourist listing must only ever show approved attractions
+        # (STORY001, STORY028). Admin endpoints use their own listing.
+        include_all = request.args.get("include_all") == "true"
 
-        cache_key = f"attractions_page_{page}_per_page_{per_page}"
+        cache_key = f"attractions_page_{page}_per_page_{per_page}_all_{include_all}"
 
         # 1. check redis first
         cached_data = cache.get(cache_key)
@@ -96,7 +99,10 @@ def get_attractions():
             return jsonify(cached_data), 200
 
         # 2. query DB
-        pagination = Attraction.query.paginate(
+        query = Attraction.query
+        if not include_all:
+            query = query.filter(Attraction.status == "approved")
+        pagination = query.paginate(
             page=page,
             per_page=per_page,
             error_out=False

@@ -212,11 +212,15 @@ class Booking(BaseModel):
         return 0.0
 
     def cancel(self, reason: str | None = None) -> "Booking":
-        """Cancel this booking and set cancelled_at timestamp."""
+        """Cancel this booking and set cancelled_at timestamp.
+
+        Does NOT commit — the caller controls the transaction boundary so
+        that follow-up steps (QR revocation, refund kickoff) succeed or
+        fail atomically together.
+        """
         self.status              = BookingStatus.CANCELLED
         self.cancelled_at        = utcnow()
         self.cancellation_reason = reason
-        db.session.commit()
         return self
 
     def __repr__(self) -> str:
