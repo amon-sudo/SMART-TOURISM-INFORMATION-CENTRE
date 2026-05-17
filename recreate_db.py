@@ -1,6 +1,7 @@
 from app import create_app
 from app.extensions import db
 from sqlalchemy import text
+from flask_migrate import stamp
 app = create_app()
 
 from app.user_settings.models.models import User
@@ -14,6 +15,9 @@ def recreate_and_seed():
         
         print("Creating all tables...")
         db.create_all()
+        
+        stamp()
+        print("Database initialized and stamped.")
         
         print("Seeding test user...")
         # UUID is generated automatically

@@ -47,26 +47,26 @@ def _current_user_uuid() -> uuid.UUID:
     return uuid.UUID(str(identity))
 
 
-@business_bp.route("/register", methods=["POST"], strict_slashes=False)
+@business_bp.route("/", methods=["POST"], strict_slashes=False)
 # @jwt_or_dev_required()  # TEMP: auth disabled for endpoint testing
 def register_business():
     return register_business_request()
 
 
-@business_bp.route("/registration", methods=["GET"])
+@business_bp.route("/registrations", methods=["GET"])
 # @jwt_or_dev_required()  # TEMP: auth disabled for endpoint testing
 def get_my_business_registration():
     return get_my_registration()
 
 # Note: The PATCH endpoint for updating the registration request is defined in the Business_registration_routes.py file, as it is more closely related to the registration process than the profile management.
-@business_bp.route("/registration/<string:request_id>", methods=["PATCH"])
+@business_bp.route("/registrations/<string:request_id>", methods=["PATCH"])
 # @jwt_or_dev_required()  # TEMP: auth disabled for endpoint testing
 def patch_my_business_registration(request_id: str):
     return update_my_registration(request_id)
 
 
 # The following endpoints are for managing the business profile, which is separate from the registration process. They require the user to have the "business_owner" role, which should be assigned after a successful registration and approval process.
-@business_bp.route("/profile", methods=["GET"])
+@business_bp.route("/profiles", methods=["GET"])
 # @role_required("business_owner")  # TEMP: auth disabled for endpoint testing
 def get_my_profile():
     try:
@@ -91,7 +91,7 @@ def get_my_profile():
     )
 
 
-@business_bp.route("/profiles", methods=["GET"])
+@business_bp.route("/profiles/list", methods=["GET"])
 # @role_required("business_owner")  # TEMP: auth disabled for endpoint testing
 def list_my_profiles():
     profiles = list_user_business_profiles(_current_user_uuid())
@@ -115,7 +115,7 @@ def list_my_profiles():
     )
 
 
-@business_bp.route("/profile", methods=["PATCH"])
+@business_bp.route("/profiles", methods=["PATCH"])
 # @role_required("business_owner")  # TEMP: auth disabled for endpoint testing
 def update_my_profile():
     payload = request.get_json(silent=True) or {}
@@ -126,7 +126,7 @@ def update_my_profile():
     return jsonify({"profile": {"id": str(profile.id)}}), HTTPStatus.OK
 
 
-@business_bp.route("/profile/<string:profile_id>", methods=["PATCH"])
+@business_bp.route("/profiles/<string:profile_id>", methods=["PATCH"])
 # @role_required("business_owner")  # TEMP: auth disabled for endpoint testing
 def update_my_profile_by_id(profile_id: str):
     payload = request.get_json(silent=True) or {}
@@ -140,31 +140,10 @@ def update_my_profile_by_id(profile_id: str):
         return no_result("Business profile not found; no changes applied")
     return jsonify({"profile": {"id": str(profile.id)}}), HTTPStatus.OK
 
-#businesses to be able to update thier own profiles
-@business_bp.route("/profile/update", methods=["PATCH"])
-# @role_required("business_owner")  # TEMP: auth disabled for endpoint testing
-def update_business_profile_route():
-    payload = request.get_json(silent=True) or {}
-    try:
-        profile = update_business_profile(_current_user_uuid(), payload)
-    except (ValueError, ProfileNotFoundError) as exc:
-        return no_result("No business profile found; no changes applied")
-    return jsonify({"profile": {"id": str(profile.id)}}), HTTPStatus.OK
 
-#businesses to be able to delete thier own profiles (soft delete by setting is_active to False)
-@business_bp.route("/profile/delete", methods=["PATCH"])
+@business_bp.route("/profiles/<string:profile_id>", methods=["DELETE"])
 # @role_required("business_owner")  # TEMP: auth disabled for endpoint testing
-def delete_business_profile_route():
-    payload = request.get_json(silent=True) or {}
-    profile_id = payload.get("profile_id")
-    if not profile_id:
-        return error_response(
-            "profile_id is required.",
-            status_code=HTTPStatus.BAD_REQUEST,
-            code="MISSING_FIELD",
-            details={"field": "profile_id"},
-        )
-
+def delete_business_profile_route(profile_id: str):
     try:
         delete_business_profile(_current_user_uuid(), uuid.UUID(str(profile_id)))
     except (ValueError, ProfileNotFoundError) as exc:

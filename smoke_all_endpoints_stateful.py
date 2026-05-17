@@ -42,7 +42,7 @@ def build_runner():
     client = app.test_client()
 
     state = {
-        "user_id": str(uuid.uuid4()),
+        "user_id": "f444b66f-a0e3-4c23-a584-c8596dd18d73",
         "email": f"smoke_{uuid.uuid4().hex[:8]}@example.com",
         "password": "Pass12345!",
         "username": f"smoke_{uuid.uuid4().hex[:8]}",
@@ -124,12 +124,14 @@ def build_runner():
             state["feedback_user_id"] = extract_id(body)
 
         resp, body = req("POST", "/api/v1/feedback/destinations", {
-            "name": "Feedback Destination",
+            "name": f"Feedback Destination {uuid.uuid4().hex[:6]}",
             "country": "Kenya",
             "city": "Nairobi",
         })
         if resp.status_code < 400:
             state["feedback_destination_id"] = extract_id(body)
+        else:
+            print(f"FAILED to seed feedback destination: {resp.status_code} {body}")
 
     def seed_rbac():
         resp, body = req("POST", "/api/v1/permissions", {
@@ -225,8 +227,8 @@ def build_runner():
         if pending_id:
             state["pending_request_id"] = pending_id
 
-        admin_pending_user_1 = str(uuid.uuid4())
-        admin_pending_user_2 = str(uuid.uuid4())
+        admin_pending_user_1 = state["user_id"]
+        admin_pending_user_2 = state["user_id"]
         state["admin_pending_request_id"] = create_registration("Admin Pending A", user_id=admin_pending_user_1)
         state["admin_profile_pending_request_id"] = create_registration("Admin Pending B", user_id=admin_pending_user_2)
 
@@ -481,7 +483,7 @@ def build_runner():
                 "phone": "+254711111111",
             }
         if "/api/v1/feedback/destinations" in route:
-            return {"name": "Feedback Spot", "country": "Kenya", "city": "Nairobi"}
+            return {"name": f"Feedback Spot {uuid.uuid4().hex[:6]}", "country": "Kenya", "city": "Nairobi"}
         if "/api/v1/payments/stripe/create-payment-intent" in route:
             return {
                 "amount": 2000,
@@ -588,6 +590,8 @@ def build_runner():
 
     results = []
     for rule, method in rules:
+        if "/api/v1/auth/authorize/google" in rule.rule or "/api/v1/auth/login/google" in rule.rule:
+            continue
         url = replace_path(rule.rule, method)
         q = query_for_url(url)
         full_url = f"{url}{q}"

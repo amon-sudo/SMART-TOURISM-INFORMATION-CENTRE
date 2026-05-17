@@ -73,7 +73,7 @@ class EmergencyContact(db.Model):
     __tablename__ = "emergency_contacts"
 
     id = db.Column(UUID_TYPE, primary_key=True, default=uuid.uuid4)
-    destination_id = db.Column(UUID_TYPE, db.ForeignKey("destinations.id"), nullable=False)
+    destination_id = db.Column(UUID_TYPE, db.ForeignKey("destinations.id", ondelete="CASCADE"), nullable=False)
     name = db.Column(db.String(200), nullable=False)
     type = db.Column(db.String(64), nullable=True)
     phone = db.Column(db.String(64), nullable=True)

@@ -11,7 +11,7 @@ from app.transport_feature.Transport_schedule.MVC_architecture.transport_schedul
 transport_schedule_bp = Blueprint('transport_schedule', __name__, url_prefix='/schedules')
 
 #get all schedules
-@transport_schedule_bp.route('/all_schedules', methods=['GET'])
+@transport_schedule_bp.route('/', methods=['GET'])
 def get_all_schedules():
     return get_all_schedules_handler()
 
@@ -20,7 +20,7 @@ def get_all_schedules():
 def get_schedule(schedule_id):
     return get_schedule_handler(schedule_id)
 
-@transport_schedule_bp.route('/add_schedule', methods=['POST'])
+@transport_schedule_bp.route('/', methods=['POST'])
 def create_schedule():
     return create_schedule_handler()
 
@@ -29,7 +29,7 @@ def create_schedule():
 def search_schedules():
     return search_schedules_handler()
 
-@transport_schedule_bp.route('/<string:schedule_id>/update_seats', methods=['PUT'])
+@transport_schedule_bp.route('/<string:schedule_id>/seats', methods=['PUT'])
 def update_seat_schedule(schedule_id):
     return update_seat_schedule_handler(schedule_id)
 

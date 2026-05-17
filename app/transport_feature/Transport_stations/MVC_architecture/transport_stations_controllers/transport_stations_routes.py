@@ -15,12 +15,12 @@ from app.transport_feature.Transport_stations.MVC_architecture.transport_station
 transport_stations_bp = Blueprint('transport_stations', __name__, url_prefix='/stations')
 
 #get all stations
-@transport_stations_bp.route('/all_stations', methods=['GET'])
+@transport_stations_bp.route('/', methods=['GET'])
 def get_all_stations():
     return get_all_stations_handler()
 
 
-@transport_stations_bp.route('/add_station', methods=['POST'])
+@transport_stations_bp.route('/', methods=['POST'])
 def create_station():
     return create_station_handler()
 
@@ -71,18 +71,13 @@ def search_stations():
     response = TransportStationResponse.dump(stations, many=True)
     return jsonify(response), 200
 
-@transport_stations_bp.route('/<string:station_id>', methods=['PUT'])
+@transport_stations_bp.route('/<string:station_id>', methods=['PUT', 'PATCH'])
 def update_station(station_id):
     return update_station_handler(station_id)
 
 @transport_stations_bp.route('/<string:station_id>', methods=['DELETE'])
 def delete_station(station_id):
     return delete_station_handler(station_id)
-
-
-@transport_stations_bp.route('/<string:station_id>/routes', methods=['GET'])
-def get_linked_routes(station_id):
-    return link_station_to_routes_handler(station_id)
 
 
 

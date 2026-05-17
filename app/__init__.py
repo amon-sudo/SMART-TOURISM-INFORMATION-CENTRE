@@ -9,13 +9,11 @@ from flask_cors import CORS
 from sqlalchemy import text
 
 from app.extensions import cache, db, jwt, ma, migrate
-from app.tourism_amenitties import register_blueprints as register_tourism_blueprints
-from app.tourism_amenitties import redis_configure
 
 load_dotenv()
 
 
-class Config:
+class AppConfig:
     SQLALCHEMY_DATABASE_URI = os.getenv(
         "DATABASE_URL",
         os.getenv("SQLALCHEMY_DATABASE_URI", "sqlite:///dev.db"),
@@ -74,9 +72,15 @@ def register_blueprints(flask_app: Flask) -> None:
     from app.rbac.controllers.routes.permission_routes import permission_bp
     from app.rbac.controllers.routes.role_routes import role_bp
     from app.mpesa_payment_feature.routes.payment_routesmpesa import payment_mpesa_bp
-    from app.transport_feature import create_transport_feature_blueprint
-    from app.tourism_amenitties import register_blueprints as register_tourism_blueprints
-    from app.tourism_amenitties import redis_configure
+    from app.transport_feature.Transport_routes.MVC_architecture.transport_routes_controllers.transport_routes_route import transport_routes_bp
+    from app.transport_feature.Transport_schedule.MVC_architecture.transport_schedule_controllers.transport_schedule_routes import transport_schedule_bp
+    from app.transport_feature.Transport_stations.MVC_architecture.transport_stations_controllers.transport_stations_routes import transport_stations_bp
+    from app.tourism_amenitties.destination.controllers.routes import destination_bp
+    from app.tourism_amenitties.amenities.controllers.routes import amenities_bp
+    from app.tourism_amenitties.attractions.controllers.routes import attraction_bp
+    from app.tourism_amenitties.destination_translation.controllers.routes import destination_translation_bp
+    from app.tourism_amenitties.attraction_translations.controllers.routes import attraction_translation_bp
+    from app.tourism_amenitties.attraction_amenities.controllers.routes import attraction_amenity_bp
     from app.user_settings.views.views import user_settings_bp
 
     try:
@@ -88,9 +92,18 @@ def register_blueprints(flask_app: Flask) -> None:
         flask_app.register_blueprint(booking_qr_bp, url_prefix="/api/v1")
         flask_app.register_blueprint(itinerary_bp, url_prefix="/api/v1")
         flask_app.register_blueprint(generator_bp, url_prefix="/api/v1")
-        flask_app.register_blueprint(create_transport_feature_blueprint())
+        flask_app.register_blueprint(transport_routes_bp, url_prefix="/api/v1/transport/routes")
+        flask_app.register_blueprint(transport_schedule_bp, url_prefix="/api/v1/transport/schedules")
+        flask_app.register_blueprint(transport_stations_bp, url_prefix="/api/v1/transport/stations")
         register_business_blueprints(flask_app)
-        register_tourism_blueprints(flask_app)
+        
+        flask_app.register_blueprint(destination_bp, url_prefix="/api/v1/destinations")
+        flask_app.register_blueprint(amenities_bp, url_prefix="/api/v1/amenities")
+        flask_app.register_blueprint(attraction_bp, url_prefix="/api/v1/attractions")
+        flask_app.register_blueprint(destination_translation_bp, url_prefix="/api/v1/destination-translations")
+        flask_app.register_blueprint(attraction_translation_bp, url_prefix="/api/v1/attraction-translations")
+        flask_app.register_blueprint(attraction_amenity_bp, url_prefix="/api/v1/attraction-amenities")
+        
         flask_app.register_blueprint(user_settings_bp, url_prefix="/api/v1")
         flask_app.register_blueprint(role_bp, url_prefix="/api/v1")
         flask_app.register_blueprint(permission_bp, url_prefix="/api/v1")
@@ -98,7 +111,6 @@ def register_blueprints(flask_app: Flask) -> None:
         flask_app.register_blueprint(handoff_bp, url_prefix="/api/v1")
         flask_app.register_blueprint(audit_bp, url_prefix="/api/v1")
         flask_app.register_blueprint(feedback_bp, url_prefix="/api/v1/feedback")
-        redis_configure(flask_app)
         flask_app.logger.info("Registered all blueprints successfully")
     except Exception as exc:
         flask_app.logger.exception("Failed to register blueprints: %s", exc)
@@ -123,7 +135,7 @@ def register_error_handlers(flask_app: Flask) -> None:
         ), 500
 
 
-def create_app(config_class=Config):
+def create_app(config_class=AppConfig):
     """Application factory. Returns a configured Flask app instance."""
     configure_logging()
 
@@ -139,6 +151,8 @@ def create_app(config_class=Config):
     init_oauth(app)
 
     CORS(app, resources={r"/api/*": {"origins": "*"}})
+    
+    from app.tourism_amenitties import redis_configure
     redis_configure(app)
     cache.init_app(app)
 
@@ -150,13 +164,17 @@ def create_app(config_class=Config):
     from app.models.itinerary_day_attraction import ItineraryDayAttraction  # noqa: F401
     from app.models.qr_code import QrCode  # noqa: F401
     from app.models.user_trip_preference import UserTripPreference  # noqa: F401
-    from app.user_settings import models as user_settings_models  # noqa: F401
+    from app.user_settings.models import models as user_settings_models  # noqa: F401
     from app.tourism_amenitties import models as tourism_models  # noqa: F401
     from app.feedback_media import models as feedback_media_models  # noqa: F401
     from app.Business.Business_Profile.MVC_architecture.Business_profile_models.Business_profile_domain.Business_profile_domain import BusinessProfile  # noqa: F401
     from app.Business.Business_registration.MVC_architecture_business.Business_registration_models.Business_registration_domain.Business_registration_domain import BusinessRegistrationRequest  # noqa: F401
 
     with app.app_context():
+        # Ensure SQLite foreign key enforcement
+        if db.engine.dialect.name == "sqlite":
+            db.session.execute(text("PRAGMA foreign_keys = ON"))
+
         # Ensure missing tables exist in local development DBs.
         db.create_all()
 
@@ -344,8 +362,6 @@ def create_app(config_class=Config):
     @app.route("/api/v1/db-test")
     def db_test():
         try:
-            from sqlalchemy import text
-
             db.session.execute(text("SELECT 1"))
             return jsonify({"db": "connected"})
         except Exception as exc:

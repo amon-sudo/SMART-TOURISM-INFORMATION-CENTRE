@@ -1,44 +1,5 @@
-from app.tourism_amenitties.destination.controllers.routes import (
-    destination_bp
-)
-
-from app.tourism_amenitties.amenities.controllers.routes import (
-    amenities_bp
-)
-
-from app.tourism_amenitties.attractions.controllers.routes import (
-    attraction_bp
-)
-
-from app.tourism_amenitties.destination_translation.controllers.routes import (
-    destination_translation_bp
-)
-
-from app.tourism_amenitties.attraction_translations.controllers.routes import (
-    attraction_translation_bp
-)
-
-from app.tourism_amenitties.attraction_amenities.controllers.routes import (
-    attraction_amenity_bp
-)
-
-
-def register_blueprints(app):
-
-    app.register_blueprint(destination_bp)
-
-    app.register_blueprint(amenities_bp)
-
-    app.register_blueprint(attraction_bp)
-
-    app.register_blueprint(destination_translation_bp)
-
-    app.register_blueprint(attraction_translation_bp)
-
-    app.register_blueprint(attraction_amenity_bp)
-    
-    
-    
+# This file is intentionally left mostly empty to prevent blueprint nesting.
+# The blueprints are registered directly in app/__init__.py.
 def redis_configure(app):
     # Use a local-safe default cache backend for development and smoke tests.
     app.config["CACHE_TYPE"] = "SimpleCache"

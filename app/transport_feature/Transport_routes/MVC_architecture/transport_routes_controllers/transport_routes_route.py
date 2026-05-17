@@ -13,7 +13,7 @@ from app.transport_feature.Transport_routes.MVC_architecture.transport_routes_co
 transport_routes_bp = Blueprint("transport_routes", __name__, url_prefix="/routes")
 
 
-@transport_routes_bp.route("/all_routes", methods=["GET"])
+@transport_routes_bp.route("/", methods=["GET"])
 def get_all_routes():
     return get_all_routes_handler()
 
@@ -23,7 +23,7 @@ def get_route(route_id):
     return get_route_handler(route_id)
 
 
-@transport_routes_bp.route("/add_route", methods=["POST"])
+@transport_routes_bp.route("/", methods=["POST"])
 def create_route():
     return create_route_handler()
 

@@ -40,7 +40,7 @@ def _int_arg(name, default):
 from sqlalchemy.exc import IntegrityError
 
 @feedback_bp.route("/users", methods=["POST"])
-def create_user_route():
+def create_user():
     payload = request.get_json(force=True)
     email = payload.get("email")
     password = payload.get("password")
@@ -63,10 +63,11 @@ def create_user_route():
 
 
 @feedback_bp.route("/users", methods=["GET"])
-def list_users_route():
+def list_users():
     users = User.query.all()
     data = [{"id": str(u.id), "email": u.email} for u in users]
     return jsonify(data), 200
+
 
 
 @feedback_bp.route("/users/<uuid:user_id>", methods=["GET"])
@@ -111,7 +112,7 @@ def delete_user_route(user_id):
 # -------------------------
 @feedback_bp.route("/reviews", methods=["POST"])
 # @jwt_required()  # TEMP: auth disabled for endpoint testing
-def create_review_route():
+def create_review():
     try:
         payload = request.get_json(force=True)
     except Exception:
@@ -143,7 +144,7 @@ def create_review_route():
 
 
 @feedback_bp.route("/reviews", methods=["GET"])
-def list_reviews_route():
+def list_reviews():
     page = _int_arg("page", 1)
     per_page = _int_arg("per_page", 20)
     filters = {
@@ -178,7 +179,7 @@ def list_reviews_route():
 # -------------------------
 @feedback_bp.route("/gallery", methods=["POST"])
 # @jwt_required()  # TEMP: auth disabled for endpoint testing
-def add_media_route():
+def create_media():
     try:
         payload = request.get_json(force=True)
     except Exception:
@@ -200,7 +201,7 @@ def add_media_route():
 
 
 @feedback_bp.route("/gallery", methods=["GET"])
-def list_media_route():
+def list_media():
     target_type = request.args.get("target_type")
     target_id = request.args.get("target_id")
 
@@ -219,7 +220,7 @@ def list_media_route():
 # -------------------------
 @feedback_bp.route("/contacts", methods=["POST"])
 # @jwt_required()  # TEMP: auth disabled for endpoint testing
-def add_contact_route():
+def create_contact():
     try:
         payload = request.get_json(force=True)
     except Exception:
@@ -241,7 +242,7 @@ def add_contact_route():
 
 
 @feedback_bp.route("/contacts", methods=["GET"])
-def list_contacts_route():
+def list_contacts():
     destination_id = request.args.get("destination_id")
 
     try:
@@ -268,7 +269,7 @@ def list_contacts_route():
 from app.feedback_media.models import Destination
 
 @feedback_bp.route("/destinations", methods=["POST"])
-def create_destination_route():
+def create_destination():
     payload = request.get_json(force=True)
     name = payload.get("name")
     description = payload.get("description")
@@ -295,15 +296,14 @@ def create_destination_route():
 
 
 @feedback_bp.route("/destinations", methods=["GET"])
-def list_destinations_route():
+def list_destinations():
     items = Destination.query.all()
     data = [{"id": str(d.id), "name": d.name, "description": d.description} for d in items]
     return jsonify(data), 200
 
-# destinatio
 
 @feedback_bp.route("/destinations/<uuid:dest_id>", methods=["GET"])
-def get_destination_route(dest_id):
+def get_destination(dest_id):
     dest = Destination.query.get(dest_id)
     if not dest:
         return error_response(404, "not_found", "Destination not found")
@@ -311,7 +311,7 @@ def get_destination_route(dest_id):
 
 
 @feedback_bp.route("/destinations/<uuid:dest_id>", methods=["PUT"])
-def update_destination_route(dest_id):
+def update_destination(dest_id):
     dest = Destination.query.get(dest_id)
     if not dest:
         return error_response(404, "not_found", "Destination not found")
@@ -326,7 +326,7 @@ def update_destination_route(dest_id):
 
 
 @feedback_bp.route("/destinations/<uuid:dest_id>", methods=["DELETE"])
-def delete_destination_route(dest_id):
+def delete_destination(dest_id):
     dest = Destination.query.get(dest_id)
     if not dest:
         return error_response(404, "not_found", "Destination not found")

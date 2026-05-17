@@ -27,3 +27,9 @@ class Destination(db.Model):
         server_default=db.func.now(),
         onupdate=db.func.now()
     )
+
+    emergency_contacts = db.relationship(
+        "EmergencyContact",
+        backref="destination",
+        cascade="all, delete-orphan"
+    )
