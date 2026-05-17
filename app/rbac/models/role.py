@@ -1,12 +1,13 @@
-from datetime import datetime
 import uuid
+from datetime import datetime
+from sqlalchemy.dialects.postgresql import UUID
 from app.extensions import db
 
 
 class Role(db.Model):
     __tablename__ = "roles"
 
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = db.Column(db.String(50), unique=True, nullable=False)
     description = db.Column(db.Text, nullable=True)
     is_system = db.Column(db.Boolean, default=False, nullable=False)

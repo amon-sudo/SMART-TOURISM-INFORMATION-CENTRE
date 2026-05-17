@@ -1,7 +1,9 @@
 from flask import Blueprint, request, jsonify
+from app.extensions import db
 from app.rbac.schemas.role_schemas import RoleCreateSchema, RoleResponseSchema
 from app.rbac.models.role import Role
 from app.rbac.models.permission import Permission
+from app.rbac.models.role_permission import RolePermission
 from app.rbac.models.user_role import UserRole
 from app.rbac.services.role_service import (
     create_role,
@@ -25,14 +27,15 @@ def handle_create_role():
     data = request.get_json()
     errors = role_create_schema.validate(data)
     if errors:
-        return jsonify({"errors": errors}), 422
+        return jsonify({"success": False, "errors": errors}), 422
 
     try:
         role = create_role(role_create_schema.load(data))
         return jsonify({
+            "success": True,
             "message": "Role created successfully.",
             "details": {
-                "id": role.id,
+                "id": str(role.id),
                 "name": role.name,
                 "description": role.description,
                 "is_system": role.is_system,
@@ -41,13 +44,14 @@ def handle_create_role():
             }
         }), 201
     except ValueError as e:
-        return jsonify({"error": str(e)}), 409
+        return jsonify({"success": False, "error": str(e)}), 409
 
 
 @role_bp.get("/roles")
 def handle_get_roles():
     roles = get_all_roles()
     return jsonify({
+        "success": True,
         "message": f"{len(roles)} role(s) found in the system.",
         "roles": [role_response_schema.dump(r) for r in roles]
     }), 200
@@ -58,11 +62,12 @@ def handle_get_role(role_id):
     try:
         role = get_role_by_id(role_id)
         return jsonify({
+            "success": True,
             "message": f"Role '{role.name}' retrieved successfully.",
             "role": role_response_schema.dump(role)
         }), 200
     except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+        return jsonify({"success": False, "error": str(e)}), 404
 
 
 @role_bp.put("/roles/<role_id>")
@@ -70,9 +75,10 @@ def handle_update_role(role_id):
     try:
         role = update_role(role_id, request.get_json())
         return jsonify({
+            "success": True,
             "message": "Role updated successfully.",
             "details": {
-                "id": role.id,
+                "id": str(role.id),
                 "name": role.name,
                 "description": role.description,
                 "updated_at": role.updated_at.isoformat(),
@@ -80,7 +86,7 @@ def handle_update_role(role_id):
             }
         }), 200
     except ValueError as e:
-        return jsonify({"error": str(e)}), 409
+        return jsonify({"success": False, "error": str(e)}), 409
 
 
 @role_bp.delete("/roles/<role_id>")
@@ -90,13 +96,14 @@ def handle_delete_role(role_id):
         role_name = role.name
         delete_role(role_id)
         return jsonify({
+            "success": True,
             "message": "Role deleted successfully.",
             "details": {
                 "info": f"The '{role_name}' role has been permanently deleted from the system."
             }
         }), 200
     except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+        return jsonify({"success": False, "error": str(e)}), 404
 
 
 @role_bp.post("/role-permissions")
@@ -107,6 +114,7 @@ def handle_assign_permission():
 
     if not role_id or not permission_id:
         return jsonify({
+            "success": False,
             "error": "Missing required fields.",
             "details": "Both role_id and permission_id are required."
         }), 422
@@ -116,6 +124,7 @@ def handle_assign_permission():
         role = Role.query.get(role_id)
         permission = Permission.query.get(permission_id)
         return jsonify({
+            "success": True,
             "message": "Permission successfully assigned to role.",
             "details": {
                 "role": role.name,
@@ -129,7 +138,43 @@ def handle_assign_permission():
             }
         }), 201
     except ValueError as e:
-        return jsonify({"error": str(e)}), 409
+        return jsonify({"success": False, "error": str(e)}), 409
+
+
+@role_bp.delete("/role-permissions/<role_id>/<permission_id>")
+def handle_delete_role_permission(role_id, permission_id):
+    try:
+        role_permission = RolePermission.query.filter_by(
+            role_id=role_id,
+            permission_id=permission_id
+        ).first()
+
+        if not role_permission:
+            return jsonify({
+                "success": False,
+                "error": "Role permission assignment not found.",
+                "details": "The specified permission is not assigned to this role."
+            }), 404
+
+        role = Role.query.get(role_id)
+        permission = Permission.query.get(permission_id)
+
+        db.session.delete(role_permission)
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Permission removed from role successfully.",
+            "details": {
+                "role": role.name,
+                "permission": permission.name,
+                "info": f"The '{permission.name}' permission has been removed from the '{role.name}' role. "
+                        f"Users with the '{role.name}' role can no longer perform '{permission.action}' "
+                        f"actions on the '{permission.module}' module."
+            }
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @role_bp.post("/user-roles")
@@ -141,6 +186,7 @@ def handle_assign_role_to_user():
 
     if not user_id or not role_id:
         return jsonify({
+            "success": False,
             "error": "Missing required fields.",
             "details": "Both user_id and role_id are required."
         }), 422
@@ -149,18 +195,19 @@ def handle_assign_role_to_user():
         assign_role_to_user(user_id, role_id, assigned_by)
         role = Role.query.get(role_id)
         return jsonify({
+            "success": True,
             "message": "Role successfully assigned to user.",
             "details": {
-                "user_id": user_id,
+                "user_id": str(user_id),
                 "role": role.name,
-                "assigned_by": assigned_by,
+                "assigned_by": str(assigned_by),
                 "info": f"User '{user_id}' has been granted the '{role.name}' role "
                         f"by '{assigned_by}'. This user can now perform all actions "
                         f"permitted under the '{role.name}' role."
             }
         }), 201
     except ValueError as e:
-        return jsonify({"error": str(e)}), 409
+        return jsonify({"success": False, "error": str(e)}), 409
 
 
 @role_bp.get("/user-roles")
@@ -170,16 +217,17 @@ def handle_get_all_user_roles():
     for ur in user_roles:
         role = Role.query.get(ur.role_id)
         result.append({
-            "user_id": ur.user_id,
+            "user_id": str(ur.user_id),
             "role": {
-                "id": role.id,
+                "id": str(role.id),
                 "name": role.name,
                 "description": role.description
             },
-            "assigned_by": ur.assigned_by,
+            "assigned_by": str(ur.assigned_by) if ur.assigned_by else None,
             "assigned_at": ur.assigned_at.isoformat()
         })
     return jsonify({
+        "success": True,
         "message": f"{len(result)} user role assignment(s) found.",
         "assignments": result
     }), 200
@@ -190,6 +238,7 @@ def handle_get_user_roles(user_id):
     user_roles = get_user_roles(user_id)
     if not user_roles:
         return jsonify({
+            "success": True,
             "message": f"No roles found for user '{user_id}'.",
             "roles": []
         }), 200
@@ -198,15 +247,49 @@ def handle_get_user_roles(user_id):
     for ur in user_roles:
         role = Role.query.get(ur.role_id)
         result.append({
-            "role_id": role.id,
+            "role_id": str(role.id),
             "role_name": role.name,
             "role_description": role.description,
-            "assigned_by": ur.assigned_by,
+            "assigned_by": str(ur.assigned_by) if ur.assigned_by else None,
             "assigned_at": ur.assigned_at.isoformat()
         })
 
     return jsonify({
+        "success": True,
         "message": f"User '{user_id}' has {len(result)} role(s) assigned.",
         "user_id": user_id,
         "roles": result
     }), 200
+
+
+@role_bp.delete("/user-roles/<user_id>/<role_id>")
+def handle_delete_user_role(user_id, role_id):
+    try:
+        user_role = UserRole.query.filter_by(
+            user_id=user_id,
+            role_id=role_id
+        ).first()
+
+        if not user_role:
+            return jsonify({
+                "success": False,
+                "error": "User role assignment not found.",
+                "details": f"User '{user_id}' does not have the specified role assigned."
+            }), 404
+
+        role = Role.query.get(role_id)
+        db.session.delete(user_role)
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "User role removed successfully.",
+            "details": {
+                "user_id": str(user_id),
+                "role": role.name,
+                "info": f"The '{role.name}' role has been removed from user '{user_id}'. "
+                        f"This user no longer has the permissions associated with this role."
+            }
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500

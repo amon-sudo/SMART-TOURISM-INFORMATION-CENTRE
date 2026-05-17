@@ -19,14 +19,15 @@ def handle_create_permission():
     data = request.get_json()
     errors = permission_create_schema.validate(data)
     if errors:
-        return jsonify({"errors": errors}), 422
+        return jsonify({"success": False, "errors": errors}), 422
 
     try:
         permission = create_permission(permission_create_schema.load(data))
         return jsonify({
+            "success": True,
             "message": "Permission created successfully.",
             "details": {
-                "id": permission.id,
+                "id": str(permission.id),
                 "name": permission.name,
                 "description": permission.description,
                 "module": permission.module,
@@ -39,13 +40,14 @@ def handle_create_permission():
             }
         }), 201
     except ValueError as e:
-        return jsonify({"error": str(e)}), 409
+        return jsonify({"success": False, "error": str(e)}), 409
 
 
 @permission_bp.get("/permissions")
 def handle_get_permissions():
     permissions = get_all_permissions()
     return jsonify({
+        "success": True,
         "message": f"{len(permissions)} permission(s) found in the system.",
         "permissions": [permission_response_schema.dump(p) for p in permissions]
     }), 200
@@ -56,11 +58,12 @@ def handle_get_permission(permission_id):
     try:
         permission = get_permission_by_id(permission_id)
         return jsonify({
+            "success": True,
             "message": f"Permission '{permission.name}' retrieved successfully.",
             "permission": permission_response_schema.dump(permission)
         }), 200
     except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+        return jsonify({"success": False, "error": str(e)}), 404
 
 
 @permission_bp.put("/permissions/<permission_id>")
@@ -68,9 +71,10 @@ def handle_update_permission(permission_id):
     try:
         permission = update_permission(permission_id, request.get_json())
         return jsonify({
+            "success": True,
             "message": "Permission updated successfully.",
             "details": {
-                "id": permission.id,
+                "id": str(permission.id),
                 "name": permission.name,
                 "description": permission.description,
                 "module": permission.module,
@@ -81,7 +85,7 @@ def handle_update_permission(permission_id):
             }
         }), 200
     except ValueError as e:
-        return jsonify({"error": str(e)}), 409
+        return jsonify({"success": False, "error": str(e)}), 409
 
 
 @permission_bp.delete("/permissions/<permission_id>")
@@ -91,6 +95,7 @@ def handle_delete_permission(permission_id):
         permission_name = permission.name
         delete_permission(permission_id)
         return jsonify({
+            "success": True,
             "message": "Permission deleted successfully.",
             "details": {
                 "info": f"The '{permission_name}' permission has been permanently "
@@ -99,4 +104,4 @@ def handle_delete_permission(permission_id):
             }
         }), 200
     except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+        return jsonify({"success": False, "error": str(e)}), 404
