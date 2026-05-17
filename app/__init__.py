@@ -203,7 +203,13 @@ def create_app(config_class=AppConfig):
     from app.models.qr_code import QrCode  # noqa: F401
     from app.models.user_trip_preference import UserTripPreference  # noqa: F401
     from app.user_settings.models import models as user_settings_models  # noqa: F401
-    from app.public_and_extras.models import Favourite, Notification  # noqa: F401
+    from app.public_and_extras.models import (  # noqa: F401
+        Favourite,
+        Notification,
+        AnalyticsEvent,
+        UserActivity,
+        DailyAnalyticsSnapshot,
+    )
     from app.tourism_amenitties import models as tourism_models  # noqa: F401
     from app.feedback_media import models as feedback_media_models  # noqa: F401
     from app.Business.Business_Profile.MVC_architecture.Business_profile_models.Business_profile_domain.Business_profile_domain import BusinessProfile  # noqa: F401

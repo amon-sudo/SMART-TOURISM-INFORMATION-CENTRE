@@ -203,13 +203,24 @@ class Booking(BaseModel):
 
     @property
     def amount_paid(self) -> float:
-        """Total of all successful payment amounts.
+        """Sum of every successful payment (Stripe + M-Pesa) for this booking."""
+        from sqlalchemy import func
+        from app.payment_stripe.models.models import PaymentStripe
+        from app.mpesa_payment_feature.models.payment_mpesa import PaymentMpesa
 
-        Currently returns 0: neither PaymentStripe nor PaymentMpesa carries a
-        booking_id FK, so payments cannot be aggregated per booking yet. Add
-        booking_id to those models and replace this stub with a real query.
-        """
-        return 0.0
+        stripe_total = (
+            db.session.query(func.coalesce(func.sum(PaymentStripe.amount), 0))
+            .filter(PaymentStripe.booking_id == self.id)
+            .filter(PaymentStripe.status.in_(("succeeded", "success")))
+            .scalar()
+        )
+        mpesa_total = (
+            db.session.query(func.coalesce(func.sum(PaymentMpesa.amount), 0))
+            .filter(PaymentMpesa.booking_id == self.id)
+            .filter(PaymentMpesa.status.in_(("succeeded", "success", "completed")))
+            .scalar()
+        )
+        return float(stripe_total or 0) + float(mpesa_total or 0)
 
     def cancel(self, reason: str | None = None) -> "Booking":
         """Cancel this booking and set cancelled_at timestamp.

@@ -5,6 +5,7 @@ class PaymentMpesa(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Uuid(as_uuid=True), db.ForeignKey("users.id"), nullable=False)
+    booking_id = db.Column(db.Uuid(as_uuid=True), db.ForeignKey("bookings.id", ondelete="SET NULL"), nullable=True, index=True)
     amount = db.Column(db.Numeric(10, 2), nullable=False)  # precise decimal for money
     status = db.Column(db.String(20), default="pending")
     reference = db.Column(db.String(100), unique=True)

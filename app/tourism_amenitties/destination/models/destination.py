@@ -20,6 +20,14 @@ class Destination(db.Model):
 
     description = db.Column(db.Text, nullable=True)
 
+    # CMS-managed multi-language content (keyed by locale, e.g. {"en": "..."})
+    overview_json = db.Column(db.JSON, nullable=True)
+    culture_json = db.Column(db.JSON, nullable=True)
+    travel_tips_json = db.Column(db.JSON, nullable=True)
+    weather_info = db.Column(db.JSON, nullable=True)
+
+    is_wheelchair_accessible = db.Column(db.Boolean, default=False, nullable=False)
+
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     updated_at = db.Column(

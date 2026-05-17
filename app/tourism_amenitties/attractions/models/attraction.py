@@ -1,7 +1,22 @@
+import os
 import uuid
 from app.extensions import db
 from sqlalchemy.dialects.postgresql import UUID, TSVECTOR
-# from geoalchemy2 import Geography
+
+# PostGIS geography is gated by USE_POSTGIS so installs without the
+# extension fall back to two float columns rather than crashing on import.
+_USE_POSTGIS = os.getenv("USE_POSTGIS", "false").strip().lower() in {"1", "true", "yes", "on"}
+if _USE_POSTGIS:
+    try:
+        from geoalchemy2 import Geography
+        _LOCATION_TYPE = Geography(geometry_type="POINT", srid=4326)
+        HAS_POSTGIS = True
+    except Exception:  # pragma: no cover - dev fallback
+        _LOCATION_TYPE = None
+        HAS_POSTGIS = False
+else:
+    _LOCATION_TYPE = None
+    HAS_POSTGIS = False
 
 
 class Attraction(db.Model):
@@ -19,10 +34,14 @@ class Attraction(db.Model):
         nullable=False
     )
 
+    # FK to business_profiles is enforced when the column has a real value.
+    # The relationship is one-sided to avoid mandating a back_populates on
+    # BusinessProfile, matching the existing kiosk-module pattern.
     business_owner_id = db.Column(
         UUID(as_uuid=True),
-        # db.ForeignKey("business_profiles.id"),
-        nullable=False
+        db.ForeignKey("business_profiles.id", ondelete="SET NULL"),
+        nullable=False,
+        index=True,
     )
 
     name = db.Column(db.String, nullable=False)
@@ -49,8 +68,13 @@ class Attraction(db.Model):
     backref="attractions"
 )
     
-    # PostGIS geography column
-    # location = db.Column(Geography(geometry_type="POINT", srid=4326))
+    # Location for geo-search. PostGIS geography when available, else two
+    # floats so the column is always queryable.
+    if HAS_POSTGIS and _LOCATION_TYPE is not None:
+        location = db.Column(_LOCATION_TYPE, nullable=True)
+    else:
+        latitude = db.Column(db.Float, nullable=True)
+        longitude = db.Column(db.Float, nullable=True)
 
     avg_rating = db.Column(db.Float, default=0)
 

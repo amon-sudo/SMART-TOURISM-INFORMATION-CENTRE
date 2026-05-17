@@ -7,6 +7,10 @@ class PaymentStripe(BaseUUIDModel):
     __tablename__ = "payments_stripe"
 
     user_id = db.Column(db.Uuid(as_uuid=True), db.ForeignKey("users.id"), nullable=False)
+    # Optional link back to the booking this payment funds. Booking.amount_paid
+    # uses this to aggregate. Nullable because some payments (top-ups, etc.)
+    # may not be tied to a booking.
+    booking_id = db.Column(db.Uuid(as_uuid=True), db.ForeignKey("bookings.id", ondelete="SET NULL"), nullable=True, index=True)
     amount = db.Column(db.Numeric(10, 2), nullable=False)
     currency = db.Column(db.String(3), default="USD")
     status = db.Column(db.String(20), default="pending")  # pending, succeeded, failed, requires_payment_method
