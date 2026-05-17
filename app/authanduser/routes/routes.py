@@ -1,7 +1,13 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request, decode_token
+from flask_jwt_extended import (
+    get_jwt_identity,
+    verify_jwt_in_request,
+    decode_token,
+    jwt_required,
+)
 from app.authanduser.services.services import AuthService
 from app.authanduser.schemas import UserSchema, PasswordResetSchema
+from app.authanduser.utils.utils import validate_password_strength
 from app.utils.responses import ApiResponse
 import logging
 
@@ -48,6 +54,15 @@ def signup():
     if not email or not password:
         return ApiResponse.error(message="Email and password required", code="MISSING_DATA", status_code=400)
 
+    pw_errors = validate_password_strength(password)
+    if pw_errors:
+        return ApiResponse.error(
+            message="Password does not meet strength requirements",
+            code="WEAK_PASSWORD",
+            status_code=422,
+            details={"password": pw_errors},
+        )
+
     user = AuthService.signup(email, password, username=username)
 
     if not user:
@@ -70,9 +85,11 @@ def login():
 
 # Me
 @auth_bp.route("/me", methods=["GET"])
-# @jwt_required()  # TEMP: auth disabled for endpoint testing
+@jwt_required()
 def me():
     current_user_id = _current_user_id()
+    if not current_user_id:
+        return jsonify({"error": "Unauthorized"}), 401
     user = AuthService.get_user(current_user_id)  # cast back to UUID inside service
     if not user:
         return jsonify({"error": "User not found"}), 404
@@ -80,7 +97,7 @@ def me():
 
 # Logout
 @auth_bp.route("/logout", methods=["POST"])
-# @jwt_required()  # TEMP: auth disabled for endpoint testing
+@jwt_required()
 def logout():
     data = request.get_json() or {}
     AuthService.logout(data.get("refresh_token"))
@@ -90,11 +107,13 @@ def logout():
 @auth_bp.route("/password-reset", methods=["POST"])
 def password_reset():
     data = request.get_json() or {}
-    pr = AuthService.request_password_reset(data.get("email"))
-    if not pr:
-        # Return a generic success response to avoid account enumeration in test/dev.
-        return jsonify({"message": "If the account exists, a reset token has been issued"}), 200
-    return jsonify(password_reset_schema.dump(pr)), 200
+    # Always issue the reset (if the user exists) and always return the same
+    # generic response so we neither leak the reset token over the API nor
+    # confirm whether an account exists.
+    AuthService.request_password_reset(data.get("email"))
+    return jsonify({
+        "message": "If the account exists, a password reset link has been sent"
+    }), 200
 
 # Password reset confirm
 @auth_bp.route("/password-reset/confirm", methods=["POST"])
@@ -111,10 +130,10 @@ def password_reset_confirm():
 
 # Refresh token
 @auth_bp.route("/refresh", methods=["POST"])
-# @jwt_required(refresh=True)  # TEMP: auth disabled for endpoint testing
+@jwt_required(refresh=True)
 def refresh():
-    current_user_id = _current_user_id()
+    current_user_id = get_jwt_identity()
     if not current_user_id:
-        return jsonify({"error": "Missing user identity"}), 400
+        return jsonify({"error": "Unauthorized"}), 401
     new_access_token = AuthService.generate_access_token(current_user_id)
     return jsonify({"access_token": new_access_token}), 200

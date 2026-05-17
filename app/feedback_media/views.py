@@ -111,7 +111,7 @@ def delete_user_route(user_id):
 # Reviews endpoints
 # -------------------------
 @feedback_bp.route("/reviews", methods=["POST"])
-# @jwt_required()  # TEMP: auth disabled for endpoint testing
+@jwt_required()
 def create_review():
     try:
         payload = request.get_json(force=True)
@@ -178,7 +178,7 @@ def list_reviews():
 # Media endpoints
 # -------------------------
 @feedback_bp.route("/gallery", methods=["POST"])
-# @jwt_required()  # TEMP: auth disabled for endpoint testing
+@jwt_required()
 def create_media():
     try:
         payload = request.get_json(force=True)
@@ -219,7 +219,7 @@ def list_media():
 # Contacts endpoints
 # -------------------------
 @feedback_bp.route("/contacts", methods=["POST"])
-# @jwt_required()  # TEMP: auth disabled for endpoint testing
+@jwt_required()
 def create_contact():
     try:
         payload = request.get_json(force=True)
