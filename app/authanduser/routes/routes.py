@@ -9,6 +9,7 @@ from app.authanduser.services.services import AuthService
 from app.authanduser.schemas import UserSchema, PasswordResetSchema
 from app.authanduser.utils.utils import validate_password_strength
 from app.utils.responses import ApiResponse
+from app.extensions import limiter
 import logging
 
 logger = logging.getLogger(__name__)
@@ -69,8 +70,9 @@ def signup():
         return ApiResponse.error(message="Email already exists", code="CONFLICT", status_code=409)
     return ApiResponse.success(data=user_schema.dump(user), message="Account created successfully", status_code=201)
 
-# Login
+# Login — strict per-route rate limit (STORY049: 5 attempts/min/IP)
 @auth_bp.route("/login", methods=["POST"])
+@limiter.limit("5 per minute")
 def login():
     data = request.get_json() or {}
     tokens = AuthService.login(data.get("email"), data.get("password"))
@@ -109,8 +111,9 @@ def logout():
     )
     return jsonify({"message": "Logged out"}), 200
 
-# Password reset request
+# Password reset request — strict per-route rate limit (STORY049: 3/min/IP)
 @auth_bp.route("/password-reset", methods=["POST"])
+@limiter.limit("3 per minute")
 def password_reset():
     data = request.get_json() or {}
     # Always issue the reset (if the user exists) and always return the same

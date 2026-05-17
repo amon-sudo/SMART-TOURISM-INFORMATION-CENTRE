@@ -8,7 +8,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from sqlalchemy import text
 
-from app.extensions import cache, db, jwt, ma, migrate
+from app.extensions import cache, db, jwt, ma, migrate, limiter
 
 load_dotenv()
 
@@ -32,6 +32,29 @@ class AppConfig:
     GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
     JSON_SORT_KEYS = False
+
+    # ── Rate limiting (STORY049) ──────────────────────────────────────────────
+    # Flask-Limiter storage. In production set RATELIMIT_STORAGE_URI to a
+    # Redis URL (e.g. redis://localhost:6379/1) so counters are shared
+    # across workers; in dev we fall back to in-memory.
+    RATELIMIT_STORAGE_URI = os.getenv(
+        "RATELIMIT_STORAGE_URI",
+        os.getenv("REDIS_URL", "memory://"),
+    )
+    RATELIMIT_HEADERS_ENABLED = True
+
+    # ── Security headers + CORS (STORY049) ────────────────────────────────────
+    # Comma-separated allowlist of frontend origins. * is permitted ONLY when
+    # the env var is not set, to keep dev frictionless; production must set
+    # CORS_ORIGINS to the deployed frontend host(s).
+    CORS_ORIGINS = [
+        origin.strip()
+        for origin in os.getenv("CORS_ORIGINS", "*").split(",")
+        if origin.strip()
+    ]
+    # Talisman is off by default in dev (HTTP, mixed-content kiosk pages); set
+    # ENABLE_SECURITY_HEADERS=true in staging/prod to turn it on.
+    ENABLE_SECURITY_HEADERS = os.getenv("ENABLE_SECURITY_HEADERS", "false").strip().lower() in {"1", "true", "yes", "on"}
 
 
 def configure_logging() -> None:
@@ -133,7 +156,15 @@ def register_error_handlers(flask_app: Flask) -> None:
 
     @flask_app.errorhandler(HTTPException)
     def handle_http_exception(error):
-        return jsonify({"error": error.name, "message": error.description}), error.code
+        response = jsonify({"error": error.name, "message": error.description})
+        # Bubble through Retry-After for 429 responses from Flask-Limiter.
+        try:
+            retry_after = getattr(error, "retry_after", None)
+            if retry_after is not None:
+                response.headers["Retry-After"] = str(int(retry_after))
+        except Exception:
+            pass
+        return response, error.code
 
     @flask_app.errorhandler(404)
     def not_found(error):
@@ -188,7 +219,40 @@ def create_app(config_class=AppConfig):
     from app.utils.oauth import init_oauth
     init_oauth(app)
 
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    # CORS: lock to the configured origins (defaults to '*' in dev).
+    CORS(
+        app,
+        resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}},
+        supports_credentials=True,
+    )
+
+    # Rate limiting (STORY049): 120/min default, stricter buckets attached
+    # to /auth/login and /auth/password-reset below.
+    limiter.init_app(app)
+
+    # Security headers via Talisman, gated on ENABLE_SECURITY_HEADERS so dev
+    # over plain HTTP doesn't break. In production this adds CSP, HSTS,
+    # X-Content-Type-Options, X-Frame-Options, Referrer-Policy.
+    if app.config.get("ENABLE_SECURITY_HEADERS"):
+        try:
+            from flask_talisman import Talisman
+            Talisman(
+                app,
+                content_security_policy={
+                    "default-src": "'self'",
+                    "img-src": ["'self'", "data:", "https:"],
+                    "style-src": ["'self'", "'unsafe-inline'"],
+                    "script-src": ["'self'"],
+                    "connect-src": ["'self'", "https:"],
+                },
+                force_https=True,
+                strict_transport_security=True,
+                strict_transport_security_max_age=31536000,
+                frame_options="DENY",
+                referrer_policy="no-referrer",
+            )
+        except Exception as exc:
+            app.logger.warning("Talisman init failed; continuing without security headers: %s", exc)
     
     from app.tourism_amenitties import redis_configure
     redis_configure(app)

@@ -27,5 +27,7 @@ marshmallow-enum = "*"
 python-nanoid = "*"
 authlib = "*"
 requests = "*"
+flask-limiter = "*"
+flask-talisman = "*"
 
 [dev-packages]
