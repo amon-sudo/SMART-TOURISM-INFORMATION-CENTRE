@@ -15,6 +15,10 @@ class User(BaseUUIDModel):
     email = db.Column(db.String(120), unique=True, nullable=False)
     username = db.Column(db.String(80), unique=True, nullable=True)
     password_hash = db.Column(db.String(255), nullable=False)
+    # Soft delete (STORY016) — accounts are anonymised and disabled for 30
+    # days before a Celery sweep does the hard delete.
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
+    deleted_at = db.Column(db.DateTime, nullable=True)
     
     # Relationships
     profile = db.relationship('UserProfile', backref='user', uselist=False)

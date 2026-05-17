@@ -82,6 +82,7 @@ def register_blueprints(flask_app: Flask) -> None:
     from app.tourism_amenitties.attraction_translations.controllers.routes import attraction_translation_bp
     from app.tourism_amenitties.attraction_amenities.controllers.routes import attraction_amenity_bp
     from app.user_settings.views.views import user_settings_bp
+    from app.public_and_extras.routes import public_bp, extras_bp
 
     try:
         flask_app.register_blueprint(payment_mpesa_bp, url_prefix="/api/v1/payments")
@@ -111,6 +112,8 @@ def register_blueprints(flask_app: Flask) -> None:
         flask_app.register_blueprint(handoff_bp, url_prefix="/api/v1")
         flask_app.register_blueprint(audit_bp, url_prefix="/api/v1")
         flask_app.register_blueprint(feedback_bp, url_prefix="/api/v1/feedback")
+        flask_app.register_blueprint(public_bp, url_prefix="/api/public")
+        flask_app.register_blueprint(extras_bp, url_prefix="/api/v1")
         flask_app.logger.info("Registered all blueprints successfully")
     except Exception as exc:
         flask_app.logger.exception("Failed to register blueprints: %s", exc)
@@ -165,6 +168,7 @@ def create_app(config_class=AppConfig):
     from app.models.qr_code import QrCode  # noqa: F401
     from app.models.user_trip_preference import UserTripPreference  # noqa: F401
     from app.user_settings.models import models as user_settings_models  # noqa: F401
+    from app.public_and_extras.models import Favourite, Notification  # noqa: F401
     from app.tourism_amenitties import models as tourism_models  # noqa: F401
     from app.feedback_media import models as feedback_media_models  # noqa: F401
     from app.Business.Business_Profile.MVC_architecture.Business_profile_models.Business_profile_domain.Business_profile_domain import BusinessProfile  # noqa: F401
@@ -293,6 +297,14 @@ def create_app(config_class=AppConfig):
 
             if has_column("users", "id") and not has_column("users", "updated_at"):
                 conn.execute(text("ALTER TABLE users ADD COLUMN updated_at DATETIME"))
+
+            if has_column("users", "id") and not has_column("users", "is_active"):
+                conn.execute(
+                    text("ALTER TABLE users ADD COLUMN is_active BOOLEAN DEFAULT 1")
+                )
+
+            if has_column("users", "id") and not has_column("users", "deleted_at"):
+                conn.execute(text("ALTER TABLE users ADD COLUMN deleted_at DATETIME"))
 
             if has_column("destinations", "id") and not has_column("destinations", "canonical_name"):
                 conn.execute(text("ALTER TABLE destinations ADD COLUMN canonical_name VARCHAR"))
