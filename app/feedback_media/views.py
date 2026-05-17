@@ -6,12 +6,12 @@ from marshmallow import ValidationError
 from app.extensions import db
 from .schemas import ReviewSchema, MediaGallerySchema, EmergencyContactSchema
 from .services import (
-    create_review,
-    add_media,
-    add_contact,
-    list_reviews,
-    list_media,
-    list_contacts,
+    create_review as svc_create_review,
+    add_media as svc_add_media,
+    add_contact as svc_add_contact,
+    list_reviews as svc_list_reviews,
+    list_media as svc_list_media,
+    list_contacts as svc_list_contacts,
 )
 from app.feedback_media.models import User  # <-- make sure User model exists
 
@@ -134,7 +134,7 @@ def create_review():
         return error_response(400, "validation_error", details=err.messages)
 
     try:
-        review = create_review(data)
+        review = svc_create_review(data)
     except Exception:
         current_app.logger.exception("Failed to create review")
         return error_response(500, "internal_server_error", "Failed to create review")
@@ -155,7 +155,7 @@ def list_reviews():
     }
 
     try:
-        items = list_reviews(filters, page=page, per_page=per_page)
+        items = svc_list_reviews(filters, page=page, per_page=per_page)
     except Exception:
         current_app.logger.exception("Failed to list reviews")
         return error_response(500, "internal_server_error", "Failed to list reviews")
@@ -191,7 +191,7 @@ def create_media():
         return error_response(400, "validation_error", details=err.messages)
 
     try:
-        media = add_media(data)
+        media = svc_add_media(data)
     except Exception:
         current_app.logger.exception("Failed to add media")
         return error_response(500, "internal_server_error", "Failed to add media")
@@ -206,7 +206,7 @@ def list_media():
     target_id = request.args.get("target_id")
 
     try:
-        items = list_media(target_type=target_type, target_id=target_id)
+        items = svc_list_media(target_type=target_type, target_id=target_id)
     except Exception:
         current_app.logger.exception("Failed to list media")
         return error_response(500, "internal_server_error", "Failed to list media")
@@ -232,7 +232,7 @@ def create_contact():
         return error_response(400, "validation_error", details=err.messages)
 
     try:
-        contact = add_contact(data)
+        contact = svc_add_contact(data)
     except Exception:
         current_app.logger.exception("Failed to add contact")
         return error_response(500, "internal_server_error", "Failed to add contact")
@@ -246,7 +246,7 @@ def list_contacts():
     destination_id = request.args.get("destination_id")
 
     try:
-        items = list_contacts(destination_id=destination_id)
+        items = svc_list_contacts(destination_id=destination_id)
     except Exception:
         current_app.logger.exception("Failed to list contacts")
         return error_response(500, "internal_server_error", "Failed to list contacts")

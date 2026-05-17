@@ -203,15 +203,13 @@ class Booking(BaseModel):
 
     @property
     def amount_paid(self) -> float:
-        """Total of all successful payment amounts."""
-        from .payment import Payment  # avoid circular import
-        from sqlalchemy import func
-        result = (
-            db.session.query(func.sum(Payment.amount))
-            .filter_by(booking_id=self.id, status="success")
-            .scalar()
-        )
-        return float(result or 0)
+        """Total of all successful payment amounts.
+
+        Currently returns 0: neither PaymentStripe nor PaymentMpesa carries a
+        booking_id FK, so payments cannot be aggregated per booking yet. Add
+        booking_id to those models and replace this stub with a real query.
+        """
+        return 0.0
 
     def cancel(self, reason: str | None = None) -> "Booking":
         """Cancel this booking and set cancelled_at timestamp."""

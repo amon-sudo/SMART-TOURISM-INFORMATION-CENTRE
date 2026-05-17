@@ -1,8 +1,14 @@
 from app.extensions import db
 from sqlalchemy.exc import IntegrityError
-from geoalchemy2.shape import from_shape
-from shapely.geometry import Point
-from .models import Review, MediaGallery, EmergencyContact
+from .models import Review, MediaGallery, EmergencyContact, GEOGRAPHY_AVAILABLE
+
+# Geo libs are optional — only imported when PostGIS is enabled
+try:
+    from geoalchemy2.shape import from_shape  # type: ignore
+    from shapely.geometry import Point  # type: ignore
+except Exception:  # pragma: no cover - dev fallback when PostGIS is off
+    from_shape = None
+    Point = None
 
 
 def _as_dict(payload):
@@ -76,10 +82,13 @@ def add_contact(payload: dict) -> EmergencyContact:
             lon_str, lat_str = [p.strip() for p in loc.split(",")]
             lon = float(lon_str)
             lat = float(lat_str)
-            point = Point(lon, lat)
-            try:
-                geo = from_shape(point, srid=4326)  # geoalchemy2 object
-            except Exception:
+            if GEOGRAPHY_AVAILABLE and Point is not None and from_shape is not None:
+                try:
+                    geo = from_shape(Point(lon, lat), srid=4326)
+                except Exception:
+                    geo = f"POINT({lon} {lat})"
+            else:
+                # SQLite/non-PostGIS dev mode — store as WKT text
                 geo = f"POINT({lon} {lat})"
 
     contact = EmergencyContact(
