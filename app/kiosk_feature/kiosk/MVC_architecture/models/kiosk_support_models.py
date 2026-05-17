@@ -303,7 +303,10 @@ class KioskAnalyticsEvent(db.Model):
     # attraction_viewed:    { attraction_id: "<uuid>", name: "Giraffe Centre" }
     # itinerary_generated:  { itinerary_id: "<uuid>", duration_days: 5 }
     # booking_completed:    { booking_id: "<uuid>", total_cost: 12000 }
-    metadata = Column(JSONB, nullable=True)
+    # 'metadata' is reserved by the SQLAlchemy Declarative API, so this
+    # attribute is named event_metadata in Python but keeps the original
+    # column name 'metadata' on disk for compatibility with the ERD.
+    event_metadata = Column("metadata", JSONB, nullable=True)
 
     occurred_at = Column(
         DateTime(timezone=True),

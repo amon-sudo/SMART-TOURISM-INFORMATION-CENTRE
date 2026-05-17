@@ -149,10 +149,12 @@ class KioskSessionTransfer(db.Model):
     @classmethod
     def revoke_pending_for_session(cls, kiosk_session_id) -> int:
         """Revoke all pending transfers for a session before issuing a new one."""
+        # Column is String(36); cast incoming UUID so Postgres doesn't error
+        # with 'character varying = uuid'.
         count = (
             cls.query
             .filter_by(
-                kiosk_session_id=kiosk_session_id,
+                kiosk_session_id=str(kiosk_session_id),
                 status=TransferStatus.PENDING,
             )
             .update(

@@ -379,10 +379,11 @@ class KioskTransferService:
             mime_type="image/png",
         )
 
-        # Persist
+        # Persist — coerce IDs to strings because the transfer table stores
+        # both columns as String(36) instead of native UUID.
         transfer = KioskSessionTransfer(
-            kiosk_session_id=kiosk_session_id,
-            user_id=session.user_id,
+            kiosk_session_id=str(kiosk_session_id),
+            user_id=str(session.user_id) if session.user_id else None,
             token=token,
             session_snapshot=session.state or {},
             transfer_url=transfer_url,
@@ -452,9 +453,11 @@ class KioskTransferService:
     @staticmethod
     def get_transfer_status(kiosk_session_id) -> dict:
         """Kiosk polls this to know when the phone has scanned."""
+        # kiosk_session_transfers.kiosk_session_id is a String(36); cast the
+        # incoming UUID to str so Postgres doesn't reject varchar = uuid.
         latest = (
             KioskSessionTransfer.query
-            .filter_by(kiosk_session_id=kiosk_session_id)
+            .filter_by(kiosk_session_id=str(kiosk_session_id))
             .order_by(KioskSessionTransfer.created_at.desc())
             .first()
         )

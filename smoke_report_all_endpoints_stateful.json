@@ -16,7 +16,7 @@
   {
     "method": "GET",
     "route": "/api/public/destinations/<uuid:destination_id>/info",
-    "url": "/api/public/destinations/3e533bf3-2574-455a-b345-82e40668da77/info",
+    "url": "/api/public/destinations/cb94634e-48ce-4b7d-b9a4-f6bf25d981a4/info",
     "status": 200,
     "message": null
   },
@@ -65,7 +65,7 @@
   {
     "method": "POST",
     "route": "/api/v1/admin/attractions/<uuid:attraction_id>/time-data",
-    "url": "/api/v1/admin/attractions/d4d7e6eb-4ae1-4931-9bfa-476cd7695fbd/time-data",
+    "url": "/api/v1/admin/attractions/1734813d-7264-456d-b279-028fd9e439b7/time-data",
     "status": 400,
     "message": "Validation failed"
   },
@@ -86,7 +86,7 @@
   {
     "method": "GET",
     "route": "/api/v1/admin/business/business_profiles/profiles/<string:profile_id>",
-    "url": "/api/v1/admin/business/business_profiles/profiles/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/admin/business/business_profiles/profiles/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 200,
     "message": null
   },
@@ -100,22 +100,22 @@
   {
     "method": "GET",
     "route": "/api/v1/admin/business/business_profiles/registrations/<string:request_id>",
-    "url": "/api/v1/admin/business/business_profiles/registrations/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/admin/business/business_profiles/registrations/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 200,
     "message": null
   },
   {
     "method": "PATCH",
     "route": "/api/v1/admin/business/business_profiles/registrations/<string:request_id>",
-    "url": "/api/v1/admin/business/business_profiles/registrations/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/admin/business/business_profiles/registrations/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 404,
     "message": {
       "code": "NOT_FOUND",
       "details": {
-        "timestamp": "2026-05-17T12:29:55Z"
+        "timestamp": "2026-05-17T12:57:16Z"
       },
-      "message": "Registration request 94c88fd0-9f92-4c69-8f5a-8438395f9ddb not found.",
-      "trace_id": "3521f72c-a1a8-438e-a09e-753042077231"
+      "message": "Registration request bca70591-d8af-4560-be36-6123f84e67e2 not found.",
+      "trace_id": "0ef3f003-edf4-4437-86a2-62ba9fe0f593"
     }
   },
   {
@@ -128,22 +128,22 @@
   {
     "method": "GET",
     "route": "/api/v1/admin/business/registrations/<string:request_id>",
-    "url": "/api/v1/admin/business/registrations/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/admin/business/registrations/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 200,
     "message": null
   },
   {
     "method": "PATCH",
     "route": "/api/v1/admin/business/registrations/<string:request_id>",
-    "url": "/api/v1/admin/business/registrations/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/admin/business/registrations/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 404,
     "message": {
       "code": "NOT_FOUND",
       "details": {
-        "timestamp": "2026-05-17T12:29:55Z"
+        "timestamp": "2026-05-17T12:57:16Z"
       },
-      "message": "Registration request 94c88fd0-9f92-4c69-8f5a-8438395f9ddb not found.",
-      "trace_id": "5b367c81-98e0-4203-95a5-b07ba4973e74"
+      "message": "Registration request bca70591-d8af-4560-be36-6123f84e67e2 not found.",
+      "trace_id": "e83ca407-1eb8-48d1-99cf-775c1c356c0e"
     }
   },
   {
@@ -154,6 +154,55 @@
     "message": null
   },
   {
+    "method": "POST",
+    "route": "/api/v1/admin/kiosks",
+    "url": "/api/v1/admin/kiosks",
+    "status": 400,
+    "message": "Request payload failed validation"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/admin/kiosks",
+    "url": "/api/v1/admin/kiosks",
+    "status": 200,
+    "message": "Success"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/admin/kiosks/<uuid:kiosk_id>",
+    "url": "/api/v1/admin/kiosks/bca70591-d8af-4560-be36-6123f84e67e2",
+    "status": 404,
+    "message": "Resource not found"
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/v1/admin/kiosks/<uuid:kiosk_id>",
+    "url": "/api/v1/admin/kiosks/bca70591-d8af-4560-be36-6123f84e67e2",
+    "status": 404,
+    "message": "Resource not found"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/admin/kiosks/<uuid:kiosk_id>/analytics",
+    "url": "/api/v1/admin/kiosks/bca70591-d8af-4560-be36-6123f84e67e2/analytics",
+    "status": 200,
+    "message": "Success"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/admin/kiosks/<uuid:kiosk_id>/content-sync",
+    "url": "/api/v1/admin/kiosks/bca70591-d8af-4560-be36-6123f84e67e2/content-sync",
+    "status": 400,
+    "message": "Request payload failed validation"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/admin/kiosks/<uuid:kiosk_id>/decommission",
+    "url": "/api/v1/admin/kiosks/bca70591-d8af-4560-be36-6123f84e67e2/decommission",
+    "status": 404,
+    "message": "Resource not found"
+  },
+  {
     "method": "GET",
     "route": "/api/v1/admin/qr-codes",
     "url": "/api/v1/admin/qr-codes",
@@ -170,42 +219,42 @@
   {
     "method": "GET",
     "route": "/api/v1/admin/qr-codes/<uuid:qr_id>",
-    "url": "/api/v1/admin/qr-codes/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/admin/qr-codes/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 404,
     "message": "Resource not found"
   },
   {
     "method": "GET",
     "route": "/api/v1/admin/qr-codes/<uuid:qr_id>",
-    "url": "/api/v1/admin/qr-codes/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/admin/qr-codes/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 404,
     "message": "Resource not found"
   },
   {
     "method": "POST",
     "route": "/api/v1/admin/qr-codes/<uuid:qr_id>/regenerate",
-    "url": "/api/v1/admin/qr-codes/94c88fd0-9f92-4c69-8f5a-8438395f9ddb/regenerate",
+    "url": "/api/v1/admin/qr-codes/bca70591-d8af-4560-be36-6123f84e67e2/regenerate",
     "status": 404,
     "message": "Resource not found"
   },
   {
     "method": "POST",
     "route": "/api/v1/admin/qr-codes/<uuid:qr_id>/regenerate",
-    "url": "/api/v1/admin/qr-codes/94c88fd0-9f92-4c69-8f5a-8438395f9ddb/regenerate",
+    "url": "/api/v1/admin/qr-codes/bca70591-d8af-4560-be36-6123f84e67e2/regenerate",
     "status": 404,
     "message": "Resource not found"
   },
   {
     "method": "POST",
     "route": "/api/v1/admin/qr-codes/<uuid:qr_id>/revoke",
-    "url": "/api/v1/admin/qr-codes/94c88fd0-9f92-4c69-8f5a-8438395f9ddb/revoke",
+    "url": "/api/v1/admin/qr-codes/bca70591-d8af-4560-be36-6123f84e67e2/revoke",
     "status": 404,
     "message": "Resource not found"
   },
   {
     "method": "POST",
     "route": "/api/v1/admin/qr-codes/<uuid:qr_id>/revoke",
-    "url": "/api/v1/admin/qr-codes/94c88fd0-9f92-4c69-8f5a-8438395f9ddb/revoke",
+    "url": "/api/v1/admin/qr-codes/bca70591-d8af-4560-be36-6123f84e67e2/revoke",
     "status": 404,
     "message": "Resource not found"
   },
@@ -219,7 +268,7 @@
   {
     "method": "PATCH",
     "route": "/api/v1/admin/users/<uuid:user_id>",
-    "url": "/api/v1/admin/users/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/admin/users/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 403,
     "message": "Forbidden"
   },
@@ -240,14 +289,14 @@
   {
     "method": "GET",
     "route": "/api/v1/amenities/<uuid:id>",
-    "url": "/api/v1/amenities/68602baf-622e-40f3-b220-0ac8b7392af6",
+    "url": "/api/v1/amenities/19683d65-bcb5-40b6-bc7a-8672d76c9f52",
     "status": 200,
     "message": null
   },
   {
     "method": "PATCH",
     "route": "/api/v1/amenities/<uuid:id>",
-    "url": "/api/v1/amenities/68602baf-622e-40f3-b220-0ac8b7392af6",
+    "url": "/api/v1/amenities/19683d65-bcb5-40b6-bc7a-8672d76c9f52",
     "status": 200,
     "message": null
   },
@@ -282,14 +331,14 @@
   {
     "method": "GET",
     "route": "/api/v1/attraction-translations/<uuid:attraction_id>/<string:locale>",
-    "url": "/api/v1/attraction-translations/d4d7e6eb-4ae1-4931-9bfa-476cd7695fbd/en",
+    "url": "/api/v1/attraction-translations/1734813d-7264-456d-b279-028fd9e439b7/en",
     "status": 200,
     "message": null
   },
   {
     "method": "PATCH",
     "route": "/api/v1/attraction-translations/<uuid:attraction_id>/<string:locale>",
-    "url": "/api/v1/attraction-translations/d4d7e6eb-4ae1-4931-9bfa-476cd7695fbd/en",
+    "url": "/api/v1/attraction-translations/1734813d-7264-456d-b279-028fd9e439b7/en",
     "status": 200,
     "message": null
   },
@@ -310,14 +359,14 @@
   {
     "method": "GET",
     "route": "/api/v1/attractions/<uuid:id>",
-    "url": "/api/v1/attractions/d4d7e6eb-4ae1-4931-9bfa-476cd7695fbd",
+    "url": "/api/v1/attractions/1734813d-7264-456d-b279-028fd9e439b7",
     "status": 200,
     "message": null
   },
   {
     "method": "PATCH",
     "route": "/api/v1/attractions/<uuid:id>",
-    "url": "/api/v1/attractions/d4d7e6eb-4ae1-4931-9bfa-476cd7695fbd",
+    "url": "/api/v1/attractions/1734813d-7264-456d-b279-028fd9e439b7",
     "status": 200,
     "message": null
   },
@@ -333,35 +382,35 @@
     "route": "/api/v1/audit-logs",
     "url": "/api/v1/audit-logs",
     "status": 200,
-    "message": "14 audit log(s) found."
+    "message": "17 audit log(s) found."
   },
   {
     "method": "GET",
     "route": "/api/v1/audit-logs/<log_id>",
-    "url": "/api/v1/audit-logs/2460e533-e7db-426a-b3cc-0f31d40ee136",
+    "url": "/api/v1/audit-logs/640ccffe-f940-4959-9829-aba42c314010",
     "status": 200,
     "message": "Audit log retrieved successfully."
   },
   {
     "method": "GET",
     "route": "/api/v1/audit-logs/action/<action>",
-    "url": "/api/v1/audit-logs/action/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/audit-logs/action/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 200,
-    "message": "0 audit log(s) found for action '94c88fd0-9f92-4c69-8f5a-8438395f9ddb'."
+    "message": "0 audit log(s) found for action 'bca70591-d8af-4560-be36-6123f84e67e2'."
   },
   {
     "method": "GET",
     "route": "/api/v1/audit-logs/entity/<entity_type>/<entity_id>",
-    "url": "/api/v1/audit-logs/entity/94c88fd0-9f92-4c69-8f5a-8438395f9ddb/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/audit-logs/entity/bca70591-d8af-4560-be36-6123f84e67e2/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 200,
-    "message": "0 audit log(s) found for 94c88fd0-9f92-4c69-8f5a-8438395f9ddb '94c88fd0-9f92-4c69-8f5a-8438395f9ddb'."
+    "message": "0 audit log(s) found for bca70591-d8af-4560-be36-6123f84e67e2 'bca70591-d8af-4560-be36-6123f84e67e2'."
   },
   {
     "method": "GET",
     "route": "/api/v1/audit-logs/user/<user_id>",
-    "url": "/api/v1/audit-logs/user/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/audit-logs/user/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 200,
-    "message": "0 audit log(s) found for user '94c88fd0-9f92-4c69-8f5a-8438395f9ddb'."
+    "message": "0 audit log(s) found for user 'bca70591-d8af-4560-be36-6123f84e67e2'."
   },
   {
     "method": "POST",
@@ -436,21 +485,21 @@
   {
     "method": "GET",
     "route": "/api/v1/bookings/<uuid:booking_id>",
-    "url": "/api/v1/bookings/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/bookings/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 404,
     "message": "Resource not found"
   },
   {
     "method": "PATCH",
     "route": "/api/v1/bookings/<uuid:booking_id>/cancel",
-    "url": "/api/v1/bookings/94c88fd0-9f92-4c69-8f5a-8438395f9ddb/cancel",
+    "url": "/api/v1/bookings/bca70591-d8af-4560-be36-6123f84e67e2/cancel",
     "status": 404,
     "message": "Resource not found"
   },
   {
     "method": "POST",
     "route": "/api/v1/bookings/<uuid:booking_id>/qr",
-    "url": "/api/v1/bookings/94c88fd0-9f92-4c69-8f5a-8438395f9ddb/qr",
+    "url": "/api/v1/bookings/bca70591-d8af-4560-be36-6123f84e67e2/qr",
     "status": 404,
     "message": "Resource not found"
   },
@@ -470,10 +519,10 @@
             "Missing data for required field."
           ]
         },
-        "timestamp": "2026-05-17T12:29:56Z"
+        "timestamp": "2026-05-17T12:57:20Z"
       },
       "message": "Validation failed.",
-      "trace_id": "86000e98-70f2-4d6e-b798-8fbc5ef4ebe8"
+      "trace_id": "a37e8f32-2aee-4ae9-bec5-bc2822f45d00"
     }
   },
   {
@@ -493,7 +542,7 @@
   {
     "method": "PATCH",
     "route": "/api/v1/business/profiles/<string:profile_id>",
-    "url": "/api/v1/business/profiles/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/business/profiles/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 200,
     "message": "Business profile not found; no changes applied"
   },
@@ -528,29 +577,29 @@
   {
     "method": "PATCH",
     "route": "/api/v1/business/registrations/<string:request_id>",
-    "url": "/api/v1/business/registrations/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/business/registrations/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 404,
     "message": {
       "code": "NOT_FOUND",
       "details": {
-        "timestamp": "2026-05-17T12:29:56Z"
+        "timestamp": "2026-05-17T12:57:20Z"
       },
-      "message": "Registration request 94c88fd0-9f92-4c69-8f5a-8438395f9ddb not found.",
-      "trace_id": "cc62da14-3166-4cab-b5de-559dbca8e4d0"
+      "message": "Registration request bca70591-d8af-4560-be36-6123f84e67e2 not found.",
+      "trace_id": "038e6514-bf54-48e6-b643-9edc60d7eddd"
     }
   },
   {
     "method": "PATCH",
     "route": "/api/v1/business/registrations/<string:request_id>",
-    "url": "/api/v1/business/registrations/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/business/registrations/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 404,
     "message": {
       "code": "NOT_FOUND",
       "details": {
-        "timestamp": "2026-05-17T12:29:56Z"
+        "timestamp": "2026-05-17T12:57:20Z"
       },
-      "message": "Registration request 94c88fd0-9f92-4c69-8f5a-8438395f9ddb not found.",
-      "trace_id": "2c197e59-312b-4422-a41c-0130e4cd7205"
+      "message": "Registration request bca70591-d8af-4560-be36-6123f84e67e2 not found.",
+      "trace_id": "778d031c-6b46-4305-90e3-880ad80d32af"
     }
   },
   {
@@ -584,14 +633,14 @@
   {
     "method": "GET",
     "route": "/api/v1/destination-translations/<uuid:destination_id>/<string:locale>",
-    "url": "/api/v1/destination-translations/3e533bf3-2574-455a-b345-82e40668da77/en",
+    "url": "/api/v1/destination-translations/cb94634e-48ce-4b7d-b9a4-f6bf25d981a4/en",
     "status": 200,
     "message": null
   },
   {
     "method": "PATCH",
     "route": "/api/v1/destination-translations/<uuid:destination_id>/<string:locale>",
-    "url": "/api/v1/destination-translations/3e533bf3-2574-455a-b345-82e40668da77/en",
+    "url": "/api/v1/destination-translations/cb94634e-48ce-4b7d-b9a4-f6bf25d981a4/en",
     "status": 200,
     "message": null
   },
@@ -612,14 +661,14 @@
   {
     "method": "GET",
     "route": "/api/v1/destinations/<uuid:id>",
-    "url": "/api/v1/destinations/3e533bf3-2574-455a-b345-82e40668da77",
+    "url": "/api/v1/destinations/cb94634e-48ce-4b7d-b9a4-f6bf25d981a4",
     "status": 200,
     "message": null
   },
   {
     "method": "PATCH",
     "route": "/api/v1/destinations/<uuid:id>",
-    "url": "/api/v1/destinations/3e533bf3-2574-455a-b345-82e40668da77",
+    "url": "/api/v1/destinations/cb94634e-48ce-4b7d-b9a4-f6bf25d981a4",
     "status": 200,
     "message": null
   },
@@ -668,14 +717,14 @@
   {
     "method": "GET",
     "route": "/api/v1/feedback/destinations/<uuid:dest_id>",
-    "url": "/api/v1/feedback/destinations/8dc2a932-9968-4098-99d7-d0eaca3a2fa4",
+    "url": "/api/v1/feedback/destinations/b06723c2-f9ae-4223-8b98-af275cd9ff4d",
     "status": 200,
     "message": null
   },
   {
     "method": "PUT",
     "route": "/api/v1/feedback/destinations/<uuid:dest_id>",
-    "url": "/api/v1/feedback/destinations/8dc2a932-9968-4098-99d7-d0eaca3a2fa4",
+    "url": "/api/v1/feedback/destinations/b06723c2-f9ae-4223-8b98-af275cd9ff4d",
     "status": 200,
     "message": null
   },
@@ -724,21 +773,21 @@
   {
     "method": "GET",
     "route": "/api/v1/feedback/users/<uuid:user_id>",
-    "url": "/api/v1/feedback/users/04c9f5f3-f9fa-4c65-bd38-5560fe8e71b1",
+    "url": "/api/v1/feedback/users/d6a6c119-e167-40d9-a830-8dd97219810a",
     "status": 200,
     "message": null
   },
   {
     "method": "PUT",
     "route": "/api/v1/feedback/users/<uuid:user_id>",
-    "url": "/api/v1/feedback/users/04c9f5f3-f9fa-4c65-bd38-5560fe8e71b1",
+    "url": "/api/v1/feedback/users/d6a6c119-e167-40d9-a830-8dd97219810a",
     "status": 200,
     "message": null
   },
   {
     "method": "GET",
     "route": "/api/v1/handoff/<string:token>",
-    "url": "/api/v1/handoff/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/handoff/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 400,
     "message": "Handoff QR not found. It may have expired or never existed."
   },
@@ -773,28 +822,28 @@
   {
     "method": "GET",
     "route": "/api/v1/itineraries/<uuid:itinerary_id>",
-    "url": "/api/v1/itineraries/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/itineraries/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 404,
     "message": "Resource not found"
   },
   {
     "method": "PATCH",
     "route": "/api/v1/itineraries/<uuid:itinerary_id>",
-    "url": "/api/v1/itineraries/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/itineraries/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 404,
     "message": "Resource not found"
   },
   {
     "method": "POST",
     "route": "/api/v1/itineraries/<uuid:itinerary_id>/publish",
-    "url": "/api/v1/itineraries/94c88fd0-9f92-4c69-8f5a-8438395f9ddb/publish",
+    "url": "/api/v1/itineraries/bca70591-d8af-4560-be36-6123f84e67e2/publish",
     "status": 404,
     "message": "Resource not found"
   },
   {
     "method": "POST",
     "route": "/api/v1/itineraries/<uuid:itinerary_id>/qr",
-    "url": "/api/v1/itineraries/94c88fd0-9f92-4c69-8f5a-8438395f9ddb/qr",
+    "url": "/api/v1/itineraries/bca70591-d8af-4560-be36-6123f84e67e2/qr",
     "status": 404,
     "message": "Resource not found"
   },
@@ -807,6 +856,34 @@
   },
   {
     "method": "GET",
+    "route": "/api/v1/kiosks/<uuid:kiosk_id>/content/<string:content_type>",
+    "url": "/api/v1/kiosks/bca70591-d8af-4560-be36-6123f84e67e2/content/bca70591-d8af-4560-be36-6123f84e67e2",
+    "status": 200,
+    "message": "No content cache found for type: bca70591-d8af-4560-be36-6123f84e67e2"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/kiosks/<uuid:kiosk_id>/health-events",
+    "url": "/api/v1/kiosks/bca70591-d8af-4560-be36-6123f84e67e2/health-events",
+    "status": 400,
+    "message": "Request payload failed validation"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/kiosks/<uuid:kiosk_id>/heartbeat",
+    "url": "/api/v1/kiosks/bca70591-d8af-4560-be36-6123f84e67e2/heartbeat",
+    "status": 404,
+    "message": "Resource not found"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/kiosks/<uuid:kiosk_id>/sessions",
+    "url": "/api/v1/kiosks/bca70591-d8af-4560-be36-6123f84e67e2/sessions",
+    "status": 400,
+    "message": "Database integrity violation (likely a missing FK target or duplicate row)."
+  },
+  {
+    "method": "GET",
     "route": "/api/v1/notifications",
     "url": "/api/v1/notifications",
     "status": 200,
@@ -815,7 +892,7 @@
   {
     "method": "PATCH",
     "route": "/api/v1/notifications/<uuid:notification_id>/read",
-    "url": "/api/v1/notifications/94c88fd0-9f92-4c69-8f5a-8438395f9ddb/read",
+    "url": "/api/v1/notifications/bca70591-d8af-4560-be36-6123f84e67e2/read",
     "status": 404,
     "message": "Notification not found"
   },
@@ -859,7 +936,7 @@
   {
     "method": "GET",
     "route": "/api/v1/payments/stripe/payment-status/<intent_id>",
-    "url": "/api/v1/payments/stripe/payment-status/pi_3TY3pPC4MgjQMD2U1P4XM8b9",
+    "url": "/api/v1/payments/stripe/payment-status/pi_3TY4FrC4MgjQMD2U1ubCMmFN",
     "status": 200,
     "message": "Payment status retrieved successfully"
   },
@@ -882,40 +959,40 @@
     "route": "/api/v1/permissions",
     "url": "/api/v1/permissions",
     "status": 200,
-    "message": "29 permission(s) found in the system."
+    "message": "35 permission(s) found in the system."
   },
   {
     "method": "GET",
     "route": "/api/v1/permissions/<permission_id>",
-    "url": "/api/v1/permissions/2d246699-ce49-4dcc-ac69-5b880cc16766",
+    "url": "/api/v1/permissions/2fc92c4b-f592-4d2a-b29e-5c93566acaac",
     "status": 200,
-    "message": "Permission 'perm_9554956a' retrieved successfully."
+    "message": "Permission 'perm_26b1cee2' retrieved successfully."
   },
   {
     "method": "PUT",
     "route": "/api/v1/permissions/<permission_id>",
-    "url": "/api/v1/permissions/2d246699-ce49-4dcc-ac69-5b880cc16766",
+    "url": "/api/v1/permissions/2fc92c4b-f592-4d2a-b29e-5c93566acaac",
     "status": 200,
     "message": "Permission updated successfully."
   },
   {
     "method": "GET",
     "route": "/api/v1/public/itineraries/<string:token>",
-    "url": "/api/v1/public/itineraries/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/public/itineraries/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 404,
     "message": "Resource not found"
   },
   {
     "method": "GET",
     "route": "/api/v1/public/qr/<string:token>/scan",
-    "url": "/api/v1/public/qr/94c88fd0-9f92-4c69-8f5a-8438395f9ddb/scan",
+    "url": "/api/v1/public/qr/bca70591-d8af-4560-be36-6123f84e67e2/scan",
     "status": 404,
     "message": "Resource not found"
   },
   {
     "method": "GET",
     "route": "/api/v1/public/qr/<string:token>/scan",
-    "url": "/api/v1/public/qr/94c88fd0-9f92-4c69-8f5a-8438395f9ddb/scan",
+    "url": "/api/v1/public/qr/bca70591-d8af-4560-be36-6123f84e67e2/scan",
     "status": 404,
     "message": "Resource not found"
   },
@@ -945,26 +1022,26 @@
     "route": "/api/v1/roles",
     "url": "/api/v1/roles",
     "status": 200,
-    "message": "29 role(s) found in the system."
+    "message": "35 role(s) found in the system."
   },
   {
     "method": "GET",
     "route": "/api/v1/roles/<role_id>",
-    "url": "/api/v1/roles/2b7d673b-f91b-4208-97c1-19148f4b54c2",
+    "url": "/api/v1/roles/3d8a776d-1b25-4f91-b04d-2e9d1756f156",
     "status": 200,
-    "message": "Role 'role_2ee3477b' retrieved successfully."
+    "message": "Role 'role_e1303509' retrieved successfully."
   },
   {
     "method": "PUT",
     "route": "/api/v1/roles/<role_id>",
-    "url": "/api/v1/roles/2b7d673b-f91b-4208-97c1-19148f4b54c2",
+    "url": "/api/v1/roles/3d8a776d-1b25-4f91-b04d-2e9d1756f156",
     "status": 200,
     "message": "Role updated successfully."
   },
   {
     "method": "POST",
     "route": "/api/v1/sessions/<uuid:kiosk_session_id>/handoff",
-    "url": "/api/v1/sessions/94c88fd0-9f92-4c69-8f5a-8438395f9ddb/handoff",
+    "url": "/api/v1/sessions/bca70591-d8af-4560-be36-6123f84e67e2/handoff",
     "status": 400,
     "message": {
       "validation_errors": {
@@ -977,9 +1054,51 @@
   {
     "method": "GET",
     "route": "/api/v1/sessions/<uuid:kiosk_session_id>/handoff-status",
-    "url": "/api/v1/sessions/94c88fd0-9f92-4c69-8f5a-8438395f9ddb/handoff-status",
+    "url": "/api/v1/sessions/bca70591-d8af-4560-be36-6123f84e67e2/handoff-status",
     "status": 200,
     "message": "Success"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/sessions/<uuid:session_id>/end",
+    "url": "/api/v1/sessions/bca70591-d8af-4560-be36-6123f84e67e2/end",
+    "status": 404,
+    "message": "Resource not found"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/sessions/<uuid:session_id>/events",
+    "url": "/api/v1/sessions/bca70591-d8af-4560-be36-6123f84e67e2/events",
+    "status": 400,
+    "message": "event_type is required"
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/v1/sessions/<uuid:session_id>/state",
+    "url": "/api/v1/sessions/bca70591-d8af-4560-be36-6123f84e67e2/state",
+    "status": 400,
+    "message": "Request payload failed validation"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/sessions/<uuid:session_id>/transfer",
+    "url": "/api/v1/sessions/bca70591-d8af-4560-be36-6123f84e67e2/transfer",
+    "status": 400,
+    "message": "404 Not Found: Session not found"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/sessions/<uuid:session_id>/transfer-status",
+    "url": "/api/v1/sessions/bca70591-d8af-4560-be36-6123f84e67e2/transfer-status",
+    "status": 200,
+    "message": "Success"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/sessions/transfer/<string:token>",
+    "url": "/api/v1/sessions/transfer/bca70591-d8af-4560-be36-6123f84e67e2",
+    "status": 400,
+    "message": "Transfer QR not found. It may have expired."
   },
   {
     "method": "GET",
@@ -1026,7 +1145,7 @@
   {
     "method": "GET",
     "route": "/api/v1/tour-packages/<uuid:package_id>",
-    "url": "/api/v1/tour-packages/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/tour-packages/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 404,
     "message": "Tour package not found"
   },
@@ -1051,14 +1170,14 @@
   {
     "method": "GET",
     "route": "/api/v1/transport/routes/<string:route_id>",
-    "url": "/api/v1/transport/routes/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/transport/routes/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 200,
     "message": null
   },
   {
     "method": "PUT",
     "route": "/api/v1/transport/routes/<string:route_id>",
-    "url": "/api/v1/transport/routes/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/transport/routes/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 400,
     "message": {
       "origin_station_id": [
@@ -1069,7 +1188,7 @@
   {
     "method": "PATCH",
     "route": "/api/v1/transport/routes/<string:route_id>",
-    "url": "/api/v1/transport/routes/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/transport/routes/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 400,
     "message": {
       "origin_station_id": [
@@ -1124,14 +1243,14 @@
   {
     "method": "GET",
     "route": "/api/v1/transport/schedules/<string:schedule_id>",
-    "url": "/api/v1/transport/schedules/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/transport/schedules/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 200,
     "message": null
   },
   {
     "method": "PUT",
     "route": "/api/v1/transport/schedules/<string:schedule_id>/seats",
-    "url": "/api/v1/transport/schedules/94c88fd0-9f92-4c69-8f5a-8438395f9ddb/seats",
+    "url": "/api/v1/transport/schedules/bca70591-d8af-4560-be36-6123f84e67e2/seats",
     "status": 404,
     "message": "Schedule not found"
   },
@@ -1159,35 +1278,35 @@
   {
     "method": "GET",
     "route": "/api/v1/transport/stations/<string:station_id>",
-    "url": "/api/v1/transport/stations/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/transport/stations/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 200,
     "message": null
   },
   {
     "method": "PUT",
     "route": "/api/v1/transport/stations/<string:station_id>",
-    "url": "/api/v1/transport/stations/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/transport/stations/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 404,
     "message": "Station not found"
   },
   {
     "method": "PATCH",
     "route": "/api/v1/transport/stations/<string:station_id>",
-    "url": "/api/v1/transport/stations/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/transport/stations/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 404,
     "message": "Station not found"
   },
   {
     "method": "GET",
     "route": "/api/v1/transport/stations/<string:station_id>/destinations",
-    "url": "/api/v1/transport/stations/94c88fd0-9f92-4c69-8f5a-8438395f9ddb/destinations",
+    "url": "/api/v1/transport/stations/bca70591-d8af-4560-be36-6123f84e67e2/destinations",
     "status": 200,
     "message": null
   },
   {
     "method": "GET",
     "route": "/api/v1/transport/stations/<string:station_id>/routes",
-    "url": "/api/v1/transport/stations/94c88fd0-9f92-4c69-8f5a-8438395f9ddb/routes",
+    "url": "/api/v1/transport/stations/bca70591-d8af-4560-be36-6123f84e67e2/routes",
     "status": 200,
     "message": null
   },
@@ -1217,152 +1336,152 @@
     "route": "/api/v1/user-roles",
     "url": "/api/v1/user-roles",
     "status": 200,
-    "message": "13 user role assignment(s) found."
+    "message": "16 user role assignment(s) found."
   },
   {
     "method": "GET",
     "route": "/api/v1/user/<user_id>/roles",
-    "url": "/api/v1/user/94c88fd0-9f92-4c69-8f5a-8438395f9ddb/roles",
+    "url": "/api/v1/user/bca70591-d8af-4560-be36-6123f84e67e2/roles",
     "status": 200,
-    "message": "User '94c88fd0-9f92-4c69-8f5a-8438395f9ddb' has 1 role(s) assigned."
+    "message": "User 'bca70591-d8af-4560-be36-6123f84e67e2' has 1 role(s) assigned."
   },
   {
     "method": "DELETE",
     "route": "/api/v1/amenities/<uuid:id>",
-    "url": "/api/v1/amenities/68602baf-622e-40f3-b220-0ac8b7392af6",
+    "url": "/api/v1/amenities/19683d65-bcb5-40b6-bc7a-8672d76c9f52",
     "status": 200,
     "message": "Deleted successfully"
   },
   {
     "method": "DELETE",
     "route": "/api/v1/attraction-amenities/<uuid:attraction_id>/<uuid:amenity_id>",
-    "url": "/api/v1/attraction-amenities/d4d7e6eb-4ae1-4931-9bfa-476cd7695fbd/68602baf-622e-40f3-b220-0ac8b7392af6",
+    "url": "/api/v1/attraction-amenities/1734813d-7264-456d-b279-028fd9e439b7/19683d65-bcb5-40b6-bc7a-8672d76c9f52",
     "status": 200,
     "message": "Relationship already absent"
   },
   {
     "method": "DELETE",
     "route": "/api/v1/attraction-translations/<uuid:attraction_id>/<string:locale>",
-    "url": "/api/v1/attraction-translations/d4d7e6eb-4ae1-4931-9bfa-476cd7695fbd/en",
+    "url": "/api/v1/attraction-translations/1734813d-7264-456d-b279-028fd9e439b7/en",
     "status": 200,
     "message": "Translation deleted successfully"
   },
   {
     "method": "DELETE",
     "route": "/api/v1/attractions/<uuid:id>",
-    "url": "/api/v1/attractions/d4d7e6eb-4ae1-4931-9bfa-476cd7695fbd",
+    "url": "/api/v1/attractions/1734813d-7264-456d-b279-028fd9e439b7",
     "status": 200,
     "message": "Attraction deleted successfully"
   },
   {
     "method": "DELETE",
     "route": "/api/v1/audit-logs/<log_id>",
-    "url": "/api/v1/audit-logs/2460e533-e7db-426a-b3cc-0f31d40ee136",
+    "url": "/api/v1/audit-logs/640ccffe-f940-4959-9829-aba42c314010",
     "status": 200,
     "message": "Audit log deleted successfully."
   },
   {
     "method": "DELETE",
     "route": "/api/v1/business/profiles/<string:profile_id>",
-    "url": "/api/v1/business/profiles/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/business/profiles/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 200,
     "message": "Business profile not found; nothing to delete"
   },
   {
     "method": "DELETE",
     "route": "/api/v1/business/registrations/registration/<string:request_id>",
-    "url": "/api/v1/business/registrations/registration/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/business/registrations/registration/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 404,
     "message": {
       "code": "NOT_FOUND",
       "details": {
-        "timestamp": "2026-05-17T12:29:58Z"
+        "timestamp": "2026-05-17T12:57:27Z"
       },
-      "message": "Registration request 94c88fd0-9f92-4c69-8f5a-8438395f9ddb not found.",
-      "trace_id": "5d599127-af41-4107-b726-5004c09944df"
+      "message": "Registration request bca70591-d8af-4560-be36-6123f84e67e2 not found.",
+      "trace_id": "85e7f634-754b-478d-8a3d-bd5623e8b795"
     }
   },
   {
     "method": "DELETE",
     "route": "/api/v1/destination-translations/<uuid:destination_id>/<string:locale>",
-    "url": "/api/v1/destination-translations/3e533bf3-2574-455a-b345-82e40668da77/en",
+    "url": "/api/v1/destination-translations/cb94634e-48ce-4b7d-b9a4-f6bf25d981a4/en",
     "status": 200,
     "message": "Translation deleted successfully"
   },
   {
     "method": "DELETE",
     "route": "/api/v1/destinations/<uuid:id>",
-    "url": "/api/v1/destinations/f4a96f0b-1e9f-4ced-900f-02fbca2c9da3",
+    "url": "/api/v1/destinations/f07d0c19-7a12-46c2-a95b-fab37d1e36e0",
     "status": 200,
     "message": "Destination deleted successfully"
   },
   {
     "method": "DELETE",
     "route": "/api/v1/favourites/<uuid:attraction_id>",
-    "url": "/api/v1/favourites/d4d7e6eb-4ae1-4931-9bfa-476cd7695fbd",
+    "url": "/api/v1/favourites/1734813d-7264-456d-b279-028fd9e439b7",
     "status": 404,
     "message": "Favourite not found"
   },
   {
     "method": "DELETE",
     "route": "/api/v1/feedback/destinations/<uuid:dest_id>",
-    "url": "/api/v1/feedback/destinations/8dc2a932-9968-4098-99d7-d0eaca3a2fa4",
+    "url": "/api/v1/feedback/destinations/b06723c2-f9ae-4223-8b98-af275cd9ff4d",
     "status": 200,
     "message": "Destination deleted"
   },
   {
     "method": "DELETE",
     "route": "/api/v1/feedback/users/<uuid:user_id>",
-    "url": "/api/v1/feedback/users/04c9f5f3-f9fa-4c65-bd38-5560fe8e71b1",
+    "url": "/api/v1/feedback/users/d6a6c119-e167-40d9-a830-8dd97219810a",
     "status": 200,
     "message": "User deleted"
   },
   {
     "method": "DELETE",
     "route": "/api/v1/itineraries/<uuid:itinerary_id>",
-    "url": "/api/v1/itineraries/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/itineraries/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 404,
     "message": "Resource not found"
   },
   {
     "method": "DELETE",
     "route": "/api/v1/permissions/<permission_id>",
-    "url": "/api/v1/permissions/2d246699-ce49-4dcc-ac69-5b880cc16766",
+    "url": "/api/v1/permissions/2fc92c4b-f592-4d2a-b29e-5c93566acaac",
     "status": 200,
     "message": "Permission deleted successfully."
   },
   {
     "method": "DELETE",
     "route": "/api/v1/roles/<role_id>",
-    "url": "/api/v1/roles/2b7d673b-f91b-4208-97c1-19148f4b54c2",
+    "url": "/api/v1/roles/3d8a776d-1b25-4f91-b04d-2e9d1756f156",
     "status": 200,
     "message": "Role deleted successfully."
   },
   {
     "method": "DELETE",
     "route": "/api/v1/transport/routes/<string:route_id>",
-    "url": "/api/v1/transport/routes/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/transport/routes/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 404,
     "message": "Route not found"
   },
   {
     "method": "DELETE",
     "route": "/api/v1/transport/schedules/<string:schedule_id>",
-    "url": "/api/v1/transport/schedules/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/transport/schedules/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 200,
     "message": "Schedule already absent"
   },
   {
     "method": "DELETE",
     "route": "/api/v1/transport/stations/<string:station_id>",
-    "url": "/api/v1/transport/stations/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/transport/stations/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 404,
     "message": "Station not found"
   },
   {
     "method": "DELETE",
     "route": "/api/v1/users/<uuid:user_id>",
-    "url": "/api/v1/users/94c88fd0-9f92-4c69-8f5a-8438395f9ddb",
+    "url": "/api/v1/users/bca70591-d8af-4560-be36-6123f84e67e2",
     "status": 400,
     "message": "password required"
   }

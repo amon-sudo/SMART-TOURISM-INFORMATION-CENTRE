@@ -83,6 +83,11 @@ def register_blueprints(flask_app: Flask) -> None:
     from app.tourism_amenitties.attraction_amenities.controllers.routes import attraction_amenity_bp
     from app.user_settings.views.views import user_settings_bp
     from app.public_and_extras.routes import public_bp, extras_bp
+    from app.kiosk_feature.kiosk.MVC_architecture.controllers.routes.kiosk_routes import (
+        kiosk_bp,
+        session_bp,
+        transfer_bp,
+    )
 
     try:
         flask_app.register_blueprint(payment_mpesa_bp, url_prefix="/api/v1/payments")
@@ -114,6 +119,9 @@ def register_blueprints(flask_app: Flask) -> None:
         flask_app.register_blueprint(feedback_bp, url_prefix="/api/v1/feedback")
         flask_app.register_blueprint(public_bp, url_prefix="/api/public")
         flask_app.register_blueprint(extras_bp, url_prefix="/api/v1")
+        flask_app.register_blueprint(kiosk_bp, url_prefix="/api/v1")
+        flask_app.register_blueprint(session_bp, url_prefix="/api/v1")
+        flask_app.register_blueprint(transfer_bp, url_prefix="/api/v1")
         flask_app.logger.info("Registered all blueprints successfully")
     except Exception as exc:
         flask_app.logger.exception("Failed to register blueprints: %s", exc)
@@ -121,6 +129,7 @@ def register_blueprints(flask_app: Flask) -> None:
 
 def register_error_handlers(flask_app: Flask) -> None:
     from werkzeug.exceptions import HTTPException
+    from marshmallow import ValidationError
 
     @flask_app.errorhandler(HTTPException)
     def handle_http_exception(error):
@@ -129,6 +138,32 @@ def register_error_handlers(flask_app: Flask) -> None:
     @flask_app.errorhandler(404)
     def not_found(error):
         return jsonify({"error": "not_found", "message": "Resource not found"}), 404
+
+    # Many controllers (notably the kiosk module) call schema.load() without
+    # try/except — register a global handler so marshmallow errors become a
+    # clean 400 instead of an uncaught 500.
+    @flask_app.errorhandler(ValidationError)
+    def handle_marshmallow_validation(error):
+        return jsonify({
+            "error": "validation_error",
+            "message": "Request payload failed validation",
+            "details": error.messages,
+        }), 400
+
+    # Catch FK violations / unique-constraint conflicts that controllers
+    # forgot to wrap, so they surface as a clean 400 rather than a 500.
+    from sqlalchemy.exc import IntegrityError
+    @flask_app.errorhandler(IntegrityError)
+    def handle_integrity_error(error):
+        try:
+            db.session.rollback()
+        except Exception:
+            pass
+        flask_app.logger.warning("IntegrityError: %s", error)
+        return jsonify({
+            "error": "integrity_error",
+            "message": "Database integrity violation (likely a missing FK target or duplicate row).",
+        }), 400
 
     @flask_app.errorhandler(500)
     def handle_500(error):
@@ -173,6 +208,17 @@ def create_app(config_class=AppConfig):
     from app.feedback_media import models as feedback_media_models  # noqa: F401
     from app.Business.Business_Profile.MVC_architecture.Business_profile_models.Business_profile_domain.Business_profile_domain import BusinessProfile  # noqa: F401
     from app.Business.Business_registration.MVC_architecture_business.Business_registration_models.Business_registration_domain.Business_registration_domain import BusinessRegistrationRequest  # noqa: F401
+    # Kiosk feature models — loaded LAST so their string-based relationships
+    # to BusinessProfile, User, and Booking can resolve.
+    from app.kiosk_feature.kiosk.MVC_architecture.models.kiosk import Kiosk  # noqa: F401
+    from app.kiosk_feature.kiosk.MVC_architecture.models.kiosk_session import KioskSession  # noqa: F401
+    from app.kiosk_feature.kiosk.MVC_architecture.models.kiosk_session_transfer import KioskSessionTransfer  # noqa: F401
+    from app.kiosk_feature.kiosk.MVC_architecture.models.kiosk_support_models import (  # noqa: F401
+        KioskHealthLog,
+        KioskMaintenanceLog,
+        KioskContentCache,
+        KioskAnalyticsEvent,
+    )
 
     with app.app_context():
         # Ensure SQLite foreign key enforcement

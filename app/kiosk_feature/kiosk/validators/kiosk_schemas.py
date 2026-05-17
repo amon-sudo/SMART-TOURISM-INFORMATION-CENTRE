@@ -29,9 +29,10 @@ class KioskCreateSchema(Schema):
     configuration = fields.Dict(load_default={})
 
     @validates("lat")
-    def validate_lat_lng_pair(self, lat):
-        # Both or neither
-        pass  # cross-field validation handled in controller if needed
+    def validate_lat_lng_pair(self, lat, **kwargs):
+        # Both or neither — cross-field validation handled in controller if needed.
+        # **kwargs absorbs data_key/etc. added by newer Marshmallow versions.
+        return None
 
 
 class KioskUpdateSchema(Schema):

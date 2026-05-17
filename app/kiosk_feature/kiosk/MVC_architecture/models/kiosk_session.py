@@ -125,18 +125,18 @@ class KioskSession(BaseModel):
     # ── Relationships ─────────────────────────────────────────────────────────
     kiosk = relationship("Kiosk", back_populates="sessions")
 
+    # Cross-module: one-sided so we don't require User to add a kiosk_sessions
+    # back_populates entry.
     user = relationship(
-        "User",
-        back_populates="kiosk_sessions",
+        "app.user_settings.models.models.User",
         lazy="select",
+        foreign_keys=[user_id],
     )
 
-    transfers = relationship(
-        "KioskSessionTransfer",
-        back_populates="kiosk_session",
-        lazy="dynamic",
-        order_by="KioskSessionTransfer.created_at.desc()",
-    )
+    # transfers: KioskSessionTransfer.kiosk_session_id is a String(36) with
+    # no FK constraint to UUID kiosk_sessions.id, so SQLAlchemy can't auto-
+    # join. Nothing reads `session.transfers` today, so the relationship is
+    # omitted; query KioskSessionTransfer directly with kiosk_session_id.
 
     analytics_events = relationship(
         "KioskAnalyticsEvent",
@@ -145,11 +145,12 @@ class KioskSession(BaseModel):
         order_by="KioskAnalyticsEvent.occurred_at.desc()",
     )
 
+    # Cross-module: viewonly to avoid requiring Booking to declare the inverse.
     bookings = relationship(
         "Booking",
-        back_populates="kiosk_session",
-        foreign_keys="Booking.kiosk_session_id",
+        primaryjoin="foreign(Booking.kiosk_session_id) == KioskSession.id",
         lazy="dynamic",
+        viewonly=True,
     )
 
     # ── Properties ────────────────────────────────────────────────────────────

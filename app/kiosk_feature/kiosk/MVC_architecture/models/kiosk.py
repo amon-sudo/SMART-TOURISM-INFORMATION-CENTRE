@@ -25,13 +25,21 @@ from sqlalchemy.orm                  import relationship
 from app.extensions import db
 from app.models.base import BaseModel, utcnow
 
-# PostGIS geography column — falls back gracefully if extension not installed
-try:
-    from geoalchemy2 import Geography
-    _GEOGRAPHY_TYPE = Geography(geometry_type="POINT", srid=4326)
-    HAS_POSTGIS = True
-except ImportError:
-    # geoalchemy2 not installed — use Text to store "lat,lng" until PostGIS is ready
+# PostGIS geography column — gated by USE_POSTGIS so installations without
+# the postgis extension fall back to a plain Text column instead of crashing
+# at db.create_all() / db.metadata.create_all() with 'type "geography" does
+# not exist'. Matches the pattern used in app/feedback_media/models.py.
+import os as _os
+_USE_POSTGIS = _os.getenv("USE_POSTGIS", "false").strip().lower() in {"1", "true", "yes", "on"}
+if _USE_POSTGIS:
+    try:
+        from geoalchemy2 import Geography
+        _GEOGRAPHY_TYPE = Geography(geometry_type="POINT", srid=4326)
+        HAS_POSTGIS = True
+    except ImportError:
+        _GEOGRAPHY_TYPE = Text
+        HAS_POSTGIS = False
+else:
     _GEOGRAPHY_TYPE = Text
     HAS_POSTGIS = False
 
@@ -149,10 +157,13 @@ class Kiosk(BaseModel):
     )
 
     # ── Relationships ─────────────────────────────────────────────────────────
+    # Cross-module relationships (business_profile, bookings) are intentionally
+    # one-sided so the Kiosk module stays loadable even when downstream models
+    # have not added matching back_populates entries.
     business_profile = relationship(
         "BusinessProfile",
-        back_populates="kiosks",
         lazy="select",
+        foreign_keys=[business_profile_id],
     )
 
     sessions = relationship(
@@ -183,9 +194,9 @@ class Kiosk(BaseModel):
 
     bookings = relationship(
         "Booking",
-        back_populates="kiosk",
+        primaryjoin="foreign(Booking.kiosk_id) == Kiosk.id",
         lazy="dynamic",
-        foreign_keys="Booking.kiosk_id",
+        viewonly=True,
     )
 
     # ── Properties ────────────────────────────────────────────────────────────
