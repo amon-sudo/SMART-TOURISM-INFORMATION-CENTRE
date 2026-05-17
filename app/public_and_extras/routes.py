@@ -401,7 +401,7 @@ def soft_delete_user(user_id):
     if str(caller_uuid) != str(user_id):
         return jsonify({"error": "Forbidden"}), 403
 
-    data = request.get_json() or {}
+    data = request.get_json(silent=True) or {}
     password = data.get("password")
     if not password:
         return jsonify({"error": "password required"}), 400

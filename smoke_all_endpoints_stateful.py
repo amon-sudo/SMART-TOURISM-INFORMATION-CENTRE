@@ -54,6 +54,13 @@ def build_runner():
             "Content-Type": "application/json",
             "X-User-Id": state.get("user_id", ""),
         }
+        # Once seed_auth() has run, every authenticated endpoint should be
+        # exercised with a real Bearer token rather than the X-User-Id
+        # testing header. Without this the smoke run produces a flood of
+        # 401s for protected routes that are actually working correctly.
+        access_token = state.get("access_token")
+        if access_token:
+            h["Authorization"] = f"Bearer {access_token}"
         if headers:
             h.update(headers)
         resp = client.open(path=path, method=method, json=payload, headers=h)
@@ -71,9 +78,13 @@ def build_runner():
             "password": state["password"],
         })
         if login_resp.status_code < 400 and isinstance(login_body, dict):
-            state["access_token"] = login_body.get("access_token")
-            state["refresh_token"] = login_body.get("refresh_token")
-            user = login_body.get("user") or {}
+            # /auth/login wraps the payload via ApiResponse.success so the
+            # tokens live under "data". Fall back to top-level for
+            # forward-compat with older responses.
+            payload = login_body.get("data") if isinstance(login_body.get("data"), dict) else login_body
+            state["access_token"] = payload.get("access_token")
+            state["refresh_token"] = payload.get("refresh_token")
+            user = payload.get("user") or {}
             if isinstance(user, dict) and user.get("id"):
                 state["user_id"] = user["id"]
 
@@ -567,11 +578,14 @@ def build_runner():
             "Content-Type": "application/json",
             "X-User-Id": state.get("user_id", ""),
         }
-        if "/api/v1/auth/me" in url or "/api/v1/auth/logout" in url:
-            if state.get("access_token"):
-                h["Authorization"] = f"Bearer {state['access_token']}"
+        # /auth/refresh needs the refresh token specifically. Every other
+        # authenticated endpoint takes the access token, so attach it by
+        # default when we have one — otherwise the smoke run reports
+        # spurious 401s for routes that are functioning correctly.
         if "/api/v1/auth/refresh" in url and state.get("refresh_token"):
             h["Authorization"] = f"Bearer {state['refresh_token']}"
+        elif state.get("access_token"):
+            h["Authorization"] = f"Bearer {state['access_token']}"
         if "/api/v1/payments/stripe/webhook" in url:
             h["Stripe-Signature"] = "smoke-signature"
         return h
