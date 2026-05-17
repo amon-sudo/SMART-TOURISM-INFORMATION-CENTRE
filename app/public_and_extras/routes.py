@@ -13,9 +13,10 @@ Tighten the auth before production.
 
 from __future__ import annotations
 
+import math
 import secrets
 import uuid
-from datetime import datetime
+from datetime import datetime, date, timedelta
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import (
@@ -23,7 +24,7 @@ from flask_jwt_extended import (
     verify_jwt_in_request,
     jwt_required,
 )
-from sqlalchemy import or_
+from sqlalchemy import or_, func, and_
 from sqlalchemy.exc import IntegrityError
 
 from app.extensions import db
@@ -36,14 +37,23 @@ from app.tourism_amenitties.attractions.models.attraction import Attraction
 from app.tourism_amenitties.destination.models.destination import Destination
 from app.tourism_amenitties.accommodation.models.accommodation import Accommodation
 from app.tourism_amenitties.tours.models.tour_package import TourPackage
-from app.feedback_media.models import EmergencyContact
+from app.tourism_amenitties.events.models.event import Event
+from app.tourism_amenitties.accommodation.models.accommodation import RoomType
+from app.feedback_media.models import EmergencyContact, Review
 from app.user_settings.models.models import (
     User,
     UserPreference,
+    UserNotification,
     RefreshToken,
 )
 from app.utils.responses import ApiResponse
-from .models import Favourite, Notification
+from .models import (
+    Favourite,
+    Notification,
+    AnalyticsEvent,
+    UserActivity,
+    DailyAnalyticsSnapshot,
+)
 
 
 public_bp = Blueprint("public", __name__)
@@ -102,6 +112,8 @@ def _paginate(query, default_per_page: int = 10, max_per_page: int = 50):
 
 
 def _attraction_summary(attraction: Attraction) -> dict:
+    lat = getattr(attraction, "latitude", None)
+    lng = getattr(attraction, "longitude", None)
     return {
         "id": str(attraction.id),
         "name": attraction.name,
@@ -112,7 +124,49 @@ def _attraction_summary(attraction: Attraction) -> dict:
         "entry_fee": attraction.entry_fee,
         "is_wheelchair_accessible": bool(attraction.is_wheelchair_accessible),
         "status": attraction.status,
+        "latitude": lat,
+        "longitude": lng,
     }
+
+
+def _haversine_km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
+    """Great-circle distance between two points in kilometres."""
+    R = 6371.0
+    phi1, phi2 = math.radians(lat1), math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlmb = math.radians(lng2 - lng1)
+    a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlmb / 2) ** 2
+    return 2 * R * math.asin(math.sqrt(a))
+
+
+def _log_activity(user_id, activity_type: str, target_type: str | None = None,
+                  target_id=None, metadata: dict | None = None) -> None:
+    """Best-effort user activity log. Never raises into the request path."""
+    try:
+        db.session.add(UserActivity(
+            user_id=user_id,
+            activity_type=activity_type,
+            target_type=target_type,
+            target_id=target_id,
+            activity_metadata=metadata,
+        ))
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+
+
+def _log_event(event_type: str, user_id=None, metadata: dict | None = None) -> None:
+    """Best-effort anonymous analytics event log."""
+    try:
+        db.session.add(AnalyticsEvent(
+            event_type=event_type,
+            user_id=user_id,
+            event_metadata=metadata,
+            ip_address=request.headers.get("X-Forwarded-For", request.remote_addr),
+        ))
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -203,6 +257,8 @@ def public_search():
     if not q:
         return jsonify({"data": [], "query": q}), 200
 
+    _log_event("search", metadata={"query": q})
+
     ilike = f"%{q}%"
     attractions = (
         Attraction.query
@@ -232,28 +288,28 @@ def public_search():
 
 @public_bp.get("/map")
 def public_map():
-    """STORY006 — minimal GeoJSON feed of approved attractions.
-
-    Real PostGIS geometries are not stored on Attraction yet (the location
-    column is commented out — see P3 deferred notes), so each feature emits
-    a null geometry. The shape matches GeoJSON so the client can render the
-    points once geometries land.
-    """
+    """STORY006 — GeoJSON FeatureCollection of approved attractions."""
     attractions = (
         Attraction.query.filter(Attraction.status == "approved").all()
     )
-    features = [
-        {
+    features = []
+    for a in attractions:
+        lat = getattr(a, "latitude", None)
+        lng = getattr(a, "longitude", None)
+        geometry = None
+        if lat is not None and lng is not None:
+            # GeoJSON expects [lng, lat] ordering.
+            geometry = {"type": "Point", "coordinates": [float(lng), float(lat)]}
+        features.append({
             "type": "Feature",
-            "geometry": None,  # TODO: populate when Attraction.location is restored
+            "geometry": geometry,
             "properties": {
                 "id": str(a.id),
                 "name": a.name,
                 "category": a.category,
+                "rating": a.avg_rating or 0,
             },
-        }
-        for a in attractions
-    ]
+        })
     return jsonify({"type": "FeatureCollection", "features": features}), 200
 
 
@@ -297,53 +353,121 @@ def public_destination_info(destination_id):
         .split(",")[0].strip().lower()
     )
 
-    def _pick(field):
-        # CMS content lives in JSON columns keyed by locale on the ERD;
-        # the current Destination model only has canonical_name/slug, so
-        # we expose a stable shape that the client can fill once the
-        # JSONB columns land.
-        return getattr(destination, field, None)
+    def _localize(blob):
+        """JSON blobs are keyed by locale. Fall back to 'en' or the first key."""
+        if not isinstance(blob, dict) or not blob:
+            return blob
+        return blob.get(lang) or blob.get("en") or next(iter(blob.values()), None)
 
     return jsonify({
         "id": str(destination.id),
         "language": lang,
         "canonical_name": destination.canonical_name,
         "slug": destination.slug,
-        "overview": _pick("overview_json"),
-        "culture": _pick("culture_json"),
-        "weather_info": _pick("weather_info"),
-        "travel_tips": _pick("travel_tips_json"),
+        "description": destination.description,
+        "is_wheelchair_accessible": bool(getattr(destination, "is_wheelchair_accessible", False)),
+        "overview": _localize(getattr(destination, "overview_json", None)),
+        "culture": _localize(getattr(destination, "culture_json", None)),
+        "weather_info": _localize(getattr(destination, "weather_info", None)),
+        "travel_tips": _localize(getattr(destination, "travel_tips_json", None)),
     }), 200
 
 
 @public_bp.post("/kiosk/session/reset")
 def public_kiosk_reset():
-    """STORY009 — give the kiosk a fresh anonymous session token.
+    """STORY009 — start a fresh anonymous kiosk session.
 
-    A real implementation persists a KioskSession; here we just mint an
-    opaque token so the kiosk UI has something to bind to until the
-    kiosk_feature blueprint is wired in (see deferred notes).
+    Body (optional):
+      { "kiosk_id": "<uuid>" }      // pin the session to a known kiosk
     """
+    from app.kiosk_feature.kiosk.MVC_architecture.models.kiosk_session import (
+        KioskSession, KioskSessionStatus,
+    )
+    from app.kiosk_feature.kiosk.MVC_architecture.models.kiosk import Kiosk
+
+    data = request.get_json(silent=True) or {}
+    kiosk_uuid = None
+    if data.get("kiosk_id"):
+        try:
+            kiosk_uuid = uuid.UUID(str(data["kiosk_id"]))
+        except (ValueError, TypeError):
+            return jsonify({"error": "kiosk_id must be a valid UUID"}), 400
+        if not db.session.get(Kiosk, kiosk_uuid):
+            return jsonify({"error": "Kiosk not found"}), 404
+
+    if kiosk_uuid is None:
+        # No kiosk specified — emit an opaque anonymous token so non-kiosk
+        # callers (web warmup, integration tests) still get a usable response.
+        token = secrets.token_urlsafe(32)
+        _log_event("kiosk_session_reset_anonymous", metadata={"token_prefix": token[:8]})
+        return jsonify({
+            "session_token": token,
+            "kiosk_id": None,
+            "issued_at": datetime.utcnow().isoformat() + "Z",
+            "idle_timeout_seconds": 180,
+            "persisted": False,
+        }), 201
+
+    session = KioskSession(
+        kiosk_id=kiosk_uuid,
+        session_token=secrets.token_urlsafe(32),
+        status=KioskSessionStatus.ACTIVE if hasattr(KioskSessionStatus, "ACTIVE") else list(KioskSessionStatus)[0],
+        started_at=datetime.utcnow(),
+        ip_address=request.headers.get("X-Forwarded-For", request.remote_addr),
+        state={},
+    )
+    db.session.add(session)
+    db.session.commit()
+    _log_event("kiosk_session_started", metadata={"session_id": str(session.id)})
+
     return jsonify({
-        "session_token": secrets.token_urlsafe(32),
-        "issued_at": datetime.utcnow().isoformat() + "Z",
+        "session_id": str(session.id),
+        "session_token": session.session_token,
+        "kiosk_id": str(session.kiosk_id),
+        "issued_at": session.started_at.isoformat() + "Z",
         "idle_timeout_seconds": 180,
+        "persisted": True,
     }), 201
 
 
 @public_bp.post("/session/qr")
 def public_session_qr():
-    """STORY003 — placeholder for kiosk-to-mobile QR handoff.
+    """STORY003 — generate a phone-handoff QR for an existing kiosk session.
 
-    The full handoff is implemented at /api/v1/sessions/<id>/handoff in
-    handoff_bp; this public endpoint just returns a redirect hint so the
-    visitor stories don't 404. Clients should call the v1 endpoint once
-    they have a kiosk session.
+    Body:
+      { "kiosk_session_id": "<uuid>" }
+
+    On success returns the same shape as /api/v1/sessions/<id>/handoff so
+    public kiosk frontends can hit either endpoint.
     """
+    from app.kiosk_feature.kiosk.MVC_architecture.services.kiosk_services import transfer_service
+    from app.kiosk_feature.kiosk.MVC_architecture.models.kiosk_session import KioskSession
+
+    data = request.get_json(silent=True) or {}
+    raw = data.get("kiosk_session_id")
+    if not raw:
+        return jsonify({"error": "kiosk_session_id required"}), 400
+    try:
+        session_uuid = uuid.UUID(str(raw))
+    except (ValueError, TypeError):
+        return jsonify({"error": "kiosk_session_id must be a valid UUID"}), 400
+    if not db.session.get(KioskSession, session_uuid):
+        return jsonify({"error": "Kiosk session not found"}), 404
+
+    try:
+        transfer = transfer_service.create_transfer(session_uuid)
+    except Exception as exc:
+        return jsonify({"error": "Failed to create transfer", "detail": str(exc)}), 500
+
     return jsonify({
-        "message": "Use POST /api/v1/sessions/<kiosk_session_id>/handoff once a session is established.",
-        "handoff_endpoint": "/api/v1/sessions/<kiosk_session_id>/handoff",
-    }), 200
+        "transfer_id": str(transfer.id),
+        "kiosk_session_id": str(transfer.kiosk_session_id),
+        "token": transfer.token,
+        "transfer_url": transfer.transfer_url,
+        "qr_image_path": transfer.qr_image_path,
+        "expires_at": transfer.expires_at.isoformat() if transfer.expires_at else None,
+        "status": transfer.status.value if hasattr(transfer.status, "value") else str(transfer.status),
+    }), 201
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -560,6 +684,7 @@ def add_favourite():
     except IntegrityError:
         db.session.rollback()
         return jsonify({"error": "Already in favourites"}), 409
+    _log_activity(user_uuid, "favourite_added", "attraction", attraction_uuid)
     return jsonify(fav.to_dict()), 201
 
 
@@ -667,3 +792,552 @@ def show_tour_package(package_id):
         "max_participants": tp.max_participants,
         "status": tp.status,
     }), 200
+
+
+# ── Tour booking (STORY035 — POST /api/v1/bookings/tour) ─────────────────────
+
+@extras_bp.post("/bookings/tour")
+@jwt_required()
+def book_tour():
+    """STORY035 — dedicated entry point for tour-package bookings.
+
+    Thin wrapper that constructs a Booking with type='tour' and a single
+    BookingItem targeting the chosen tour_package. Real payment processing
+    is delegated to the existing /api/v1/payments/* endpoints; clients
+    quote payment_intent_id after this returns 201.
+    """
+    from app.booking_feature.models.booking import (
+        Booking, BookingItem, BookingStatus, BookingType, BookingItemTargetType, RefundStatus
+    )
+    from app.services.reference_service import ReferenceService
+
+    user_uuid = _require_user_uuid()
+    if user_uuid is None:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json() or {}
+    package_raw = data.get("package_id")
+    participants = int(data.get("participants", 1) or 1)
+    if not package_raw:
+        return jsonify({"error": "package_id required"}), 400
+    if participants < 1:
+        return jsonify({"error": "participants must be >= 1"}), 400
+
+    try:
+        package_uuid = uuid.UUID(str(package_raw))
+    except (ValueError, TypeError):
+        return jsonify({"error": "package_id must be a valid UUID"}), 400
+
+    pkg = db.session.get(TourPackage, package_uuid)
+    if not pkg or pkg.status != "active":
+        return jsonify({"error": "Tour package not found"}), 404
+    if pkg.max_participants and participants > pkg.max_participants:
+        return jsonify({
+            "error": f"Max {pkg.max_participants} participants per booking"
+        }), 400
+
+    total_cost = float(pkg.price or 0) * participants
+
+    try:
+        booking = Booking(
+            user_id=user_uuid,
+            reference_number=ReferenceService.generate("TR"),
+            type=BookingType.TOUR,
+            status=BookingStatus.PENDING,
+            total_cost=total_cost,
+            refund_status=RefundStatus.NONE,
+        )
+        db.session.add(booking)
+        db.session.flush()
+        db.session.add(BookingItem(
+            booking_id=booking.id,
+            target_type=BookingItemTargetType.TOUR_PACKAGE,
+            target_id=package_uuid,
+            quantity=participants,
+            price_at_booking=float(pkg.price or 0),
+            notes=data.get("notes"),
+        ))
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        raise
+
+    _log_activity(user_uuid, "tour_booking_created", "booking", booking.id,
+                  {"package_id": str(package_uuid), "participants": participants})
+
+    return jsonify({
+        "id": str(booking.id),
+        "reference_number": booking.reference_number,
+        "status": booking.status.value,
+        "type": booking.type.value,
+        "total_cost": booking.total_cost,
+        "package_id": str(package_uuid),
+        "participants": participants,
+    }), 201
+
+
+# ── Notification preferences (STORY039) ──────────────────────────────────────
+
+@extras_bp.get("/users/<uuid:user_id>/notification-preferences")
+@jwt_required()
+def get_notification_prefs(user_id):
+    caller = _require_user_uuid()
+    if caller is None:
+        return jsonify({"error": "Unauthorized"}), 401
+    if str(caller) != str(user_id) and not _is_admin():
+        return jsonify({"error": "Forbidden"}), 403
+    prefs = UserNotification.query.filter_by(user_id=user_id).first()
+    if not prefs:
+        # Return defaults if the user has never persisted preferences.
+        return jsonify({
+            "email_alerts": True,
+            "push_notifications": True,
+            "sms_enabled": False,
+            "marketing_emails_enabled": False,
+            "security_alerts_enabled": True,
+            "booking_updates_enabled": True,
+        }), 200
+    return jsonify({
+        "email_alerts": prefs.email_alerts,
+        "push_notifications": prefs.push_notifications,
+        "email_enabled": prefs.email_enabled,
+        "push_enabled": prefs.push_enabled,
+        "sms_enabled": prefs.sms_enabled,
+        "marketing_emails_enabled": prefs.marketing_emails_enabled,
+        "security_alerts_enabled": prefs.security_alerts_enabled,
+        "booking_updates_enabled": prefs.booking_updates_enabled,
+    }), 200
+
+
+@extras_bp.patch("/users/<uuid:user_id>/notification-preferences")
+@jwt_required()
+def update_notification_prefs(user_id):
+    caller = _require_user_uuid()
+    if caller is None:
+        return jsonify({"error": "Unauthorized"}), 401
+    if str(caller) != str(user_id) and not _is_admin():
+        return jsonify({"error": "Forbidden"}), 403
+
+    data = request.get_json() or {}
+    prefs = UserNotification.query.filter_by(user_id=user_id).first()
+    if not prefs:
+        prefs = UserNotification(user_id=user_id)
+        db.session.add(prefs)
+
+    allowed = {
+        "email_alerts", "push_notifications", "email_enabled", "push_enabled",
+        "sms_enabled", "marketing_emails_enabled",
+        "security_alerts_enabled", "booking_updates_enabled",
+    }
+    for field in allowed:
+        if field in data:
+            setattr(prefs, field, bool(data[field]))
+    db.session.commit()
+    return jsonify({field: getattr(prefs, field) for field in allowed}), 200
+
+
+# ── User profile aliases (STORY015 — /api/v1/users/<id>) ─────────────────────
+
+def _profile_payload(user: User) -> dict:
+    return {
+        "id": str(user.id),
+        "email": user.email,
+        "username": user.username,
+        "is_active": user.is_active,
+        "created_at": user.created_at.isoformat() if user.created_at else None,
+        "updated_at": user.updated_at.isoformat() if user.updated_at else None,
+        "profile": ({
+            "full_name": user.profile.full_name,
+            "bio": user.profile.bio,
+            "profile_picture": user.profile.profile_picture,
+            "language_preference": user.profile.language_preference,
+            "currency_preference": user.profile.currency_preference,
+            "timezone": user.profile.timezone,
+            "last_login_at": user.profile.last_login_at.isoformat() if user.profile and user.profile.last_login_at else None,
+        } if getattr(user, "profile", None) else None),
+    }
+
+
+@extras_bp.get("/users/<uuid:user_id>")
+@jwt_required()
+def get_user_profile(user_id):
+    """STORY015 — GET /api/v1/users/{id}. Mirrors GET /api/v1/settings."""
+    caller = _require_user_uuid()
+    if caller is None:
+        return jsonify({"error": "Unauthorized"}), 401
+    if str(caller) != str(user_id) and not _is_admin():
+        return jsonify({"error": "Forbidden"}), 403
+    user = db.session.get(User, user_id)
+    if not user or not user.is_active:
+        return jsonify({"error": "User not found"}), 404
+    return jsonify(_profile_payload(user)), 200
+
+
+@extras_bp.patch("/users/<uuid:user_id>")
+@jwt_required()
+def patch_user_profile(user_id):
+    """STORY015 — PATCH /api/v1/users/{id}. Updates email/username + profile."""
+    from app.user_settings.models.models import UserProfile
+
+    caller = _require_user_uuid()
+    if caller is None:
+        return jsonify({"error": "Unauthorized"}), 401
+    if str(caller) != str(user_id) and not _is_admin():
+        return jsonify({"error": "Forbidden"}), 403
+
+    user = db.session.get(User, user_id)
+    if not user or not user.is_active:
+        return jsonify({"error": "User not found"}), 404
+
+    data = request.get_json() or {}
+    if "email" in data and data["email"] != user.email:
+        existing = User.query.filter(User.email == data["email"], User.id != user.id).first()
+        if existing:
+            return jsonify({"error": "Email already in use"}), 409
+        user.email = data["email"]
+    if "username" in data:
+        user.username = data["username"]
+
+    profile = user.profile
+    if profile is None:
+        profile = UserProfile(user_id=user.id)
+        db.session.add(profile)
+        user.profile = profile
+
+    for field in ("full_name", "bio", "profile_picture", "language_preference",
+                  "currency_preference", "timezone"):
+        if field in data:
+            setattr(profile, field, data[field])
+
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({"error": "Email already in use"}), 409
+
+    _log_activity(user.id, "profile_updated", "user", user.id,
+                  {"fields": list(data.keys())})
+
+    return jsonify(_profile_payload(user)), 200
+
+
+# ── Admin: review moderation (STORY022) ──────────────────────────────────────
+
+@extras_bp.patch("/admin/reviews/<uuid:review_id>")
+@jwt_required()
+def admin_moderate_review(review_id):
+    """Flag / hide / approve / respond. Body keys: status, admin_response."""
+    if not _is_admin():
+        return jsonify({"error": "Forbidden"}), 403
+    review = db.session.get(Review, review_id)
+    if not review:
+        return jsonify({"error": "Review not found"}), 404
+    data = request.get_json() or {}
+    new_status = data.get("status")
+    if new_status not in {None, "approved", "rejected", "flagged", "hidden", "pending"}:
+        return jsonify({
+            "error": "status must be one of approved/rejected/flagged/hidden/pending"
+        }), 400
+    if new_status:
+        review.status = new_status
+    db.session.commit()
+    return jsonify({
+        "id": str(review.id),
+        "status": review.status,
+        "admin_response": data.get("admin_response"),
+    }), 200
+
+
+# ── Admin analytics (STORY023) ───────────────────────────────────────────────
+
+@extras_bp.get("/admin/analytics")
+@jwt_required()
+def admin_analytics():
+    """Roll-up metrics for the admin dashboard.
+
+    Query params:
+      from=YYYY-MM-DD, to=YYYY-MM-DD   defaults to the last 30 days.
+
+    Returns live aggregates of the canonical entities plus the latest
+    daily snapshot. The pre-computed snapshot table is used when present;
+    everything else is computed on-the-fly for responsiveness.
+    """
+    if not _is_admin():
+        return jsonify({"error": "Forbidden"}), 403
+
+    today = date.today()
+    try:
+        d_from = (
+            datetime.strptime(request.args["from"], "%Y-%m-%d").date()
+            if "from" in request.args else today - timedelta(days=30)
+        )
+        d_to = (
+            datetime.strptime(request.args["to"], "%Y-%m-%d").date()
+            if "to" in request.args else today
+        )
+    except ValueError:
+        return jsonify({"error": "Invalid date format; use YYYY-MM-DD"}), 400
+
+    from app.booking_feature.models.booking import Booking, BookingStatus
+
+    bookings_total = db.session.query(func.count(Booking.id)).filter(
+        Booking.created_at >= d_from, Booking.created_at < d_to + timedelta(days=1)
+    ).scalar() or 0
+    bookings_confirmed = db.session.query(func.count(Booking.id)).filter(
+        Booking.created_at >= d_from, Booking.created_at < d_to + timedelta(days=1),
+        Booking.status == BookingStatus.CONFIRMED,
+    ).scalar() or 0
+    users_active = db.session.query(func.count(func.distinct(AnalyticsEvent.user_id))).filter(
+        AnalyticsEvent.user_id.is_not(None),
+        AnalyticsEvent.created_at >= d_from,
+        AnalyticsEvent.created_at < d_to + timedelta(days=1),
+    ).scalar() or 0
+    events_total = db.session.query(func.count(AnalyticsEvent.id)).filter(
+        AnalyticsEvent.created_at >= d_from,
+        AnalyticsEvent.created_at < d_to + timedelta(days=1),
+    ).scalar() or 0
+    top_attractions = (
+        db.session.query(Attraction.id, Attraction.name, Attraction.view_count)
+        .filter(Attraction.status == "approved")
+        .order_by(Attraction.view_count.desc().nullslast())
+        .limit(10).all()
+    )
+    top_searches = (
+        db.session.query(
+            AnalyticsEvent.event_metadata,
+            func.count(AnalyticsEvent.id).label("n"),
+        )
+        .filter(AnalyticsEvent.event_type == "search",
+                AnalyticsEvent.created_at >= d_from,
+                AnalyticsEvent.created_at < d_to + timedelta(days=1))
+        .group_by(AnalyticsEvent.event_metadata)
+        .order_by(func.count(AnalyticsEvent.id).desc())
+        .limit(10).all()
+    )
+    booking_conversion = (
+        (bookings_confirmed / bookings_total) if bookings_total else 0.0
+    )
+
+    latest_snapshot = (
+        DailyAnalyticsSnapshot.query
+        .order_by(DailyAnalyticsSnapshot.date.desc())
+        .first()
+    )
+
+    return jsonify({
+        "date_range": {"from": d_from.isoformat(), "to": d_to.isoformat()},
+        "bookings_total": bookings_total,
+        "bookings_confirmed": bookings_confirmed,
+        "booking_conversion_rate": round(booking_conversion, 4),
+        "users_active": users_active,
+        "events_total": events_total,
+        "top_attractions": [
+            {"id": str(a.id), "name": a.name, "view_count": a.view_count or 0}
+            for a in top_attractions
+        ],
+        "top_searches": [
+            {"query": (md or {}).get("query") if isinstance(md, dict) else None, "count": n}
+            for md, n in top_searches
+        ],
+        "latest_snapshot": latest_snapshot.to_dict() if latest_snapshot else None,
+    }), 200
+
+
+@extras_bp.post("/admin/analytics/snapshot")
+@jwt_required()
+def admin_compute_snapshot():
+    """Compute (and upsert) a DailyAnalyticsSnapshot for ?date=YYYY-MM-DD
+    (defaults to today). Idempotent.
+    """
+    if not _is_admin():
+        return jsonify({"error": "Forbidden"}), 403
+
+    try:
+        target = (
+            datetime.strptime(request.args["date"], "%Y-%m-%d").date()
+            if "date" in request.args else date.today()
+        )
+    except ValueError:
+        return jsonify({"error": "Invalid date; use YYYY-MM-DD"}), 400
+
+    from app.booking_feature.models.booking import Booking
+
+    next_day = target + timedelta(days=1)
+    sessions = db.session.query(func.count(AnalyticsEvent.id)).filter(
+        AnalyticsEvent.event_type == "session_start",
+        AnalyticsEvent.created_at >= target,
+        AnalyticsEvent.created_at < next_day,
+    ).scalar() or 0
+    bookings = db.session.query(func.count(Booking.id)).filter(
+        Booking.created_at >= target,
+        Booking.created_at < next_day,
+    ).scalar() or 0
+    users_active = db.session.query(func.count(func.distinct(AnalyticsEvent.user_id))).filter(
+        AnalyticsEvent.user_id.is_not(None),
+        AnalyticsEvent.created_at >= target,
+        AnalyticsEvent.created_at < next_day,
+    ).scalar() or 0
+    avg_rating = db.session.query(func.coalesce(func.avg(Review.rating), 0)).scalar() or 0
+
+    snap = DailyAnalyticsSnapshot.query.filter_by(date=target).first()
+    if snap is None:
+        snap = DailyAnalyticsSnapshot(date=target)
+        db.session.add(snap)
+    snap.total_sessions = int(sessions)
+    snap.total_bookings = int(bookings)
+    snap.total_users_active = int(users_active)
+    snap.avg_rating = float(avg_rating)
+    snap.booking_conversion_rate = (bookings / sessions) if sessions else 0.0
+    db.session.commit()
+
+    return jsonify(snap.to_dict()), 200
+
+
+# ── Navigation routing (STORY036) ────────────────────────────────────────────
+
+@extras_bp.get("/navigation/route")
+def navigation_route():
+    """STORY036 — directions between two coordinates.
+
+    Query params: from_lat, from_lng, to_lat, to_lng, mode=(walking|driving)
+
+    Returns GeoJSON LineString of the straight-line path plus estimated
+    distance + travel time using a haversine + per-mode speed assumption.
+    Production deployments should swap this for a real routing engine
+    (OSRM / Mapbox / Google Directions) by replacing the function body.
+    """
+    try:
+        f_lat = float(request.args["from_lat"])
+        f_lng = float(request.args["from_lng"])
+        t_lat = float(request.args["to_lat"])
+        t_lng = float(request.args["to_lng"])
+    except (KeyError, TypeError, ValueError):
+        return jsonify({
+            "error": "from_lat, from_lng, to_lat, to_lng required (floats)"
+        }), 400
+
+    mode = (request.args.get("mode") or "driving").lower()
+    if mode not in {"walking", "driving"}:
+        return jsonify({"error": "mode must be 'walking' or 'driving'"}), 400
+
+    distance_km = _haversine_km(f_lat, f_lng, t_lat, t_lng)
+    speed_kph = 5.0 if mode == "walking" else 40.0
+    duration_minutes = (distance_km / speed_kph) * 60
+
+    geojson = {
+        "type": "Feature",
+        "geometry": {
+            "type": "LineString",
+            "coordinates": [[f_lng, f_lat], [t_lng, t_lat]],
+        },
+        "properties": {
+            "mode": mode,
+            "distance_km": round(distance_km, 3),
+            "duration_minutes": round(duration_minutes, 1),
+            "engine": "haversine-stub",
+        },
+    }
+    steps = [
+        {"instruction": f"Head toward destination ({t_lat:.4f}, {t_lng:.4f})",
+         "distance_km": round(distance_km, 3)},
+        {"instruction": "Arrive at destination"},
+    ]
+    return jsonify({"route": geojson, "steps": steps}), 200
+
+
+# ── Events (ERD events table) ────────────────────────────────────────────────
+
+@extras_bp.get("/events")
+def list_events():
+    """Public listing of tourism events."""
+    query = Event.query
+    pagination = _paginate(query)
+    return jsonify({
+        "data": [
+            {
+                "id": str(e.id),
+                "name": getattr(e, "name", None),
+                "description": getattr(e, "description", None),
+                "destination_id": str(e.destination_id) if getattr(e, "destination_id", None) else None,
+                "attraction_id": str(e.attraction_id) if getattr(e, "attraction_id", None) else None,
+            }
+            for e in pagination.items
+        ],
+        "pagination": {
+            "page": pagination.page,
+            "per_page": pagination.per_page,
+            "total": pagination.total,
+            "total_pages": pagination.pages,
+        },
+    }), 200
+
+
+@extras_bp.get("/events/<uuid:event_id>")
+def show_event(event_id):
+    e = db.session.get(Event, event_id)
+    if not e:
+        return jsonify({"error": "Event not found"}), 404
+    return jsonify({
+        "id": str(e.id),
+        "name": getattr(e, "name", None),
+        "description": getattr(e, "description", None),
+        "destination_id": str(e.destination_id) if getattr(e, "destination_id", None) else None,
+        "attraction_id": str(e.attraction_id) if getattr(e, "attraction_id", None) else None,
+    }), 200
+
+
+# ── Room types (ERD room_types table) ────────────────────────────────────────
+
+@extras_bp.get("/accommodations/<uuid:accommodation_id>/rooms")
+def list_room_types(accommodation_id):
+    rooms = RoomType.query.filter_by(accommodation_id=accommodation_id).all()
+    return jsonify([
+        {
+            "id": str(r.id),
+            "accommodation_id": str(r.accommodation_id),
+            "name": r.name,
+            "base_price": r.base_price,
+            "capacity": r.capacity,
+            "amenities_json": r.amenities_json,
+        }
+        for r in rooms
+    ]), 200
+
+
+# ── User activity log (ERD user_activities) ──────────────────────────────────
+
+@extras_bp.get("/users/<uuid:user_id>/activity")
+@jwt_required()
+def user_activity_log(user_id):
+    caller = _require_user_uuid()
+    if caller is None:
+        return jsonify({"error": "Unauthorized"}), 401
+    if str(caller) != str(user_id) and not _is_admin():
+        return jsonify({"error": "Forbidden"}), 403
+    query = UserActivity.query.filter_by(user_id=user_id).order_by(
+        UserActivity.created_at.desc()
+    )
+    pagination = _paginate(query, default_per_page=20)
+    return jsonify({
+        "data": [a.to_dict() for a in pagination.items],
+        "pagination": {
+            "page": pagination.page,
+            "per_page": pagination.per_page,
+            "total": pagination.total,
+            "total_pages": pagination.pages,
+        },
+    }), 200
+
+
+# ── Anonymous analytics ingestion (used by STORY004 search etc.) ─────────────
+
+@extras_bp.post("/analytics/events")
+def post_analytics_event():
+    """Open endpoint for frontends/kiosks to record a single analytics event."""
+    data = request.get_json() or {}
+    event_type = data.get("event_type")
+    if not event_type:
+        return jsonify({"error": "event_type required"}), 400
+    user_uuid = _require_user_uuid()
+    _log_event(event_type, user_id=user_uuid, metadata=data.get("metadata"))
+    return jsonify({"recorded": True}), 201
