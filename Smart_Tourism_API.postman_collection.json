@@ -3187,6 +3187,129 @@
           }
         }
       ]
+    },
+    {
+      "name": "21. Tourism Product Profile (Kenya MoT form)",
+      "item": [
+        {
+          "name": "Get profile (public)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/public/attractions/{{attraction_id}}/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "attractions",
+                "{{attraction_id}}",
+                "profile"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get profile (auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/attractions/{{attraction_id}}/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attractions",
+                "{{attraction_id}}",
+                "profile"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Upsert full profile (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"county\": \"Nakuru\",\n  \"sub_county\": \"Naivasha\",\n  \"ward\": \"Hells Gate\",\n  \"locality\": \"Hells Gate National Park, near Naivasha town\",\n  \"gps_coordinates\": \"-0.9075, 36.3170\",\n  \"unique_features\": \"Volcanic landscape, geothermal steam vents, cycling and walking among wildlife, dramatic gorges.\",\n  \"conservation_efforts\": \"KWS-managed reserve, geothermal-co-management with KenGen, community scout programme.\",\n  \"visitor_capacity\": 1500,\n  \"experience_types\": \"guided,self-guided,cycling,hiking\",\n  \"average_stay_time\": \"4-6 hours\",\n  \"best_visiting_period\": \"Year-round; best Jun-Oct (dry season)\",\n  \"key_events\": \"Hells Gate Cycle Challenge (annual), Maasai cultural night during Mashujaa weekend.\",\n  \"infrastructure_status\": {\n    \"roads\": \"Tarmac to main gate, gravel inside park (good condition)\",\n    \"visitor_center\": \"Main gate info kiosk + small museum\",\n    \"fencing_security\": \"Perimeter electric fence on north boundary, armed KWS rangers on patrol\",\n    \"water_supply\": \"Piped at main gate and Ol Karia\",\n    \"signage\": \"Trail markers + multilingual interpretive boards at viewpoints\",\n    \"parking\": \"Capacity ~120 vehicles at main gate\",\n    \"rest_areas\": \"4 picnic sites + toilets at main gate and Ol Karia\"\n  },\n  \"site_status\": \"active\",\n  \"tour_operators\": \"Pollman's Tours, Bonfire Adventures, Mountain Climbers Kenya\",\n  \"nearby_accommodation\": \"Sopa Lodge Naivasha, Enashipai Resort, Camp Carnelley's\",\n  \"local_guides\": \"30+ KATO-registered guides; Maasai cultural guides via Olarro Conservancy\",\n  \"distance_to_hub\": \"90 km from Nairobi (1h 45m by car)\",\n  \"community_role\": \"Adjacent Maasai community provides cultural performances and craft sales\",\n  \"community_benefits\": \"Revenue share from gate fees, employment for guides, cultural programme\",\n  \"community_enterprises\": \"Maasai bead-craft cooperative, community-run campsite\",\n  \"competitiveness_assessment\": \"High \\u2014 only Kenyan park where visitors can cycle/walk freely with wildlife\",\n  \"infrastructure_gaps\": \"Limited shaded rest areas mid-park; weak mobile coverage in the gorge\",\n  \"sustainability_strategies\": \"Geothermal partnership reduces emissions; plastic-bottle ban; gorge erosion monitoring\",\n  \"growth_opportunities\": \"Add electric-bike rentals, expand rock-climbing programme\",\n  \"community_empowerment\": \"Tour-guide training scholarships, Maasai women's craft co-op expansion\",\n  \"other_observations\": \"Excellent candidate for kiosk deployment at the main gate.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/attractions/{{attraction_id}}/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attractions",
+                "{{attraction_id}}",
+                "profile"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Partial update (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"site_status\": \"active\",\n  \"visitor_capacity\": 1800,\n  \"infrastructure_status\": {\n    \"roads\": \"Tarmac to main gate (upgraded May 2026)\",\n    \"visitor_center\": \"Main gate info kiosk + small museum\",\n    \"fencing_security\": \"Perimeter electric fence on north boundary\",\n    \"water_supply\": \"Piped at main gate and Ol Karia\",\n    \"signage\": \"Trail markers + multilingual boards\",\n    \"parking\": \"Capacity ~150 vehicles after May 2026 expansion\",\n    \"rest_areas\": \"4 picnic sites + toilets\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/attractions/{{attraction_id}}/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attractions",
+                "{{attraction_id}}",
+                "profile"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete profile",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/api/v1/attractions/{{attraction_id}}/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attractions",
+                "{{attraction_id}}",
+                "profile"
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }

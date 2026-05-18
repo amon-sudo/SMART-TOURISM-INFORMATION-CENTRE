@@ -34,6 +34,7 @@ from app.authanduser.utils.utils import (
     verify_password,
 )
 from app.tourism_amenitties.attractions.models.attraction import Attraction
+from app.tourism_amenitties.attractions.models.product_profile import TourismProductProfile
 from app.tourism_amenitties.destination.models.destination import Destination
 from app.tourism_amenitties.accommodation.models.accommodation import Accommodation
 from app.tourism_amenitties.tours.models.tour_package import TourPackage
@@ -1327,6 +1328,230 @@ def user_activity_log(user_id):
             "total_pages": pagination.pages,
         },
     }), 200
+
+
+# ── Tourism Product Profile (Kenya Ministry of Tourism form) ────────────────
+# Implements the full TOURISM PRODUCTS PROFILE the client provided. The model
+# already lives at app/tourism_amenitties/attractions/models/product_profile.py;
+# these routes expose CRUD over it.
+#
+# The form's Section 1 (Name + Type/Category) lives on the parent Attraction.
+# Sections 2-7 are in the TourismProductProfile row (1:1 with Attraction.id).
+
+# Vocabulary from the form's Section 1.1 — used to validate Attraction.category
+# when callers want strict validation. Public endpoints don't enforce it (some
+# existing rows may use other values); admin POST/PATCH should opt in via the
+# strict_category=true query param.
+KENYA_TOURISM_CATEGORIES = {
+    "cultural_and_heritage",
+    "adventure",
+    "beach",
+    "sports",
+    "agro",
+    "gastronomy",
+    "avi_tourism",
+    "health_and_wellness",
+    "ecotourism",
+    "astral",
+}
+
+# Sub-keys allowed inside the JSON infrastructure_status blob.
+INFRASTRUCTURE_KEYS = {
+    "roads",                  # 4.1 Roads (access & condition)
+    "visitor_center",         # 4.2 Visitor Center / Information Kiosks
+    "fencing_security",       # 4.3 Fencing & Security
+    "water_supply",           # 4.4
+    "signage",                # 4.5 Signage & Interpretation
+    "parking",                # 4.6
+    "rest_areas",             # 4.7 Rest Areas / Toilets
+}
+
+# Vocabulary for Section 4.8 site_status
+SITE_STATUSES = {"under_development", "active", "seasonal", "decommissioned"}
+
+
+def _profile_to_dict(profile: TourismProductProfile) -> dict:
+    return {
+        "id": str(profile.id),
+        "attraction_id": str(profile.attraction_id),
+        # Section 2 — Location
+        "county": profile.county,
+        "sub_county": profile.sub_county,
+        "ward": profile.ward,
+        "locality": profile.locality,
+        "gps_coordinates": profile.gps_coordinates,
+        # Section 3 — Features
+        "unique_features": profile.unique_features,
+        "conservation_efforts": profile.conservation_efforts,
+        "visitor_capacity": profile.visitor_capacity,
+        "experience_types": profile.experience_types,
+        "average_stay_time": profile.average_stay_time,
+        "best_visiting_period": profile.best_visiting_period,
+        "key_events": profile.key_events,
+        # Section 4 — Situational Analysis
+        "infrastructure_status": profile.infrastructure_status,
+        "site_status": profile.site_status,
+        # Section 5 — Associated Services
+        "tour_operators": profile.tour_operators,
+        "nearby_accommodation": profile.nearby_accommodation,
+        "local_guides": profile.local_guides,
+        "distance_to_hub": profile.distance_to_hub,
+        # Section 6 — Community
+        "community_role": profile.community_role,
+        "community_benefits": profile.community_benefits,
+        "community_enterprises": profile.community_enterprises,
+        # Section 7 — Recommendations
+        "competitiveness_assessment": profile.competitiveness_assessment,
+        "infrastructure_gaps": profile.infrastructure_gaps,
+        "sustainability_strategies": profile.sustainability_strategies,
+        "growth_opportunities": profile.growth_opportunities,
+        "community_empowerment": profile.community_empowerment,
+        "other_observations": profile.other_observations,
+        "created_at": profile.created_at.isoformat() if profile.created_at else None,
+        "updated_at": profile.updated_at.isoformat() if profile.updated_at else None,
+    }
+
+
+_PROFILE_WRITABLE_FIELDS = {
+    "county", "sub_county", "ward", "locality", "gps_coordinates",
+    "unique_features", "conservation_efforts", "visitor_capacity",
+    "experience_types", "average_stay_time", "best_visiting_period", "key_events",
+    "infrastructure_status", "site_status",
+    "tour_operators", "nearby_accommodation", "local_guides", "distance_to_hub",
+    "community_role", "community_benefits", "community_enterprises",
+    "competitiveness_assessment", "infrastructure_gaps", "sustainability_strategies",
+    "growth_opportunities", "community_empowerment", "other_observations",
+}
+
+
+def _apply_profile_payload(profile: TourismProductProfile, data: dict) -> tuple[bool, str | None]:
+    """Apply a (validated) payload onto the profile. Returns (ok, error_msg)."""
+    if "site_status" in data and data["site_status"] not in (None, "", *SITE_STATUSES):
+        return False, f"site_status must be one of {sorted(SITE_STATUSES)}"
+    if "infrastructure_status" in data and data["infrastructure_status"] is not None:
+        infra = data["infrastructure_status"]
+        if not isinstance(infra, dict):
+            return False, "infrastructure_status must be an object"
+        unknown = set(infra) - INFRASTRUCTURE_KEYS
+        if unknown:
+            return False, f"unknown infrastructure_status keys: {sorted(unknown)}"
+    if "visitor_capacity" in data and data["visitor_capacity"] is not None:
+        try:
+            data["visitor_capacity"] = int(data["visitor_capacity"])
+        except (TypeError, ValueError):
+            return False, "visitor_capacity must be an integer"
+    for field in _PROFILE_WRITABLE_FIELDS:
+        if field in data:
+            setattr(profile, field, data[field])
+    return True, None
+
+
+@extras_bp.get("/attractions/<uuid:attraction_id>/profile")
+def get_product_profile(attraction_id):
+    """Public — fetch the Ministry of Tourism product profile for an attraction."""
+    profile = TourismProductProfile.query.filter_by(attraction_id=attraction_id).first()
+    if not profile:
+        return jsonify({"error": "No product profile for this attraction"}), 404
+    return jsonify(_profile_to_dict(profile)), 200
+
+
+@extras_bp.put("/attractions/<uuid:attraction_id>/profile")
+@jwt_required()
+def upsert_product_profile(attraction_id):
+    """Create or fully replace the product profile for an attraction.
+
+    Owner/admin only. The attraction must exist.
+    """
+    user_uuid = _require_user_uuid()
+    if user_uuid is None:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    attraction = db.session.get(Attraction, attraction_id)
+    if not attraction:
+        return jsonify({"error": "Attraction not found"}), 404
+    if str(attraction.business_owner_id) != str(user_uuid) and not _is_admin():
+        return jsonify({"error": "Forbidden"}), 403
+
+    data = request.get_json(silent=True) or {}
+
+    profile = TourismProductProfile.query.filter_by(attraction_id=attraction_id).first()
+    created = False
+    if profile is None:
+        profile = TourismProductProfile(attraction_id=attraction_id)
+        db.session.add(profile)
+        created = True
+    else:
+        # Replace semantics on PUT — clear writable fields first.
+        for field in _PROFILE_WRITABLE_FIELDS:
+            setattr(profile, field, None)
+
+    ok, err = _apply_profile_payload(profile, data)
+    if not ok:
+        db.session.rollback()
+        return jsonify({"error": err}), 400
+    db.session.commit()
+
+    _log_activity(user_uuid, "product_profile_upserted", "attraction", attraction_id,
+                  {"created": created})
+    return jsonify(_profile_to_dict(profile)), 201 if created else 200
+
+
+@extras_bp.patch("/attractions/<uuid:attraction_id>/profile")
+@jwt_required()
+def patch_product_profile(attraction_id):
+    """Partial update of the product profile."""
+    user_uuid = _require_user_uuid()
+    if user_uuid is None:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    profile = TourismProductProfile.query.filter_by(attraction_id=attraction_id).first()
+    if not profile:
+        return jsonify({"error": "No product profile for this attraction"}), 404
+
+    attraction = db.session.get(Attraction, attraction_id)
+    if attraction and str(attraction.business_owner_id) != str(user_uuid) and not _is_admin():
+        return jsonify({"error": "Forbidden"}), 403
+
+    data = request.get_json(silent=True) or {}
+    ok, err = _apply_profile_payload(profile, data)
+    if not ok:
+        db.session.rollback()
+        return jsonify({"error": err}), 400
+    db.session.commit()
+
+    _log_activity(user_uuid, "product_profile_updated", "attraction", attraction_id,
+                  {"fields": list(data.keys())})
+    return jsonify(_profile_to_dict(profile)), 200
+
+
+@extras_bp.delete("/attractions/<uuid:attraction_id>/profile")
+@jwt_required()
+def delete_product_profile(attraction_id):
+    user_uuid = _require_user_uuid()
+    if user_uuid is None:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    profile = TourismProductProfile.query.filter_by(attraction_id=attraction_id).first()
+    if not profile:
+        return jsonify({"error": "No product profile for this attraction"}), 404
+
+    attraction = db.session.get(Attraction, attraction_id)
+    if attraction and str(attraction.business_owner_id) != str(user_uuid) and not _is_admin():
+        return jsonify({"error": "Forbidden"}), 403
+
+    db.session.delete(profile)
+    db.session.commit()
+    _log_activity(user_uuid, "product_profile_deleted", "attraction", attraction_id)
+    return jsonify({"message": "Product profile deleted"}), 200
+
+
+@public_bp.get("/attractions/<uuid:attraction_id>/profile")
+def public_product_profile(attraction_id):
+    """Same shape as the /api/v1/ endpoint but on /api/public/* for tourists."""
+    profile = TourismProductProfile.query.filter_by(attraction_id=attraction_id).first()
+    if not profile:
+        return jsonify({"error": "No product profile for this attraction"}), 404
+    return jsonify(_profile_to_dict(profile)), 200
 
 
 # ── Anonymous analytics ingestion (used by STORY004 search etc.) ─────────────
