@@ -40,6 +40,19 @@ def google_login():
     return oauth.google.authorize_redirect(redirect_uri)
 
 
+@google_auth_bp.route("/oauth/debug")
+def oauth_debug():
+    """Diagnostic — shows what the live process sees, so you can tell
+    whether a stale .env or unrestarted server is the problem."""
+    from flask import jsonify
+    return jsonify({
+        "FRONTEND_OAUTH_REDIRECT_URL_env": os.getenv("FRONTEND_OAUTH_REDIRECT_URL"),
+        "resolved_success_redirect": _frontend_callback_url(success=True),
+        "resolved_failure_redirect": _frontend_callback_url(success=False),
+        "google_callback_url": url_for("google_auth_bp.google_authorize", _external=True),
+    })
+
+
 @google_auth_bp.route("/authorize/google")
 def google_authorize():
     try:
