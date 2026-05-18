@@ -1,33 +1,111 @@
 {
   "info": {
-    "_postman_id": "f1a8c0e0-1d4e-4c5e-9a3a-st-tourism-2026",
+    "_postman_id": "732c8550-3b09-46b6-8369-3ac0d79ccb28",
     "name": "Smart Tourism Information Centre API",
     "description": "Full backend collection. Login first — tokens are auto-captured into collection variables. Replace any {{...}} placeholder UUIDs (destination_id, attraction_id, booking_id, etc.) with real IDs from your DB.\n\n**Quick demo flow:**\n1. Auth → Register (or Login) — tokens auto-saved.\n2. User Settings → Set Preferences.\n3. Recommendations → Get Recommendations.\n4. Favourites → Add Favourite.\n5. Itineraries → Generate.\n6. Bookings → Book Tour.\n7. Admin → Analytics (with X-Admin header).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
     "type": "bearer",
-    "bearer": [{ "key": "token", "value": "{{access_token}}", "type": "string" }]
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
   },
   "variable": [
-    { "key": "base_url", "value": "http://localhost:5000", "type": "string" },
-    { "key": "access_token", "value": "", "type": "string" },
-    { "key": "refresh_token", "value": "", "type": "string" },
-    { "key": "user_id", "value": "", "type": "string" },
-    { "key": "destination_id", "value": "00000000-0000-0000-0000-000000000000", "type": "string" },
-    { "key": "attraction_id", "value": "00000000-0000-0000-0000-000000000000", "type": "string" },
-    { "key": "accommodation_id", "value": "00000000-0000-0000-0000-000000000000", "type": "string" },
-    { "key": "tour_package_id", "value": "00000000-0000-0000-0000-000000000000", "type": "string" },
-    { "key": "event_id", "value": "00000000-0000-0000-0000-000000000000", "type": "string" },
-    { "key": "booking_id", "value": "00000000-0000-0000-0000-000000000000", "type": "string" },
-    { "key": "itinerary_id", "value": "00000000-0000-0000-0000-000000000000", "type": "string" },
-    { "key": "kiosk_id", "value": "00000000-0000-0000-0000-000000000000", "type": "string" },
-    { "key": "kiosk_session_id", "value": "00000000-0000-0000-0000-000000000000", "type": "string" },
-    { "key": "station_id", "value": "00000000-0000-0000-0000-000000000000", "type": "string" },
-    { "key": "route_id", "value": "00000000-0000-0000-0000-000000000000", "type": "string" },
-    { "key": "business_profile_id", "value": "00000000-0000-0000-0000-000000000000", "type": "string" },
-    { "key": "review_id", "value": "00000000-0000-0000-0000-000000000000", "type": "string" },
-    { "key": "notification_id", "value": "00000000-0000-0000-0000-000000000000", "type": "string" }
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "destination_id",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string"
+    },
+    {
+      "key": "attraction_id",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string"
+    },
+    {
+      "key": "accommodation_id",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string"
+    },
+    {
+      "key": "tour_package_id",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string"
+    },
+    {
+      "key": "event_id",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string"
+    },
+    {
+      "key": "booking_id",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string"
+    },
+    {
+      "key": "itinerary_id",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string"
+    },
+    {
+      "key": "kiosk_id",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string"
+    },
+    {
+      "key": "kiosk_session_id",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string"
+    },
+    {
+      "key": "station_id",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string"
+    },
+    {
+      "key": "route_id",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string"
+    },
+    {
+      "key": "business_profile_id",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string"
+    },
+    {
+      "key": "review_id",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string"
+    },
+    {
+      "key": "notification_id",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string"
+    }
   ],
   "item": [
     {
@@ -35,15 +113,59 @@
       "item": [
         {
           "name": "Health check",
-          "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/api/v1/health", "host": ["{{base_url}}"], "path": ["api","v1","health"] } }
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "health"
+              ]
+            }
+          }
         },
         {
           "name": "DB test",
-          "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/api/v1/db-test", "host": ["{{base_url}}"], "path": ["api","v1","db-test"] } }
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/db-test",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "db-test"
+              ]
+            }
+          }
         },
         {
           "name": "OAuth debug",
-          "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/api/v1/auth/oauth/debug", "host": ["{{base_url}}"], "path": ["api","v1","auth","oauth","debug"] } }
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/oauth/debug",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "oauth",
+                "debug"
+              ]
+            }
+          }
         }
       ]
     },
@@ -52,113 +174,304 @@
       "item": [
         {
           "name": "Register (auto-saves tokens)",
-          "event": [{
-            "listen": "test",
-            "script": { "type": "text/javascript", "exec": [
-              "const body = pm.response.json();",
-              "if (body && body.access_token) {",
-              "  pm.collectionVariables.set('access_token', body.access_token);",
-              "  pm.collectionVariables.set('refresh_token', body.refresh_token);",
-              "  pm.collectionVariables.set('user_id', body.user_id);",
-              "  console.log('Saved access_token + refresh_token + user_id');",
-              "}"
-            ]}
-          }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body && body.access_token) {",
+                  "  pm.collectionVariables.set('access_token', body.access_token);",
+                  "  pm.collectionVariables.set('refresh_token', body.refresh_token);",
+                  "  pm.collectionVariables.set('user_id', body.user_id);",
+                  "  console.log('Saved access_token + refresh_token + user_id');",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "auth": { "type": "noauth" },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"demo.user@example.com\",\n  \"password\": \"DemoPass123!\",\n  \"username\": \"demo_user\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/auth/register", "host": ["{{base_url}}"], "path": ["api","v1","auth","register"] }
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo.user@example.com\",\n  \"password\": \"DemoPass123!\",\n  \"username\": \"demo_user\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            }
           }
         },
         {
           "name": "Signup (alias of Register)",
           "request": {
-            "method": "POST", "auth": { "type": "noauth" },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"demo.user2@example.com\",\n  \"password\": \"DemoPass123!\",\n  \"username\": \"demo_user2\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/auth/signup", "host": ["{{base_url}}"], "path": ["api","v1","auth","signup"] }
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo.user2@example.com\",\n  \"password\": \"DemoPass123!\",\n  \"username\": \"demo_user2\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/signup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "signup"
+              ]
+            }
           }
         },
         {
           "name": "Login (auto-saves tokens)",
-          "event": [{
-            "listen": "test",
-            "script": { "type": "text/javascript", "exec": [
-              "const body = pm.response.json();",
-              "const payload = (body && body.data) ? body.data : body;",
-              "if (payload && payload.access_token) {",
-              "  pm.collectionVariables.set('access_token', payload.access_token);",
-              "  pm.collectionVariables.set('refresh_token', payload.refresh_token);",
-              "  if (payload.user && payload.user.id) pm.collectionVariables.set('user_id', payload.user.id);",
-              "  console.log('Saved access_token + refresh_token');",
-              "}"
-            ]}
-          }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const payload = (body && body.data) ? body.data : body;",
+                  "if (payload && payload.access_token) {",
+                  "  pm.collectionVariables.set('access_token', payload.access_token);",
+                  "  pm.collectionVariables.set('refresh_token', payload.refresh_token);",
+                  "  if (payload.user && payload.user.id) pm.collectionVariables.set('user_id', payload.user.id);",
+                  "  console.log('Saved access_token + refresh_token');",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST", "auth": { "type": "noauth" },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"demo.user@example.com\",\n  \"password\": \"DemoPass123!\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/auth/login", "host": ["{{base_url}}"], "path": ["api","v1","auth","login"] }
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo.user@example.com\",\n  \"password\": \"DemoPass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            }
           }
         },
         {
           "name": "Me",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{base_url}}/api/v1/auth/me", "host": ["{{base_url}}"], "path": ["api","v1","auth","me"] }
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
           }
         },
         {
           "name": "Refresh access token",
-          "event": [{
-            "listen": "test",
-            "script": { "type": "text/javascript", "exec": [
-              "const body = pm.response.json();",
-              "if (body && body.access_token) {",
-              "  pm.collectionVariables.set('access_token', body.access_token);",
-              "  console.log('Refreshed access_token');",
-              "}"
-            ]}
-          }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body && body.access_token) {",
+                  "  pm.collectionVariables.set('access_token', body.access_token);",
+                  "  console.log('Refreshed access_token');",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{refresh_token}}", "type": "string" }] },
-            "url": { "raw": "{{base_url}}/api/v1/auth/refresh", "host": ["{{base_url}}"], "path": ["api","v1","auth","refresh"] }
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{refresh_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "refresh"
+              ]
+            }
           }
         },
         {
           "name": "Logout",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\",\n  \"revoke_all\": false\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/auth/logout", "host": ["{{base_url}}"], "path": ["api","v1","auth","logout"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\",\n  \"revoke_all\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "logout"
+              ]
+            }
           }
         },
         {
           "name": "Password reset request",
           "request": {
-            "method": "POST", "auth": { "type": "noauth" },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"demo.user@example.com\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/auth/password-reset", "host": ["{{base_url}}"], "path": ["api","v1","auth","password-reset"] }
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo.user@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/password-reset",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "password-reset"
+              ]
+            }
           }
         },
         {
           "name": "Password reset confirm",
           "request": {
-            "method": "POST", "auth": { "type": "noauth" },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"token\": \"PASTE_RESET_TOKEN_HERE\",\n  \"new_password\": \"NewPass456!\",\n  \"confirm_password\": \"NewPass456!\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/auth/password-reset/confirm", "host": ["{{base_url}}"], "path": ["api","v1","auth","password-reset","confirm"] }
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"PASTE_RESET_TOKEN_HERE\",\n  \"new_password\": \"NewPass456!\",\n  \"confirm_password\": \"NewPass456!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/password-reset/confirm",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "password-reset",
+                "confirm"
+              ]
+            }
           }
         },
         {
           "name": "Google OAuth login (open in browser)",
           "request": {
-            "method": "GET", "auth": { "type": "noauth" },
-            "url": { "raw": "{{base_url}}/api/v1/auth/login/google", "host": ["{{base_url}}"], "path": ["api","v1","auth","login","google"] }
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login/google",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login",
+                "google"
+              ]
+            }
           }
         }
       ]
@@ -166,87 +479,578 @@
     {
       "name": "3. Public (no auth)",
       "item": [
-        { "name": "Welcome", "request": { "method": "GET", "auth": { "type": "noauth" }, "url": { "raw": "{{base_url}}/api/public/welcome", "host": ["{{base_url}}"], "path": ["api","public","welcome"] } } },
-        { "name": "Attractions list", "request": { "method": "GET", "auth": { "type": "noauth" }, "url": { "raw": "{{base_url}}/api/public/attractions?page=1&per_page=10", "host": ["{{base_url}}"], "path": ["api","public","attractions"], "query": [{ "key": "page", "value": "1" }, { "key": "per_page", "value": "10" }] } } },
-        { "name": "Attractions filtered", "request": { "method": "GET", "auth": { "type": "noauth" }, "url": { "raw": "{{base_url}}/api/public/attractions?category=museum&search=culture&min_rating=3", "host": ["{{base_url}}"], "path": ["api","public","attractions"], "query": [{ "key": "category", "value": "museum" }, { "key": "search", "value": "culture" }, { "key": "min_rating", "value": "3" }] } } },
-        { "name": "Emergency contacts", "request": { "method": "GET", "auth": { "type": "noauth" }, "url": { "raw": "{{base_url}}/api/public/emergency-contacts?type=hospital", "host": ["{{base_url}}"], "path": ["api","public","emergency-contacts"], "query": [{ "key": "type", "value": "hospital" }] } } },
-        { "name": "Map (GeoJSON)", "request": { "method": "GET", "auth": { "type": "noauth" }, "url": { "raw": "{{base_url}}/api/public/map", "host": ["{{base_url}}"], "path": ["api","public","map"] } } },
-        { "name": "Search", "request": { "method": "GET", "auth": { "type": "noauth" }, "url": { "raw": "{{base_url}}/api/public/search?q=park", "host": ["{{base_url}}"], "path": ["api","public","search"], "query": [{ "key": "q", "value": "park" }] } } },
-        { "name": "Accommodations", "request": { "method": "GET", "auth": { "type": "noauth" }, "url": { "raw": "{{base_url}}/api/public/accommodations", "host": ["{{base_url}}"], "path": ["api","public","accommodations"] } } },
-        { "name": "Destination info", "request": { "method": "GET", "auth": { "type": "noauth" }, "header": [{ "key": "Accept-Language", "value": "en" }], "url": { "raw": "{{base_url}}/api/public/destinations/{{destination_id}}/info", "host": ["{{base_url}}"], "path": ["api","public","destinations","{{destination_id}}","info"] } } },
-        { "name": "Kiosk session reset (anonymous)", "request": { "method": "POST", "auth": { "type": "noauth" }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{}" }, "url": { "raw": "{{base_url}}/api/public/kiosk/session/reset", "host": ["{{base_url}}"], "path": ["api","public","kiosk","session","reset"] } } },
-        { "name": "Kiosk session reset (pinned)", "request": { "method": "POST", "auth": { "type": "noauth" }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"kiosk_id\": \"{{kiosk_id}}\"\n}" }, "url": { "raw": "{{base_url}}/api/public/kiosk/session/reset", "host": ["{{base_url}}"], "path": ["api","public","kiosk","session","reset"] } } },
-        { "name": "Session QR (kiosk → phone)", "request": { "method": "POST", "auth": { "type": "noauth" }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"kiosk_session_id\": \"{{kiosk_session_id}}\"\n}" }, "url": { "raw": "{{base_url}}/api/public/session/qr", "host": ["{{base_url}}"], "path": ["api","public","session","qr"] } } }
+        {
+          "name": "Welcome",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/public/welcome",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "welcome"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Attractions list",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/public/attractions?page=1&per_page=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "attractions"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Attractions filtered",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/public/attractions?category=museum&search=culture&min_rating=3",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "attractions"
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "museum"
+                },
+                {
+                  "key": "search",
+                  "value": "culture"
+                },
+                {
+                  "key": "min_rating",
+                  "value": "3"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Emergency contacts",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/public/emergency-contacts?type=hospital",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "emergency-contacts"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "hospital"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Map (GeoJSON)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/public/map",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "map"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/public/search?q=park",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "park"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Accommodations",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/public/accommodations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "accommodations"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Destination info",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/public/destinations/{{destination_id}}/info",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "destinations",
+                "{{destination_id}}",
+                "info"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Kiosk session reset (anonymous)",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/public/kiosk/session/reset",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "kiosk",
+                "session",
+                "reset"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Kiosk session reset (pinned)",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kiosk_id\": \"{{kiosk_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/public/kiosk/session/reset",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "kiosk",
+                "session",
+                "reset"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Session QR (kiosk → phone)",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kiosk_session_id\": \"{{kiosk_session_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/public/session/qr",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "session",
+                "qr"
+              ]
+            }
+          }
+        }
       ]
     },
     {
       "name": "4. User Settings",
       "item": [
-        { "name": "Get settings", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/settings", "host": ["{{base_url}}"], "path": ["api","v1","settings"] } } },
+        {
+          "name": "Get settings",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/settings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "settings"
+              ]
+            }
+          }
+        },
         {
           "name": "PATCH profile",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"full_name\": \"Demo User\",\n  \"bio\": \"Tourist exploring Kenya\",\n  \"profile_picture\": \"https://example.com/avatar.png\",\n  \"language_preference\": \"en\",\n  \"currency_preference\": \"KES\",\n  \"timezone\": \"Africa/Nairobi\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/settings/profile", "host": ["{{base_url}}"], "path": ["api","v1","settings","profile"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Demo User\",\n  \"bio\": \"Tourist exploring Kenya\",\n  \"profile_picture\": \"https://example.com/avatar.png\",\n  \"language_preference\": \"en\",\n  \"currency_preference\": \"KES\",\n  \"timezone\": \"Africa/Nairobi\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/settings/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "settings",
+                "profile"
+              ]
+            }
           }
         },
         {
           "name": "PATCH preferences (STORY024)",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"stay_duration_days\": 7,\n  \"budget_level\": \"Mid-Range\",\n  \"pace\": \"Moderate\",\n  \"interests\": {\n    \"categories\": [\"wildlife\", \"culture\", \"beach\"],\n    \"travel_style\": [\"Adventure\", \"Cultural\"]\n  }\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/settings/preferences", "host": ["{{base_url}}"], "path": ["api","v1","settings","preferences"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stay_duration_days\": 7,\n  \"budget_level\": \"Mid-Range\",\n  \"pace\": \"Moderate\",\n  \"interests\": {\n    \"categories\": [\"wildlife\", \"culture\", \"beach\"],\n    \"travel_style\": [\"Adventure\", \"Cultural\"]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/settings/preferences",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "settings",
+                "preferences"
+              ]
+            }
           }
         },
         {
           "name": "PATCH accessibility (STORY043)",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"accessibility_preference\": \"voice\",\n  \"font_size\": 18,\n  \"voice_navigation\": true,\n  \"text_to_speech\": true,\n  \"large_text\": false,\n  \"wheelchair_mode\": true,\n  \"other_needs\": { \"colour_blind\": \"deuteranopia\" }\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/settings/accessibility", "host": ["{{base_url}}"], "path": ["api","v1","settings","accessibility"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accessibility_preference\": \"voice\",\n  \"font_size\": 18,\n  \"voice_navigation\": true,\n  \"text_to_speech\": true,\n  \"large_text\": false,\n  \"wheelchair_mode\": true,\n  \"other_needs\": { \"colour_blind\": \"deuteranopia\" }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/settings/accessibility",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "settings",
+                "accessibility"
+              ]
+            }
           }
         },
         {
           "name": "PATCH notifications",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"language_preference\": \"en\",\n  \"email_alerts\": true,\n  \"push_notifications\": true,\n  \"email_enabled\": true,\n  \"push_enabled\": true,\n  \"sms_enabled\": false,\n  \"marketing_emails_enabled\": false,\n  \"security_alerts_enabled\": true,\n  \"booking_updates_enabled\": true\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/settings/notifications", "host": ["{{base_url}}"], "path": ["api","v1","settings","notifications"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language_preference\": \"en\",\n  \"email_alerts\": true,\n  \"push_notifications\": true,\n  \"email_enabled\": true,\n  \"push_enabled\": true,\n  \"sms_enabled\": false,\n  \"marketing_emails_enabled\": false,\n  \"security_alerts_enabled\": true,\n  \"booking_updates_enabled\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/settings/notifications",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "settings",
+                "notifications"
+              ]
+            }
           }
         },
-        { "name": "Get /users/{id}", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/users/{{user_id}}", "host": ["{{base_url}}"], "path": ["api","v1","users","{{user_id}}"] } } },
+        {
+          "name": "Get /users/{id}",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{user_id}}"
+              ]
+            }
+          }
+        },
         {
           "name": "PATCH /users/{id}",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"username\": \"demo_user_v2\",\n  \"full_name\": \"Demo User V2\",\n  \"language_preference\": \"sw\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/users/{{user_id}}", "host": ["{{base_url}}"], "path": ["api","v1","users","{{user_id}}"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"demo_user_v2\",\n  \"full_name\": \"Demo User V2\",\n  \"language_preference\": \"sw\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{user_id}}"
+              ]
+            }
           }
         },
-        { "name": "Get notification preferences", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/users/{{user_id}}/notification-preferences", "host": ["{{base_url}}"], "path": ["api","v1","users","{{user_id}}","notification-preferences"] } } },
+        {
+          "name": "Get notification preferences",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/{{user_id}}/notification-preferences",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{user_id}}",
+                "notification-preferences"
+              ]
+            }
+          }
+        },
         {
           "name": "PATCH notification preferences",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"email_alerts\": true,\n  \"push_notifications\": false,\n  \"sms_enabled\": false,\n  \"marketing_emails_enabled\": false,\n  \"security_alerts_enabled\": true,\n  \"booking_updates_enabled\": true\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/users/{{user_id}}/notification-preferences", "host": ["{{base_url}}"], "path": ["api","v1","users","{{user_id}}","notification-preferences"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email_alerts\": true,\n  \"push_notifications\": false,\n  \"sms_enabled\": false,\n  \"marketing_emails_enabled\": false,\n  \"security_alerts_enabled\": true,\n  \"booking_updates_enabled\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/{{user_id}}/notification-preferences",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{user_id}}",
+                "notification-preferences"
+              ]
+            }
           }
         },
-        { "name": "Activity log", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/users/{{user_id}}/activity", "host": ["{{base_url}}"], "path": ["api","v1","users","{{user_id}}","activity"] } } },
+        {
+          "name": "Activity log",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/{{user_id}}/activity",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{user_id}}",
+                "activity"
+              ]
+            }
+          }
+        },
         {
           "name": "DELETE account (soft)",
           "request": {
             "method": "DELETE",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"password\": \"DemoPass123!\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/users/{{user_id}}", "host": ["{{base_url}}"], "path": ["api","v1","users","{{user_id}}"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"DemoPass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{user_id}}"
+              ]
+            }
           }
         }
       ]
@@ -254,35 +1058,160 @@
     {
       "name": "5. Destinations & Attractions",
       "item": [
-        { "name": "List destinations", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/destinations/", "host": ["{{base_url}}"], "path": ["api","v1","destinations",""] } } },
+        {
+          "name": "List destinations",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/destinations/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "destinations",
+                ""
+              ]
+            }
+          }
+        },
         {
           "name": "Create destination",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"canonical_name\": \"Nairobi\",\n  \"slug\": \"nairobi\",\n  \"name\": \"Nairobi\",\n  \"description\": \"Kenya's vibrant capital city\",\n  \"overview_json\": { \"en\": \"Vibrant capital with parks and museums.\", \"sw\": \"Mji mkuu wenye mbuga na makumbusho.\" },\n  \"culture_json\": { \"en\": \"Diverse cultures and a lively music scene.\" },\n  \"travel_tips_json\": { \"en\": \"Carry an umbrella in April.\" },\n  \"weather_info\": { \"en\": \"Average 22 degrees Celsius year-round.\" },\n  \"is_wheelchair_accessible\": true\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/destinations/", "host": ["{{base_url}}"], "path": ["api","v1","destinations",""] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"canonical_name\": \"Nairobi\",\n  \"slug\": \"nairobi\",\n  \"name\": \"Nairobi\",\n  \"description\": \"Kenya's vibrant capital city\",\n  \"overview_json\": { \"en\": \"Vibrant capital with parks and museums.\", \"sw\": \"Mji mkuu wenye mbuga na makumbusho.\" },\n  \"culture_json\": { \"en\": \"Diverse cultures and a lively music scene.\" },\n  \"travel_tips_json\": { \"en\": \"Carry an umbrella in April.\" },\n  \"weather_info\": { \"en\": \"Average 22 degrees Celsius year-round.\" },\n  \"is_wheelchair_accessible\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/destinations/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "destinations",
+                ""
+              ]
+            }
           }
         },
-        { "name": "Get destination", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/destinations/{{destination_id}}", "host": ["{{base_url}}"], "path": ["api","v1","destinations","{{destination_id}}"] } } },
-        { "name": "List attractions", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/attractions/", "host": ["{{base_url}}"], "path": ["api","v1","attractions",""] } } },
+        {
+          "name": "Get destination",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/destinations/{{destination_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "destinations",
+                "{{destination_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List attractions",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/attractions/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attractions",
+                ""
+              ]
+            }
+          }
+        },
         {
           "name": "Create attraction",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"destination_id\": \"{{destination_id}}\",\n  \"business_owner_id\": \"{{business_profile_id}}\",\n  \"name\": \"Nairobi National Park\",\n  \"description\": \"Wildlife reserve on the city outskirts.\",\n  \"category\": \"wildlife\",\n  \"entry_fee\": 4300,\n  \"is_wheelchair_accessible\": false,\n  \"status\": \"approved\",\n  \"latitude\": -1.3733,\n  \"longitude\": 36.8569\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/attractions/", "host": ["{{base_url}}"], "path": ["api","v1","attractions",""] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"destination_id\": \"{{destination_id}}\",\n  \"business_owner_id\": \"{{business_profile_id}}\",\n  \"name\": \"Nairobi National Park\",\n  \"description\": \"Wildlife reserve on the city outskirts.\",\n  \"category\": \"wildlife\",\n  \"entry_fee\": 4300,\n  \"is_wheelchair_accessible\": false,\n  \"status\": \"approved\",\n  \"latitude\": -1.3733,\n  \"longitude\": 36.8569\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/attractions/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attractions",
+                ""
+              ]
+            }
           }
         },
-        { "name": "Get attraction", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/attractions/{{attraction_id}}", "host": ["{{base_url}}"], "path": ["api","v1","attractions","{{attraction_id}}"] } } },
+        {
+          "name": "Get attraction",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/attractions/{{attraction_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attractions",
+                "{{attraction_id}}"
+              ]
+            }
+          }
+        },
         {
           "name": "PATCH attraction",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"status\": \"approved\",\n  \"entry_fee\": 4500\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/attractions/{{attraction_id}}", "host": ["{{base_url}}"], "path": ["api","v1","attractions","{{attraction_id}}"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\",\n  \"entry_fee\": 4500\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/attractions/{{attraction_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attractions",
+                "{{attraction_id}}"
+              ]
+            }
           }
         }
       ]
@@ -290,29 +1219,200 @@
     {
       "name": "6. Accommodations",
       "item": [
-        { "name": "Public accommodations list", "request": { "method": "GET", "auth": { "type": "noauth" }, "url": { "raw": "{{base_url}}/api/public/accommodations?page=1&per_page=10&min_rating=3", "host": ["{{base_url}}"], "path": ["api","public","accommodations"], "query": [{ "key": "page", "value": "1" }, { "key": "per_page", "value": "10" }, { "key": "min_rating", "value": "3" }] } } },
-        { "name": "Room types for accommodation", "request": { "method": "GET", "auth": { "type": "noauth" }, "url": { "raw": "{{base_url}}/api/v1/accommodations/{{accommodation_id}}/rooms", "host": ["{{base_url}}"], "path": ["api","v1","accommodations","{{accommodation_id}}","rooms"] } } }
+        {
+          "name": "Public accommodations list",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/public/accommodations?page=1&per_page=10&min_rating=3",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "accommodations"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "10"
+                },
+                {
+                  "key": "min_rating",
+                  "value": "3"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Room types for accommodation",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/accommodations/{{accommodation_id}}/rooms",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "accommodations",
+                "{{accommodation_id}}",
+                "rooms"
+              ]
+            }
+          }
+        }
       ]
     },
     {
       "name": "7. Events",
       "item": [
-        { "name": "List events", "request": { "method": "GET", "auth": { "type": "noauth" }, "url": { "raw": "{{base_url}}/api/v1/events?page=1&per_page=10", "host": ["{{base_url}}"], "path": ["api","v1","events"], "query": [{ "key": "page", "value": "1" }, { "key": "per_page", "value": "10" }] } } },
-        { "name": "Get event", "request": { "method": "GET", "auth": { "type": "noauth" }, "url": { "raw": "{{base_url}}/api/v1/events/{{event_id}}", "host": ["{{base_url}}"], "path": ["api","v1","events","{{event_id}}"] } } }
+        {
+          "name": "List events",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/events?page=1&per_page=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "events"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get event",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/events/{{event_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "events",
+                "{{event_id}}"
+              ]
+            }
+          }
+        }
       ]
     },
     {
       "name": "8. Tour Packages",
       "item": [
-        { "name": "List tour packages", "request": { "method": "GET", "auth": { "type": "noauth" }, "url": { "raw": "{{base_url}}/api/v1/tour-packages?page=1&per_page=10", "host": ["{{base_url}}"], "path": ["api","v1","tour-packages"], "query": [{ "key": "page", "value": "1" }, { "key": "per_page", "value": "10" }] } } },
-        { "name": "Get tour package", "request": { "method": "GET", "auth": { "type": "noauth" }, "url": { "raw": "{{base_url}}/api/v1/tour-packages/{{tour_package_id}}", "host": ["{{base_url}}"], "path": ["api","v1","tour-packages","{{tour_package_id}}"] } } },
+        {
+          "name": "List tour packages",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/tour-packages?page=1&per_page=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tour-packages"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get tour package",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/tour-packages/{{tour_package_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tour-packages",
+                "{{tour_package_id}}"
+              ]
+            }
+          }
+        },
         {
           "name": "Book tour (STORY035)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"package_id\": \"{{tour_package_id}}\",\n  \"participants\": 2,\n  \"notes\": \"Vegetarian meals please\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/bookings/tour", "host": ["{{base_url}}"], "path": ["api","v1","bookings","tour"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"package_id\": \"{{tour_package_id}}\",\n  \"participants\": 2,\n  \"notes\": \"Vegetarian meals please\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/bookings/tour",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings",
+                "tour"
+              ]
+            }
           }
         }
       ]
@@ -320,18 +1420,85 @@
     {
       "name": "9. Recommendations & Favourites",
       "item": [
-        { "name": "Recommendations (requires preferences)", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/recommendations", "host": ["{{base_url}}"], "path": ["api","v1","recommendations"] } } },
-        { "name": "List favourites", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/favourites", "host": ["{{base_url}}"], "path": ["api","v1","favourites"] } } },
+        {
+          "name": "Recommendations (requires preferences)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/recommendations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "recommendations"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List favourites",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/favourites",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "favourites"
+              ]
+            }
+          }
+        },
         {
           "name": "Add favourite",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"attraction_id\": \"{{attraction_id}}\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/favourites", "host": ["{{base_url}}"], "path": ["api","v1","favourites"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attraction_id\": \"{{attraction_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/favourites",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "favourites"
+              ]
+            }
           }
         },
-        { "name": "Remove favourite", "request": { "method": "DELETE", "url": { "raw": "{{base_url}}/api/v1/favourites/{{attraction_id}}", "host": ["{{base_url}}"], "path": ["api","v1","favourites","{{attraction_id}}"] } } }
+        {
+          "name": "Remove favourite",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/api/v1/favourites/{{attraction_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "favourites",
+                "{{attraction_id}}"
+              ]
+            }
+          }
+        }
       ]
     },
     {
@@ -341,34 +1508,196 @@
           "name": "Generate (STORY026)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"destination_id\": \"{{destination_id}}\",\n  \"start_date\": \"2026-06-01\",\n  \"selected_attraction_ids\": [\"{{attraction_id}}\"]\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/itineraries/generate", "host": ["{{base_url}}"], "path": ["api","v1","itineraries","generate"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"destination_id\": \"{{destination_id}}\",\n  \"start_date\": \"2026-06-01\",\n  \"selected_attraction_ids\": [\"{{attraction_id}}\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/itineraries/generate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "itineraries",
+                "generate"
+              ]
+            }
           }
         },
         {
           "name": "Save itinerary",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Nairobi 3-Day Adventure\",\n  \"destination_id\": \"{{destination_id}}\",\n  \"start_date\": \"2026-06-01\",\n  \"days\": [\n    {\n      \"day_number\": 1,\n      \"items\": [\n        { \"attraction_id\": \"{{attraction_id}}\", \"start_time\": \"09:00\", \"end_time\": \"12:00\" }\n      ]\n    }\n  ]\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/itineraries", "host": ["{{base_url}}"], "path": ["api","v1","itineraries"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Nairobi 3-Day Adventure\",\n  \"destination_id\": \"{{destination_id}}\",\n  \"start_date\": \"2026-06-01\",\n  \"days\": [\n    {\n      \"day_number\": 1,\n      \"items\": [\n        { \"attraction_id\": \"{{attraction_id}}\", \"start_time\": \"09:00\", \"end_time\": \"12:00\" }\n      ]\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/itineraries",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "itineraries"
+              ]
+            }
           }
         },
-        { "name": "List my itineraries", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/itineraries", "host": ["{{base_url}}"], "path": ["api","v1","itineraries"] } } },
-        { "name": "Get itinerary", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/itineraries/{{itinerary_id}}", "host": ["{{base_url}}"], "path": ["api","v1","itineraries","{{itinerary_id}}"] } } },
+        {
+          "name": "List my itineraries",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/itineraries",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "itineraries"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get itinerary",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/itineraries/{{itinerary_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "itineraries",
+                "{{itinerary_id}}"
+              ]
+            }
+          }
+        },
         {
           "name": "Update itinerary",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Renamed Itinerary\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/itineraries/{{itinerary_id}}", "host": ["{{base_url}}"], "path": ["api","v1","itineraries","{{itinerary_id}}"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Renamed Itinerary\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/itineraries/{{itinerary_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "itineraries",
+                "{{itinerary_id}}"
+              ]
+            }
           }
         },
-        { "name": "Generate QR for itinerary", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{}" }, "url": { "raw": "{{base_url}}/api/v1/itineraries/{{itinerary_id}}/qr", "host": ["{{base_url}}"], "path": ["api","v1","itineraries","{{itinerary_id}}","qr"] } } },
-        { "name": "Publish itinerary", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{}" }, "url": { "raw": "{{base_url}}/api/v1/itineraries/{{itinerary_id}}/publish", "host": ["{{base_url}}"], "path": ["api","v1","itineraries","{{itinerary_id}}","publish"] } } },
-        { "name": "Delete itinerary", "request": { "method": "DELETE", "url": { "raw": "{{base_url}}/api/v1/itineraries/{{itinerary_id}}", "host": ["{{base_url}}"], "path": ["api","v1","itineraries","{{itinerary_id}}"] } } }
+        {
+          "name": "Generate QR for itinerary",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/itineraries/{{itinerary_id}}/qr",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "itineraries",
+                "{{itinerary_id}}",
+                "qr"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Publish itinerary",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/itineraries/{{itinerary_id}}/publish",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "itineraries",
+                "{{itinerary_id}}",
+                "publish"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete itinerary",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/api/v1/itineraries/{{itinerary_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "itineraries",
+                "{{itinerary_id}}"
+              ]
+            }
+          }
+        }
       ]
     },
     {
@@ -378,54 +1707,237 @@
           "name": "Create accommodation booking",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"type\": \"accommodation\",\n  \"items\": [\n    {\n      \"target_type\": \"accommodation\",\n      \"target_id\": \"{{accommodation_id}}\",\n      \"quantity\": 1,\n      \"price_at_booking\": 12000,\n      \"notes\": \"Twin room, sea view\"\n    }\n  ],\n  \"check_in\": \"2026-06-01\",\n  \"check_out\": \"2026-06-04\",\n  \"guests\": 2\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/bookings", "host": ["{{base_url}}"], "path": ["api","v1","bookings"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"accommodation\",\n  \"items\": [\n    {\n      \"target_type\": \"accommodation\",\n      \"target_id\": \"{{accommodation_id}}\",\n      \"quantity\": 1,\n      \"price_at_booking\": 12000,\n      \"notes\": \"Twin room, sea view\"\n    }\n  ],\n  \"check_in\": \"2026-06-01\",\n  \"check_out\": \"2026-06-04\",\n  \"guests\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/bookings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings"
+              ]
+            }
           }
         },
-        { "name": "List my bookings", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/bookings?type=tour&status=confirmed", "host": ["{{base_url}}"], "path": ["api","v1","bookings"], "query": [{ "key": "type", "value": "tour" }, { "key": "status", "value": "confirmed" }] } } },
-        { "name": "Get booking", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/bookings/{{booking_id}}", "host": ["{{base_url}}"], "path": ["api","v1","bookings","{{booking_id}}"] } } },
+        {
+          "name": "List my bookings",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/bookings?type=tour&status=confirmed",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "tour"
+                },
+                {
+                  "key": "status",
+                  "value": "confirmed"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get booking",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/bookings/{{booking_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings",
+                "{{booking_id}}"
+              ]
+            }
+          }
+        },
         {
           "name": "Cancel booking",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"cancellation_reason\": \"Travel plans changed\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/bookings/{{booking_id}}/cancel", "host": ["{{base_url}}"], "path": ["api","v1","bookings","{{booking_id}}","cancel"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cancellation_reason\": \"Travel plans changed\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/bookings/{{booking_id}}/cancel",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings",
+                "{{booking_id}}",
+                "cancel"
+              ]
+            }
           }
         },
-        { "name": "Generate QR for booking", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{}" }, "url": { "raw": "{{base_url}}/api/v1/bookings/{{booking_id}}/qr", "host": ["{{base_url}}"], "path": ["api","v1","bookings","{{booking_id}}","qr"] } } }
+        {
+          "name": "Generate QR for booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/bookings/{{booking_id}}/qr",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings",
+                "{{booking_id}}",
+                "qr"
+              ]
+            }
+          }
+        }
       ]
     },
     {
       "name": "12. Reviews & Feedback",
       "item": [
-        { "name": "List my user-feedback", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/feedback/reviews", "host": ["{{base_url}}"], "path": ["api","v1","feedback","reviews"] } } },
+        {
+          "name": "List my user-feedback",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/feedback/reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "feedback",
+                "reviews"
+              ]
+            }
+          }
+        },
         {
           "name": "Create review (STORY042)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"target_type\": \"attraction\",\n  \"target_id\": \"{{attraction_id}}\",\n  \"rating\": 5,\n  \"comment\": \"Loved it — saw lions and giraffes!\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/feedback/reviews", "host": ["{{base_url}}"], "path": ["api","v1","feedback","reviews"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"target_type\": \"attraction\",\n  \"target_id\": \"{{attraction_id}}\",\n  \"rating\": 5,\n  \"comment\": \"Loved it — saw lions and giraffes!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/feedback/reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "feedback",
+                "reviews"
+              ]
+            }
           }
         },
         {
           "name": "Destination feedback (STORY041)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"destination_id\": \"{{destination_id}}\",\n  \"rating\": 4,\n  \"comment\": \"Beautiful but the traffic is rough.\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/feedback/destinations", "host": ["{{base_url}}"], "path": ["api","v1","feedback","destinations"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"destination_id\": \"{{destination_id}}\",\n  \"rating\": 4,\n  \"comment\": \"Beautiful but the traffic is rough.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/feedback/destinations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "feedback",
+                "destinations"
+              ]
+            }
           }
         },
         {
           "name": "Media upload",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"target_type\": \"attraction\",\n  \"target_id\": \"{{attraction_id}}\",\n  \"url\": \"https://example.com/photo.jpg\",\n  \"media_type\": \"image\",\n  \"is_primary\": true\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/feedback/gallery", "host": ["{{base_url}}"], "path": ["api","v1","feedback","gallery"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"target_type\": \"attraction\",\n  \"target_id\": \"{{attraction_id}}\",\n  \"url\": \"https://example.com/photo.jpg\",\n  \"media_type\": \"image\",\n  \"is_primary\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/feedback/gallery",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "feedback",
+                "gallery"
+              ]
+            }
           }
         },
         {
@@ -433,11 +1945,32 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "X-Admin", "value": "true" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Admin",
+                "value": "true"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"status\": \"approved\",\n  \"admin_response\": \"Thanks for the feedback!\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/admin/reviews/{{review_id}}", "host": ["{{base_url}}"], "path": ["api","v1","admin","reviews","{{review_id}}"] }
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\",\n  \"admin_response\": \"Thanks for the feedback!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/reviews/{{review_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "reviews",
+                "{{review_id}}"
+              ]
+            }
           }
         }
       ]
@@ -445,8 +1978,48 @@
     {
       "name": "13. Notifications",
       "item": [
-        { "name": "List notifications", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/notifications?unread=true", "host": ["{{base_url}}"], "path": ["api","v1","notifications"], "query": [{ "key": "unread", "value": "true" }] } } },
-        { "name": "Mark notification read", "request": { "method": "PATCH", "url": { "raw": "{{base_url}}/api/v1/notifications/{{notification_id}}/read", "host": ["{{base_url}}"], "path": ["api","v1","notifications","{{notification_id}}","read"] } } }
+        {
+          "name": "List notifications",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/notifications?unread=true",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "notifications"
+              ],
+              "query": [
+                {
+                  "key": "unread",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mark notification read",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{base_url}}/api/v1/notifications/{{notification_id}}/read",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "notifications",
+                "{{notification_id}}",
+                "read"
+              ]
+            }
+          }
+        }
       ]
     },
     {
@@ -456,43 +2029,167 @@
           "name": "Stripe — create payment intent",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"amount\": 12000,\n  \"currency\": \"kes\",\n  \"booking_id\": \"{{booking_id}}\",\n  \"description\": \"Hotel reservation\",\n  \"metadata\": {\n    \"booking_reference\": \"TR-DEMO-001\",\n    \"user_id\": \"{{user_id}}\"\n  }\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/payments/stripe/create-payment-intent", "host": ["{{base_url}}"], "path": ["api","v1","payments","stripe","create-payment-intent"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 12000,\n  \"currency\": \"kes\",\n  \"booking_id\": \"{{booking_id}}\",\n  \"description\": \"Hotel reservation\",\n  \"metadata\": {\n    \"booking_reference\": \"TR-DEMO-001\",\n    \"user_id\": \"{{user_id}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments/stripe/create-payment-intent",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "stripe",
+                "create-payment-intent"
+              ]
+            }
           }
         },
-        { "name": "Stripe — payment status", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/payments/stripe/payment-status/pi_REPLACE_WITH_INTENT_ID", "host": ["{{base_url}}"], "path": ["api","v1","payments","stripe","payment-status","pi_REPLACE_WITH_INTENT_ID"] } } },
+        {
+          "name": "Stripe — payment status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments/stripe/payment-status/pi_REPLACE_WITH_INTENT_ID",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "stripe",
+                "payment-status",
+                "pi_REPLACE_WITH_INTENT_ID"
+              ]
+            }
+          }
+        },
         {
           "name": "Stripe — webhook (mock)",
           "request": {
-            "method": "POST", "auth": { "type": "noauth" },
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Stripe-Signature", "value": "smoke-signature" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Stripe-Signature",
+                "value": "smoke-signature"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"id\": \"evt_test_webhook\",\n  \"type\": \"payment_intent.succeeded\",\n  \"data\": {\n    \"object\": {\n      \"id\": \"pi_test_intent\",\n      \"status\": \"succeeded\",\n      \"amount\": 12000,\n      \"currency\": \"kes\"\n    }\n  }\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/payments/stripe/webhook", "host": ["{{base_url}}"], "path": ["api","v1","payments","stripe","webhook"] }
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"evt_test_webhook\",\n  \"type\": \"payment_intent.succeeded\",\n  \"data\": {\n    \"object\": {\n      \"id\": \"pi_test_intent\",\n      \"status\": \"succeeded\",\n      \"amount\": 12000,\n      \"currency\": \"kes\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments/stripe/webhook",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "stripe",
+                "webhook"
+              ]
+            }
           }
         },
         {
           "name": "M-Pesa — initiate STK push",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"phone_number\": \"254712345678\",\n  \"amount\": 1500,\n  \"booking_id\": \"{{booking_id}}\",\n  \"reference\": \"TR-DEMO-001\",\n  \"description\": \"Tour booking\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/payments/pay/mpesa", "host": ["{{base_url}}"], "path": ["api","v1","payments","pay","mpesa"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone_number\": \"254712345678\",\n  \"amount\": 1500,\n  \"booking_id\": \"{{booking_id}}\",\n  \"reference\": \"TR-DEMO-001\",\n  \"description\": \"Tour booking\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments/pay/mpesa",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "pay",
+                "mpesa"
+              ]
+            }
           }
         },
         {
           "name": "M-Pesa — callback (mock)",
           "request": {
-            "method": "POST", "auth": { "type": "noauth" },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"Body\": {\n    \"stkCallback\": {\n      \"MerchantRequestID\": \"MR-001\",\n      \"CheckoutRequestID\": \"ws_CO_REPLACE\",\n      \"ResultCode\": 0,\n      \"ResultDesc\": \"The service request is processed successfully.\",\n      \"CallbackMetadata\": {\n        \"Item\": [\n          { \"Name\": \"Amount\", \"Value\": 1500 },\n          { \"Name\": \"MpesaReceiptNumber\", \"Value\": \"QAB1234567\" },\n          { \"Name\": \"PhoneNumber\", \"Value\": 254712345678 }\n        ]\n      }\n    }\n  }\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/payments/callback/mpesa", "host": ["{{base_url}}"], "path": ["api","v1","payments","callback","mpesa"] }
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Body\": {\n    \"stkCallback\": {\n      \"MerchantRequestID\": \"MR-001\",\n      \"CheckoutRequestID\": \"ws_CO_REPLACE\",\n      \"ResultCode\": 0,\n      \"ResultDesc\": \"The service request is processed successfully.\",\n      \"CallbackMetadata\": {\n        \"Item\": [\n          { \"Name\": \"Amount\", \"Value\": 1500 },\n          { \"Name\": \"MpesaReceiptNumber\", \"Value\": \"QAB1234567\" },\n          { \"Name\": \"PhoneNumber\", \"Value\": 254712345678 }\n        ]\n      }\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments/callback/mpesa",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "callback",
+                "mpesa"
+              ]
+            }
           }
         },
-        { "name": "M-Pesa — payment status", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/payments/status/TR-DEMO-001", "host": ["{{base_url}}"], "path": ["api","v1","payments","status","TR-DEMO-001"] } } }
+        {
+          "name": "M-Pesa — payment status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments/status/TR-DEMO-001",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "status",
+                "TR-DEMO-001"
+              ]
+            }
+          }
+        }
       ]
     },
     {
@@ -502,20 +2199,92 @@
           "name": "Submit registration request",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"business_name\": \"Savanna Tours Ltd\",\n  \"business_type\": \"tour_operator\",\n  \"phone\": \"254712345678\",\n  \"registration_doc\": \"https://example.com/cert.pdf\",\n  \"address\": \"Westlands, Nairobi\",\n  \"website\": \"https://savannatours.example\",\n  \"description\": \"Guided wildlife safaris across Kenya.\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/business/registrations", "host": ["{{base_url}}"], "path": ["api","v1","business","registrations"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"business_name\": \"Savanna Tours Ltd\",\n  \"business_type\": \"tour_operator\",\n  \"phone\": \"254712345678\",\n  \"registration_doc\": \"https://example.com/cert.pdf\",\n  \"address\": \"Westlands, Nairobi\",\n  \"website\": \"https://savannatours.example\",\n  \"description\": \"Guided wildlife safaris across Kenya.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/business/registrations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "business",
+                "registrations"
+              ]
+            }
           }
         },
-        { "name": "List my registrations", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/business/registrations", "host": ["{{base_url}}"], "path": ["api","v1","business","registrations"] } } },
-        { "name": "Get my business profile", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/business/profiles", "host": ["{{base_url}}"], "path": ["api","v1","business","profiles"] } } },
+        {
+          "name": "List my registrations",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/business/registrations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "business",
+                "registrations"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get my business profile",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/business/profiles",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "business",
+                "profiles"
+              ]
+            }
+          }
+        },
         {
           "name": "Update business profile",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"business_name\": \"Savanna Tours Ltd\",\n  \"description\": \"Premium guided safaris.\",\n  \"website\": \"https://savannatours.example\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/business/profiles", "host": ["{{base_url}}"], "path": ["api","v1","business","profiles"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"business_name\": \"Savanna Tours Ltd\",\n  \"description\": \"Premium guided safaris.\",\n  \"website\": \"https://savannatours.example\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/business/profiles",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "business",
+                "profiles"
+              ]
+            }
           }
         }
       ]
@@ -523,33 +2292,223 @@
     {
       "name": "16. Admin",
       "item": [
-        { "name": "List users", "request": { "method": "GET", "header": [{ "key": "X-Admin", "value": "true" }], "url": { "raw": "{{base_url}}/api/v1/admin/users?page=1&per_page=20&search=demo", "host": ["{{base_url}}"], "path": ["api","v1","admin","users"], "query": [{ "key": "page", "value": "1" }, { "key": "per_page", "value": "20" }, { "key": "search", "value": "demo" }] } } },
+        {
+          "name": "List users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Admin",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/users?page=1&per_page=20&search=demo",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                },
+                {
+                  "key": "search",
+                  "value": "demo"
+                }
+              ]
+            }
+          }
+        },
         {
           "name": "Suspend / activate user",
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "X-Admin", "value": "true" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Admin",
+                "value": "true"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"status\": \"suspended\",\n  \"reason\": \"TOS violation\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/admin/users/{{user_id}}", "host": ["{{base_url}}"], "path": ["api","v1","admin","users","{{user_id}}"] }
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"suspended\",\n  \"reason\": \"TOS violation\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/users/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "{{user_id}}"
+              ]
+            }
           }
         },
-        { "name": "Admin bookings", "request": { "method": "GET", "header": [{ "key": "X-Admin", "value": "true" }], "url": { "raw": "{{base_url}}/api/v1/admin/bookings", "host": ["{{base_url}}"], "path": ["api","v1","admin","bookings"] } } },
-        { "name": "Analytics (STORY023)", "request": { "method": "GET", "header": [{ "key": "X-Admin", "value": "true" }], "url": { "raw": "{{base_url}}/api/v1/admin/analytics?from=2026-05-01&to=2026-05-31", "host": ["{{base_url}}"], "path": ["api","v1","admin","analytics"], "query": [{ "key": "from", "value": "2026-05-01" }, { "key": "to", "value": "2026-05-31" }] } } },
-        { "name": "Compute daily snapshot", "request": { "method": "POST", "header": [{ "key": "X-Admin", "value": "true" }], "url": { "raw": "{{base_url}}/api/v1/admin/analytics/snapshot?date=2026-05-17", "host": ["{{base_url}}"], "path": ["api","v1","admin","analytics","snapshot"], "query": [{ "key": "date", "value": "2026-05-17" }] } } },
-        { "name": "Admin business registrations", "request": { "method": "GET", "header": [{ "key": "X-Admin", "value": "true" }], "url": { "raw": "{{base_url}}/api/v1/admin/business/registrations", "host": ["{{base_url}}"], "path": ["api","v1","admin","business","registrations"] } } },
+        {
+          "name": "Admin bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Admin",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/bookings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "bookings"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Analytics (STORY023)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Admin",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/analytics?from=2026-05-01&to=2026-05-31",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "analytics"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "2026-05-01"
+                },
+                {
+                  "key": "to",
+                  "value": "2026-05-31"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Compute daily snapshot",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Admin",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/analytics/snapshot?date=2026-05-17",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "analytics",
+                "snapshot"
+              ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-05-17"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin business registrations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Admin",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/business/registrations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "business",
+                "registrations"
+              ]
+            }
+          }
+        },
         {
           "name": "Admin approve business",
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "X-Admin", "value": "true" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Admin",
+                "value": "true"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"status\": \"approved\"\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/admin/business/registrations/REQ-ID-HERE", "host": ["{{base_url}}"], "path": ["api","v1","admin","business","registrations","REQ-ID-HERE"] }
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/business/registrations/REQ-ID-HERE",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "business",
+                "registrations",
+                "REQ-ID-HERE"
+              ]
+            }
           }
         }
       ]
@@ -562,43 +2521,171 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "X-Admin", "value": "true" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Admin",
+                "value": "true"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"JKIA Terminal 1A Kiosk\",\n  \"location_type\": \"airport\",\n  \"address\": \"Jomo Kenyatta International Airport, Terminal 1A\",\n  \"lat\": -1.3192,\n  \"lng\": 36.9275,\n  \"configuration\": {\n    \"screen_brightness\": 80,\n    \"idle_timeout_seconds\": 180,\n    \"enabled_languages\": [\"en\", \"sw\", \"fr\"],\n    \"default_language\": \"en\"\n  }\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/admin/kiosks", "host": ["{{base_url}}"], "path": ["api","v1","admin","kiosks"] }
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"JKIA Terminal 1A Kiosk\",\n  \"location_type\": \"airport\",\n  \"address\": \"Jomo Kenyatta International Airport, Terminal 1A\",\n  \"lat\": -1.3192,\n  \"lng\": 36.9275,\n  \"configuration\": {\n    \"screen_brightness\": 80,\n    \"idle_timeout_seconds\": 180,\n    \"enabled_languages\": [\"en\", \"sw\", \"fr\"],\n    \"default_language\": \"en\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/kiosks",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "kiosks"
+              ]
+            }
           }
         },
-        { "name": "List kiosks", "request": { "method": "GET", "header": [{ "key": "X-Admin", "value": "true" }], "url": { "raw": "{{base_url}}/api/v1/admin/kiosks", "host": ["{{base_url}}"], "path": ["api","v1","admin","kiosks"] } } },
-        { "name": "Get kiosk", "request": { "method": "GET", "header": [{ "key": "X-Admin", "value": "true" }], "url": { "raw": "{{base_url}}/api/v1/admin/kiosks/{{kiosk_id}}", "host": ["{{base_url}}"], "path": ["api","v1","admin","kiosks","{{kiosk_id}}"] } } },
+        {
+          "name": "List kiosks",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Admin",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/kiosks",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "kiosks"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get kiosk",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Admin",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/kiosks/{{kiosk_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "kiosks",
+                "{{kiosk_id}}"
+              ]
+            }
+          }
+        },
         {
           "name": "Update kiosk",
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "X-Admin", "value": "true" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Admin",
+                "value": "true"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"status\": \"active\",\n  \"configuration\": { \"idle_timeout_seconds\": 240 }\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/admin/kiosks/{{kiosk_id}}", "host": ["{{base_url}}"], "path": ["api","v1","admin","kiosks","{{kiosk_id}}"] }
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"active\",\n  \"configuration\": { \"idle_timeout_seconds\": 240 }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/kiosks/{{kiosk_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "kiosks",
+                "{{kiosk_id}}"
+              ]
+            }
           }
         },
         {
           "name": "Heartbeat",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"metrics\": {\n    \"cpu_percent\": 23.4,\n    \"ram_percent\": 45.2,\n    \"disk_percent\": 60.1,\n    \"uptime_seconds\": 86400,\n    \"network_latency_ms\": 42\n  }\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/kiosks/{{kiosk_id}}/heartbeat", "host": ["{{base_url}}"], "path": ["api","v1","kiosks","{{kiosk_id}}","heartbeat"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metrics\": {\n    \"cpu_percent\": 23.4,\n    \"ram_percent\": 45.2,\n    \"disk_percent\": 60.1,\n    \"uptime_seconds\": 86400,\n    \"network_latency_ms\": 42\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/kiosks/{{kiosk_id}}/heartbeat",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "kiosks",
+                "{{kiosk_id}}",
+                "heartbeat"
+              ]
+            }
           }
         },
         {
           "name": "Health event",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"event_type\": \"error\",\n  \"error_message\": \"Touchscreen unresponsive\",\n  \"metrics\": { \"display_status\": \"timeout\" }\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/kiosks/{{kiosk_id}}/health-events", "host": ["{{base_url}}"], "path": ["api","v1","kiosks","{{kiosk_id}}","health-events"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_type\": \"error\",\n  \"error_message\": \"Touchscreen unresponsive\",\n  \"metrics\": { \"display_status\": \"timeout\" }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/kiosks/{{kiosk_id}}/health-events",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "kiosks",
+                "{{kiosk_id}}",
+                "health-events"
+              ]
+            }
           }
         },
         {
@@ -606,85 +2693,463 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "X-Admin", "value": "true" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Admin",
+                "value": "true"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"content_type\": \"attractions\",\n  \"payload\": { \"version\": \"v2\", \"items_count\": 247 }\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/admin/kiosks/{{kiosk_id}}/content-sync", "host": ["{{base_url}}"], "path": ["api","v1","admin","kiosks","{{kiosk_id}}","content-sync"] }
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content_type\": \"attractions\",\n  \"payload\": { \"version\": \"v2\", \"items_count\": 247 }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/kiosks/{{kiosk_id}}/content-sync",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "kiosks",
+                "{{kiosk_id}}",
+                "content-sync"
+              ]
+            }
           }
         },
         {
           "name": "Start session",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"device_info\": { \"model\": \"Lenovo M90\", \"os\": \"Ubuntu 22.04\" }\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/kiosks/{{kiosk_id}}/sessions", "host": ["{{base_url}}"], "path": ["api","v1","kiosks","{{kiosk_id}}","sessions"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_info\": { \"model\": \"Lenovo M90\", \"os\": \"Ubuntu 22.04\" }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/kiosks/{{kiosk_id}}/sessions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "kiosks",
+                "{{kiosk_id}}",
+                "sessions"
+              ]
+            }
           }
         },
         {
           "name": "Update session state",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"state_patch\": {\n    \"language\": \"sw\",\n    \"step\": \"preferences\",\n    \"interests\": [\"wildlife\"]\n  }\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/sessions/{{kiosk_session_id}}/state", "host": ["{{base_url}}"], "path": ["api","v1","sessions","{{kiosk_session_id}}","state"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"state_patch\": {\n    \"language\": \"sw\",\n    \"step\": \"preferences\",\n    \"interests\": [\"wildlife\"]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/sessions/{{kiosk_session_id}}/state",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sessions",
+                "{{kiosk_session_id}}",
+                "state"
+              ]
+            }
           }
         },
-        { "name": "End session", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{}" }, "url": { "raw": "{{base_url}}/api/v1/sessions/{{kiosk_session_id}}/end", "host": ["{{base_url}}"], "path": ["api","v1","sessions","{{kiosk_session_id}}","end"] } } },
+        {
+          "name": "End session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/sessions/{{kiosk_session_id}}/end",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sessions",
+                "{{kiosk_session_id}}",
+                "end"
+              ]
+            }
+          }
+        },
         {
           "name": "Log session analytics event",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"event_type\": \"attraction_viewed\",\n  \"screen\": \"details\",\n  \"metadata\": { \"attraction_id\": \"{{attraction_id}}\" }\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/sessions/{{kiosk_session_id}}/events", "host": ["{{base_url}}"], "path": ["api","v1","sessions","{{kiosk_session_id}}","events"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_type\": \"attraction_viewed\",\n  \"screen\": \"details\",\n  \"metadata\": { \"attraction_id\": \"{{attraction_id}}\" }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/sessions/{{kiosk_session_id}}/events",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sessions",
+                "{{kiosk_session_id}}",
+                "events"
+              ]
+            }
           }
         },
-        { "name": "Create transfer (kiosk → phone)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{}" }, "url": { "raw": "{{base_url}}/api/v1/sessions/{{kiosk_session_id}}/transfer", "host": ["{{base_url}}"], "path": ["api","v1","sessions","{{kiosk_session_id}}","transfer"] } } },
-        { "name": "Transfer status (poll)", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/sessions/{{kiosk_session_id}}/transfer-status", "host": ["{{base_url}}"], "path": ["api","v1","sessions","{{kiosk_session_id}}","transfer-status"] } } }
+        {
+          "name": "Create transfer (kiosk → phone)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/sessions/{{kiosk_session_id}}/transfer",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sessions",
+                "{{kiosk_session_id}}",
+                "transfer"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Transfer status (poll)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/sessions/{{kiosk_session_id}}/transfer-status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sessions",
+                "{{kiosk_session_id}}",
+                "transfer-status"
+              ]
+            }
+          }
+        }
       ]
     },
     {
       "name": "18. Transport",
       "item": [
-        { "name": "List stations", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/transport/stations/", "host": ["{{base_url}}"], "path": ["api","v1","transport","stations",""] } } },
+        {
+          "name": "List stations",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/transport/stations/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transport",
+                "stations",
+                ""
+              ]
+            }
+          }
+        },
         {
           "name": "Create station",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Nairobi Terminus\",\n  \"type\": \"sgr\",\n  \"street\": \"Mombasa Road\",\n  \"city\": \"Nairobi\",\n  \"region\": \"Nairobi County\",\n  \"country\": \"Kenya\",\n  \"lat\": -1.4500,\n  \"lng\": 36.9300\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/transport/stations/", "host": ["{{base_url}}"], "path": ["api","v1","transport","stations",""] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nairobi Terminus\",\n  \"type\": \"sgr\",\n  \"street\": \"Mombasa Road\",\n  \"city\": \"Nairobi\",\n  \"region\": \"Nairobi County\",\n  \"country\": \"Kenya\",\n  \"lat\": -1.4500,\n  \"lng\": 36.9300\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/transport/stations/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transport",
+                "stations",
+                ""
+              ]
+            }
           }
         },
-        { "name": "Stations nearby", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/transport/stations/nearby?lat=-1.29&lng=36.82&radius_km=10", "host": ["{{base_url}}"], "path": ["api","v1","transport","stations","nearby"], "query": [{ "key": "lat", "value": "-1.29" }, { "key": "lng", "value": "36.82" }, { "key": "radius_km", "value": "10" }] } } },
+        {
+          "name": "Stations nearby",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/transport/stations/nearby?lat=-1.29&lng=36.82&radius_km=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transport",
+                "stations",
+                "nearby"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "-1.29"
+                },
+                {
+                  "key": "lng",
+                  "value": "36.82"
+                },
+                {
+                  "key": "radius_km",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
         {
           "name": "Create route",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"type\": \"sgr\",\n  \"origin_station_id\": \"{{station_id}}\",\n  \"destination_station_id\": \"{{station_id}}\",\n  \"duration_minutes\": 270,\n  \"base_fare\": 1500,\n  \"is_active\": true\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/transport/routes/", "host": ["{{base_url}}"], "path": ["api","v1","transport","routes",""] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"sgr\",\n  \"origin_station_id\": \"{{station_id}}\",\n  \"destination_station_id\": \"{{station_id}}\",\n  \"duration_minutes\": 270,\n  \"base_fare\": 1500,\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/transport/routes/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transport",
+                "routes",
+                ""
+              ]
+            }
           }
         },
         {
           "name": "Create schedule",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"transport_route_id\": \"{{route_id}}\",\n  \"departure_time\": \"2026-06-01T08:00:00Z\",\n  \"arrival_time\": \"2026-06-01T12:30:00Z\",\n  \"available_seats\": 30,\n  \"price\": 1500\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/transport/schedules/", "host": ["{{base_url}}"], "path": ["api","v1","transport","schedules",""] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transport_route_id\": \"{{route_id}}\",\n  \"departure_time\": \"2026-06-01T08:00:00Z\",\n  \"arrival_time\": \"2026-06-01T12:30:00Z\",\n  \"available_seats\": 30,\n  \"price\": 1500\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/transport/schedules/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transport",
+                "schedules",
+                ""
+              ]
+            }
           }
         },
-        { "name": "Schedules search", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/v1/transport/schedules/search?route_id={{route_id}}&date=2026-06-01", "host": ["{{base_url}}"], "path": ["api","v1","transport","schedules","search"], "query": [{ "key": "route_id", "value": "{{route_id}}" }, { "key": "date", "value": "2026-06-01" }] } } }
+        {
+          "name": "Schedules search",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/transport/schedules/search?route_id={{route_id}}&date=2026-06-01",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transport",
+                "schedules",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "route_id",
+                  "value": "{{route_id}}"
+                },
+                {
+                  "key": "date",
+                  "value": "2026-06-01"
+                }
+              ]
+            }
+          }
+        }
       ]
     },
     {
       "name": "19. Navigation (STORY036)",
       "item": [
-        { "name": "Get route (driving)", "request": { "method": "GET", "auth": { "type": "noauth" }, "url": { "raw": "{{base_url}}/api/v1/navigation/route?from_lat=-1.2921&from_lng=36.8219&to_lat=-1.3733&to_lng=36.8569&mode=driving", "host": ["{{base_url}}"], "path": ["api","v1","navigation","route"], "query": [{ "key": "from_lat", "value": "-1.2921" }, { "key": "from_lng", "value": "36.8219" }, { "key": "to_lat", "value": "-1.3733" }, { "key": "to_lng", "value": "36.8569" }, { "key": "mode", "value": "driving" }] } } },
-        { "name": "Get route (walking)", "request": { "method": "GET", "auth": { "type": "noauth" }, "url": { "raw": "{{base_url}}/api/v1/navigation/route?from_lat=-1.2921&from_lng=36.8219&to_lat=-1.2901&to_lng=36.8200&mode=walking", "host": ["{{base_url}}"], "path": ["api","v1","navigation","route"], "query": [{ "key": "from_lat", "value": "-1.2921" }, { "key": "from_lng", "value": "36.8219" }, { "key": "to_lat", "value": "-1.2901" }, { "key": "to_lng", "value": "36.8200" }, { "key": "mode", "value": "walking" }] } } }
+        {
+          "name": "Get route (driving)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/navigation/route?from_lat=-1.2921&from_lng=36.8219&to_lat=-1.3733&to_lng=36.8569&mode=driving",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "navigation",
+                "route"
+              ],
+              "query": [
+                {
+                  "key": "from_lat",
+                  "value": "-1.2921"
+                },
+                {
+                  "key": "from_lng",
+                  "value": "36.8219"
+                },
+                {
+                  "key": "to_lat",
+                  "value": "-1.3733"
+                },
+                {
+                  "key": "to_lng",
+                  "value": "36.8569"
+                },
+                {
+                  "key": "mode",
+                  "value": "driving"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get route (walking)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/navigation/route?from_lat=-1.2921&from_lng=36.8219&to_lat=-1.2901&to_lng=36.8200&mode=walking",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "navigation",
+                "route"
+              ],
+              "query": [
+                {
+                  "key": "from_lat",
+                  "value": "-1.2921"
+                },
+                {
+                  "key": "from_lng",
+                  "value": "36.8219"
+                },
+                {
+                  "key": "to_lat",
+                  "value": "-1.2901"
+                },
+                {
+                  "key": "to_lng",
+                  "value": "36.8200"
+                },
+                {
+                  "key": "mode",
+                  "value": "walking"
+                }
+              ]
+            }
+          }
+        }
       ]
     },
     {
@@ -693,10 +3158,32 @@
         {
           "name": "Record event (open)",
           "request": {
-            "method": "POST", "auth": { "type": "noauth" },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"event_type\": \"attraction_viewed\",\n  \"metadata\": {\n    \"attraction_id\": \"{{attraction_id}}\",\n    \"screen\": \"details\"\n  }\n}" },
-            "url": { "raw": "{{base_url}}/api/v1/analytics/events", "host": ["{{base_url}}"], "path": ["api","v1","analytics","events"] }
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_type\": \"attraction_viewed\",\n  \"metadata\": {\n    \"attraction_id\": \"{{attraction_id}}\",\n    \"screen\": \"details\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/analytics/events",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "analytics",
+                "events"
+              ]
+            }
           }
         }
       ]
