@@ -42,6 +42,10 @@ class AppConfig:
         os.getenv("REDIS_URL", "memory://"),
     )
     RATELIMIT_HEADERS_ENABLED = True
+    # Master kill-switch — set RATELIMIT_ENABLED=false in .env for live demos
+    # so the strict 5/min login limit (STORY049) doesn't trip up the audience.
+    # Keep enabled in production.
+    RATELIMIT_ENABLED = os.getenv("RATELIMIT_ENABLED", "true").strip().lower() in {"1", "true", "yes", "on"}
 
     # ── Security headers + CORS (STORY049) ────────────────────────────────────
     # Comma-separated allowlist of frontend origins. * is permitted ONLY when
@@ -227,8 +231,12 @@ def create_app(config_class=AppConfig):
     )
 
     # Rate limiting (STORY049): 120/min default, stricter buckets attached
-    # to /auth/login and /auth/password-reset below.
+    # to /auth/login and /auth/password-reset below. Set RATELIMIT_ENABLED=false
+    # in .env for live demos.
     limiter.init_app(app)
+    if not app.config.get("RATELIMIT_ENABLED", True):
+        limiter.enabled = False
+        app.logger.info("Rate limiting disabled via RATELIMIT_ENABLED=false")
 
     # Security headers via Talisman, gated on ENABLE_SECURITY_HEADERS so dev
     # over plain HTTP doesn't break. In production this adds CSP, HSTS,
