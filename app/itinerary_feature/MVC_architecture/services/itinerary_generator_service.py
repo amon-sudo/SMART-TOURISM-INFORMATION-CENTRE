@@ -26,6 +26,7 @@ from datetime import datetime, time, timedelta
 from typing   import Any
 
 import requests
+from sqlalchemy import func
 
 from app.extensions                        import db
 from app.models.itinerary                  import Itinerary, ItineraryStatus
@@ -50,6 +51,23 @@ BUDGET_CEILINGS = {
     "low":    500,
     "medium": 2000,
     "high":   999_999,
+}
+
+INTEREST_CATEGORY_ALIASES = {
+    "museum": {"museum", "heritage", "heritage site"},
+    "heritage_site": {"heritage", "heritage site", "museum"},
+    "national_park": {"national park", "wildlife", "safari", "nature"},
+    "wildlife": {"wildlife", "safari", "national park", "nature"},
+    "beach": {"beach", "coastal", "marine"},
+    "cultural": {"cultural", "culture", "heritage"},
+    "restaurant": {"restaurant", "food", "gastronomy"},
+    "shopping": {"shopping", "market"},
+    "viewpoint": {"viewpoint", "scenic", "nature"},
+    "adventure": {"adventure", "nature", "outdoor"},
+    "gastronomy": {"gastronomy", "food", "restaurant"},
+    "health_wellness": {"health", "wellness", "spa"},
+    "ecotourism": {"ecotourism", "nature", "wildlife"},
+    "birdwatching": {"birdwatching", "nature", "wildlife"},
 }
 
 
@@ -115,10 +133,19 @@ class ItineraryGeneratorService:
         )
 
         # ── 4. Call Gemini ─────────────────────────────────────────────────────
-        model_response = self._call_llm(prompt)
-
-        # ── 5. Parse response ──────────────────────────────────────────────────
-        plan = self._parse_response(model_response)
+        try:
+            model_response = self._call_llm(prompt)
+            # ── 5. Parse response ──────────────────────────────────────────────
+            plan = self._parse_response(model_response)
+        except (RuntimeError, ValueError):
+            # Local/dev fallback when Gemini is unavailable or returns invalid JSON.
+            plan = self._build_fallback_plan(
+                duration_days=duration_days,
+                destination=destination,
+                interests=interests,
+                pace=pace,
+                attractions=enriched,
+            )
 
         # ── 6. Persist everything ──────────────────────────────────────────────
         itinerary = self._persist(
@@ -159,9 +186,14 @@ class ItineraryGeneratorService:
         price_column = getattr(Attraction, "ticket_fee", None) or getattr(Attraction, "entry_fee", None)
         rating_column = getattr(Attraction, "rating", None) or getattr(Attraction, "avg_rating", None)
 
-        query = Attraction.query.filter(Attraction.status == "approved").filter(
-            Attraction.category.in_(interests)
-        )
+        category_terms = set()
+        for interest in interests:
+            interest_key = (interest or "").strip().lower()
+            category_terms.update(INTEREST_CATEGORY_ALIASES.get(interest_key, {interest_key}))
+
+        query = Attraction.query.filter(Attraction.status == "approved")
+        if category_terms:
+            query = query.filter(func.lower(Attraction.category).in_(sorted(category_terms)))
 
         if price_column is not None:
             query = query.filter(
@@ -179,6 +211,89 @@ class ItineraryGeneratorService:
             query = query.order_by(rating_column.desc().nullslast())
 
         return query.all()
+
+    def _build_fallback_plan(
+        self,
+        duration_days: int,
+        destination: str,
+        interests: list[str],
+        pace: str,
+        attractions: list[dict],
+    ) -> dict:
+        """Build a deterministic itinerary when the external LLM is unavailable."""
+        stops_per_day = {
+            "relaxed": 2,
+            "moderate": 3,
+            "intensive": 4,
+        }.get(pace, 3)
+
+        selected = attractions[: max(1, duration_days * stops_per_day)]
+        if not selected:
+            raise ValueError(
+                "No attractions found matching the given preferences. "
+                "Please broaden your interests or adjust the budget."
+            )
+
+        days = []
+        cursor = 0
+        for day_number in range(1, duration_days + 1):
+            day_stops = []
+            current_time = datetime.combine(datetime.utcnow().date(), time(DAY_START_HOUR, 0))
+            minutes_scheduled = 0
+
+            while cursor < len(selected) and len(day_stops) < stops_per_day:
+                attraction = selected[cursor]
+                duration_minutes = int(
+                    attraction.get("avg_minutes")
+                    or attraction.get("category_default_minutes")
+                    or CATEGORY_DEFAULTS["default"]
+                )
+                if minutes_scheduled + duration_minutes > AVAILABLE_MINUTES_PER_DAY and day_stops:
+                    break
+
+                start_time = current_time.strftime("%H:%M")
+                day_stops.append({
+                    "attraction_id": attraction["id"],
+                    "visit_order": len(day_stops) + 1,
+                    "start_time": start_time,
+                    "duration_minutes": duration_minutes,
+                    "narrative_note": (
+                        f"Spend time at {attraction['name']} for a {attraction['category'].lower()} experience "
+                        f"aligned with your {pace} travel pace."
+                    ),
+                })
+                current_time += timedelta(minutes=duration_minutes + 30)
+                minutes_scheduled += duration_minutes + 30
+                cursor += 1
+
+            if not day_stops:
+                break
+
+            first_name = next(
+                (item["name"] for item in selected if item["id"] == day_stops[0]["attraction_id"]),
+                f"Day {day_number}",
+            )
+            days.append({
+                "day_number": day_number,
+                "day_title": f"Day {day_number}: {first_name}",
+                "narrative": (
+                    f"Explore {destination} through a curated set of {', '.join(interests)} experiences. "
+                    f"This day balances travel time and visit duration around {first_name}."
+                ),
+                "attractions": day_stops,
+            })
+
+            if cursor >= len(selected):
+                break
+
+        return {
+            "title": f"{destination} {duration_days}-Day Smart Itinerary",
+            "summary": (
+                f"A locally generated itinerary for {destination} covering {len(days)} day(s) "
+                f"and {sum(len(day['attractions']) for day in days)} attraction stops."
+            ),
+            "days": days,
+        }
 
     # ── Step 2: Enrich with time data ──────────────────────────────────────────
 

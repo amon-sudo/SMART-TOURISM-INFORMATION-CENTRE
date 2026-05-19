@@ -1,0 +1,994 @@
+[
+  {
+    "file": "./transport_feature/Transport_stations/MVC_architecture/transport_stations_controllers/transport_stations_routes.py",
+    "handler": "get_all_stations",
+    "methods": [
+      "GET"
+    ],
+    "path": "/stations/",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_stations/MVC_architecture/transport_stations_controllers/transport_stations_routes.py",
+    "handler": "create_station",
+    "methods": [
+      "POST"
+    ],
+    "path": "/stations/",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_stations/MVC_architecture/transport_stations_controllers/transport_stations_routes.py",
+    "handler": "get_station",
+    "methods": [
+      "GET"
+    ],
+    "path": "/stations/<string:station_id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_stations/MVC_architecture/transport_stations_controllers/transport_stations_routes.py",
+    "handler": "link_station_to_routes",
+    "methods": [
+      "GET"
+    ],
+    "path": "/stations/<string:station_id>/routes",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_stations/MVC_architecture/transport_stations_controllers/transport_stations_routes.py",
+    "handler": "link_station_to_destinations",
+    "methods": [
+      "GET"
+    ],
+    "path": "/stations/<string:station_id>/destinations",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_stations/MVC_architecture/transport_stations_controllers/transport_stations_routes.py",
+    "handler": "find_stations_near_location",
+    "methods": [
+      "GET"
+    ],
+    "path": "/stations/nearby",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_stations/MVC_architecture/transport_stations_controllers/transport_stations_routes.py",
+    "handler": "search_stations",
+    "methods": [
+      "GET"
+    ],
+    "path": "/stations/search",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_stations/MVC_architecture/transport_stations_controllers/transport_stations_routes.py",
+    "handler": "update_station",
+    "methods": [
+      "PUT",
+      "PATCH"
+    ],
+    "path": "/stations/<string:station_id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_stations/MVC_architecture/transport_stations_controllers/transport_stations_routes.py",
+    "handler": "delete_station",
+    "methods": [
+      "DELETE"
+    ],
+    "path": "/stations/<string:station_id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_schedule/MVC_architecture/transport_schedule_controllers/transport_schedule_routes.py",
+    "handler": "get_all_schedules",
+    "methods": [
+      "GET"
+    ],
+    "path": "/schedules/",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_schedule/MVC_architecture/transport_schedule_controllers/transport_schedule_routes.py",
+    "handler": "get_schedule",
+    "methods": [
+      "GET"
+    ],
+    "path": "/schedules/<string:schedule_id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_schedule/MVC_architecture/transport_schedule_controllers/transport_schedule_routes.py",
+    "handler": "create_schedule",
+    "methods": [
+      "POST"
+    ],
+    "path": "/schedules/",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_schedule/MVC_architecture/transport_schedule_controllers/transport_schedule_routes.py",
+    "handler": "search_schedules",
+    "methods": [
+      "GET"
+    ],
+    "path": "/schedules/search",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_schedule/MVC_architecture/transport_schedule_controllers/transport_schedule_routes.py",
+    "handler": "update_seat_schedule",
+    "methods": [
+      "PUT"
+    ],
+    "path": "/schedules/<string:schedule_id>/seats",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_schedule/MVC_architecture/transport_schedule_controllers/transport_schedule_routes.py",
+    "handler": "delete_schedule",
+    "methods": [
+      "DELETE"
+    ],
+    "path": "/schedules/<string:schedule_id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_routes/MVC_architecture/transport_routes_controllers/transport_routes_route.py",
+    "handler": "get_all_routes",
+    "methods": [
+      "GET"
+    ],
+    "path": "/routes/",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_routes/MVC_architecture/transport_routes_controllers/transport_routes_route.py",
+    "handler": "get_route",
+    "methods": [
+      "GET"
+    ],
+    "path": "/routes/<string:route_id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_routes/MVC_architecture/transport_routes_controllers/transport_routes_route.py",
+    "handler": "create_route",
+    "methods": [
+      "POST"
+    ],
+    "path": "/routes/",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_routes/MVC_architecture/transport_routes_controllers/transport_routes_route.py",
+    "handler": "update_route",
+    "methods": [
+      "PUT",
+      "PATCH"
+    ],
+    "path": "/routes/<string:route_id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_routes/MVC_architecture/transport_routes_controllers/transport_routes_route.py",
+    "handler": "delete_route",
+    "methods": [
+      "DELETE"
+    ],
+    "path": "/routes/<string:route_id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_routes/MVC_architecture/transport_routes_controllers/transport_routes_route.py",
+    "handler": "find_routes_near_location",
+    "methods": [
+      "GET"
+    ],
+    "path": "/routes/nearby",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./transport_feature/Transport_routes/MVC_architecture/transport_routes_controllers/transport_routes_route.py",
+    "handler": "find_active_routes",
+    "methods": [
+      "GET"
+    ],
+    "path": "/routes/active",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./authanduser/routes/routes.py",
+    "handler": "login",
+    "methods": [
+      "POST"
+    ],
+    "path": "/login",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./authanduser/routes/routes.py",
+    "handler": "me",
+    "methods": [
+      "GET"
+    ],
+    "path": "/me",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./authanduser/routes/routes.py",
+    "handler": "logout",
+    "methods": [
+      "POST"
+    ],
+    "path": "/logout",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./authanduser/routes/routes.py",
+    "handler": "password_reset",
+    "methods": [
+      "POST"
+    ],
+    "path": "/password-reset",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./authanduser/routes/routes.py",
+    "handler": "password_reset_confirm",
+    "methods": [
+      "POST"
+    ],
+    "path": "/password-reset/confirm",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./authanduser/routes/routes.py",
+    "handler": "refresh",
+    "methods": [
+      "POST"
+    ],
+    "path": "/refresh",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./authanduser/routes/google_routes.py",
+    "handler": "google_login",
+    "methods": [
+      "GET"
+    ],
+    "path": "/login/google",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./authanduser/routes/google_routes.py",
+    "handler": "google_authorize",
+    "methods": [
+      "GET"
+    ],
+    "path": "/authorize/google",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/accommodation/controllers/routes.py",
+    "handler": "create",
+    "methods": [
+      "POST"
+    ],
+    "path": "/",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/accommodation/controllers/routes.py",
+    "handler": "add_room",
+    "methods": [
+      "POST"
+    ],
+    "path": "/room",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/events/controllers/routes.py",
+    "handler": "create_event",
+    "methods": [
+      "POST"
+    ],
+    "path": "/events",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/events/controllers/routes.py",
+    "handler": "create_tour",
+    "methods": [
+      "POST"
+    ],
+    "path": "/tours",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/attraction_amenities/controllers/routes.py",
+    "handler": "create_attraction_amenity",
+    "methods": [
+      "POST"
+    ],
+    "path": "/",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/attraction_amenities/controllers/routes.py",
+    "handler": "get_attraction_amenities",
+    "methods": [
+      "GET"
+    ],
+    "path": "/",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/attraction_amenities/controllers/routes.py",
+    "handler": "delete_attraction_amenity",
+    "methods": [
+      "DELETE"
+    ],
+    "path": "/<uuid:attraction_id>/<uuid:amenity_id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/attraction_translations/controllers/routes.py",
+    "handler": "create_attraction_translation",
+    "methods": [
+      "POST"
+    ],
+    "path": "/",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/attraction_translations/controllers/routes.py",
+    "handler": "get_attraction_translations",
+    "methods": [
+      "GET"
+    ],
+    "path": "/",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/attraction_translations/controllers/routes.py",
+    "handler": "get_attraction_translation",
+    "methods": [
+      "GET"
+    ],
+    "path": "/<uuid:attraction_id>/<string:locale>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/attraction_translations/controllers/routes.py",
+    "handler": "update_attraction_translation",
+    "methods": [
+      "PATCH"
+    ],
+    "path": "/<uuid:attraction_id>/<string:locale>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/attraction_translations/controllers/routes.py",
+    "handler": "delete_attraction_translation",
+    "methods": [
+      "DELETE"
+    ],
+    "path": "/<uuid:attraction_id>/<string:locale>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/destination/controllers/routes.py",
+    "handler": "create_destination",
+    "methods": [
+      "POST"
+    ],
+    "path": "/",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/destination/controllers/routes.py",
+    "handler": "get_destinations",
+    "methods": [
+      "GET"
+    ],
+    "path": "/",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/destination/controllers/routes.py",
+    "handler": "get_destination",
+    "methods": [
+      "GET"
+    ],
+    "path": "/<uuid:id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/destination/controllers/routes.py",
+    "handler": "update_destination",
+    "methods": [
+      "PATCH"
+    ],
+    "path": "/<uuid:id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/destination/controllers/routes.py",
+    "handler": "delete_destination",
+    "methods": [
+      "DELETE"
+    ],
+    "path": "/<uuid:id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/amenities/controllers/routes.py",
+    "handler": "create_amenity",
+    "methods": [
+      "POST"
+    ],
+    "path": "/",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/amenities/controllers/routes.py",
+    "handler": "get_amenities",
+    "methods": [
+      "GET"
+    ],
+    "path": "/",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/amenities/controllers/routes.py",
+    "handler": "get_amenity",
+    "methods": [
+      "GET"
+    ],
+    "path": "/<uuid:id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/amenities/controllers/routes.py",
+    "handler": "update_amenity",
+    "methods": [
+      "PATCH"
+    ],
+    "path": "/<uuid:id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/amenities/controllers/routes.py",
+    "handler": "delete_amenity",
+    "methods": [
+      "DELETE"
+    ],
+    "path": "/<uuid:id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/attractions/controllers/routes.py",
+    "handler": "create_attraction",
+    "methods": [
+      "POST"
+    ],
+    "path": "/",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/attractions/controllers/routes.py",
+    "handler": "get_attractions",
+    "methods": [
+      "GET"
+    ],
+    "path": "/",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/attractions/controllers/routes.py",
+    "handler": "get_attraction",
+    "methods": [
+      "GET"
+    ],
+    "path": "/<uuid:id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/attractions/controllers/routes.py",
+    "handler": "update_attraction",
+    "methods": [
+      "PATCH"
+    ],
+    "path": "/<uuid:id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/attractions/controllers/routes.py",
+    "handler": "delete_attraction",
+    "methods": [
+      "DELETE"
+    ],
+    "path": "/<uuid:id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/destination_translation/controllers/routes.py",
+    "handler": "create_destination_translation",
+    "methods": [
+      "POST"
+    ],
+    "path": "/",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/destination_translation/controllers/routes.py",
+    "handler": "get_destination_translations",
+    "methods": [
+      "GET"
+    ],
+    "path": "/",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/destination_translation/controllers/routes.py",
+    "handler": "get_destination_translation",
+    "methods": [
+      "GET"
+    ],
+    "path": "/<uuid:destination_id>/<string:locale>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/destination_translation/controllers/routes.py",
+    "handler": "update_destination_translation",
+    "methods": [
+      "PATCH"
+    ],
+    "path": "/<uuid:destination_id>/<string:locale>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./tourism_amenitties/destination_translation/controllers/routes.py",
+    "handler": "delete_destination_translation",
+    "methods": [
+      "DELETE"
+    ],
+    "path": "/<uuid:destination_id>/<string:locale>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./mpesa_payment_feature/routes/payment_routesmpesa.py",
+    "handler": "pay_mpesa",
+    "methods": [
+      "POST"
+    ],
+    "path": "/pay/mpesa",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./mpesa_payment_feature/routes/payment_routesmpesa.py",
+    "handler": "status",
+    "methods": [
+      "GET"
+    ],
+    "path": "/status/<reference>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./mpesa_payment_feature/routes/payment_routesmpesa.py",
+    "handler": "mpesa_callback",
+    "methods": [
+      "POST"
+    ],
+    "path": "/callback/mpesa",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./payment_stripe/controllers/controllers.py",
+    "handler": "create_payment_intent",
+    "methods": [
+      "POST"
+    ],
+    "path": "/create-payment-intent",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./payment_stripe/controllers/controllers.py",
+    "handler": "stripe_webhook",
+    "methods": [
+      "POST"
+    ],
+    "path": "/webhook",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./payment_stripe/controllers/controllers.py",
+    "handler": "get_payment_status",
+    "methods": [
+      "GET"
+    ],
+    "path": "/payment-status/<intent_id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_Profile/MVC_architecture/Business_profile_Controllers/Business_profile_routes.py",
+    "handler": "register_business",
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/business/",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_Profile/MVC_architecture/Business_profile_Controllers/Business_profile_routes.py",
+    "handler": "get_my_business_registration",
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/business/registrations",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_Profile/MVC_architecture/Business_profile_Controllers/Business_profile_routes.py",
+    "handler": "patch_my_business_registration",
+    "methods": [
+      "PATCH"
+    ],
+    "path": "/api/v1/business/registrations/<string:request_id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_Profile/MVC_architecture/Business_profile_Controllers/Business_profile_routes.py",
+    "handler": "get_my_profile",
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/business/profiles",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_Profile/MVC_architecture/Business_profile_Controllers/Business_profile_routes.py",
+    "handler": "list_my_profiles",
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/business/profiles/list",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_Profile/MVC_architecture/Business_profile_Controllers/Business_profile_routes.py",
+    "handler": "update_my_profile",
+    "methods": [
+      "PATCH"
+    ],
+    "path": "/api/v1/business/profiles",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_Profile/MVC_architecture/Business_profile_Controllers/Business_profile_routes.py",
+    "handler": "update_my_profile_by_id",
+    "methods": [
+      "PATCH"
+    ],
+    "path": "/api/v1/business/profiles/<string:profile_id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_Profile/MVC_architecture/Business_profile_Controllers/Business_profile_routes.py",
+    "handler": "delete_business_profile_route",
+    "methods": [
+      "DELETE"
+    ],
+    "path": "/api/v1/business/profiles/<string:profile_id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_Profile/MVC_architecture/Business_profile_Controllers/Business_profile_admin_routes.py",
+    "handler": "admin_list_registration_requests",
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/admin/business/business_profiles/registrations",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_Profile/MVC_architecture/Business_profile_Controllers/Business_profile_admin_routes.py",
+    "handler": "admin_get_registration_request",
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/admin/business/business_profiles/registrations/<string:request_id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_Profile/MVC_architecture/Business_profile_Controllers/Business_profile_admin_routes.py",
+    "handler": "admin_update_registration_request",
+    "methods": [
+      "PATCH"
+    ],
+    "path": "/api/v1/admin/business/business_profiles/registrations/<string:request_id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_Profile/MVC_architecture/Business_profile_Controllers/Business_profile_admin_routes.py",
+    "handler": "admin_list_profiles",
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/admin/business/business_profiles/profiles",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_Profile/MVC_architecture/Business_profile_Controllers/Business_profile_admin_routes.py",
+    "handler": "admin_get_profile",
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/admin/business/business_profiles/profiles/<string:profile_id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_registration/MVC_architecture_business/Business_controllers/Business_registration_routes_admin.py",
+    "handler": "list_registrations",
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/admin/business/registrations",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_registration/MVC_architecture_business/Business_controllers/Business_registration_routes_admin.py",
+    "handler": "list_registrations",
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/admin/business/registrations/all_registrations",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_registration/MVC_architecture_business/Business_controllers/Business_registration_routes_admin.py",
+    "handler": "get_registration",
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/admin/business/registrations/<string:request_id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_registration/MVC_architecture_business/Business_controllers/Business_registration_routes_admin.py",
+    "handler": "action_registration",
+    "methods": [
+      "PATCH"
+    ],
+    "path": "/api/v1/admin/business/registrations/<string:request_id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_registration/MVC_architecture_business/Business_controllers/Business_registration_routes.py",
+    "handler": "register_business_route",
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/business/registrations",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_registration/MVC_architecture_business/Business_controllers/Business_registration_routes.py",
+    "handler": "register_business_route",
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/business/registrations/register",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_registration/MVC_architecture_business/Business_controllers/Business_registration_routes.py",
+    "handler": "get_my_registration_route",
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/business/registrations",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_registration/MVC_architecture_business/Business_controllers/Business_registration_routes.py",
+    "handler": "update_my_registration_route",
+    "methods": [
+      "PATCH"
+    ],
+    "path": "/api/v1/business/registrations/<string:request_id>",
+    "auth": [
+      "None detected"
+    ]
+  },
+  {
+    "file": "./Business/Business_registration/MVC_architecture_business/Business_controllers/Business_registration_routes.py",
+    "handler": "delete_my_registration_request",
+    "methods": [
+      "DELETE"
+    ],
+    "path": "/api/v1/business/registrations/registration/<string:request_id>",
+    "auth": [
+      "None detected"
+    ]
+  }
+]

@@ -12,9 +12,13 @@ class AttractionSchema(Schema):
 
     name = fields.String(required=True)
     description = fields.String(allow_none=True)
+    image_url = fields.String(allow_none=True)
     category = fields.String(allow_none=True)
 
     location = fields.Raw(allow_none=True)  # PostGIS geography
+    latitude = fields.Float(allow_none=True, dump_only=True)
+    longitude = fields.Float(allow_none=True, dump_only=True)
+    destination_name = fields.Method("get_destination_name", dump_only=True)
 
     avg_rating = fields.Float(dump_only=True)
     status = fields.String(allow_none=True)
@@ -25,3 +29,8 @@ class AttractionSchema(Schema):
 
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
+
+    def get_destination_name(self, obj):
+        if obj.destination:
+            return obj.destination.name or obj.destination.canonical_name or obj.destination.slug
+        return None

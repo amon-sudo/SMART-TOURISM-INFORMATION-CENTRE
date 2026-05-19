@@ -46,6 +46,7 @@ class Attraction(db.Model):
 
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.Text)
+    image_url = db.Column(db.String, nullable=True)
 
     category = db.Column(db.String)
 

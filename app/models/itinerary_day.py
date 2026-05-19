@@ -22,7 +22,7 @@ class ItineraryDay(BaseModel):
     title = Column(String(255), nullable=True)
     narrative = Column(Text, nullable=True)
 
-    itinerary = relationship("Itinerary")
+    itinerary = relationship("Itinerary", back_populates="days")
     day_attractions = relationship(
         "ItineraryDayAttraction",
         cascade="all, delete-orphan",

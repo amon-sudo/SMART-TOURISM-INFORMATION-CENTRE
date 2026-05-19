@@ -39,6 +39,19 @@ _operator_time_schema = OperatorTimeDataSchema()
 _analytics_schema     = AnalyticsVisitSchema()
 
 
+def _ensure_guest_user_id() -> uuid.UUID:
+    from app.user_settings.models.models import User
+
+    guest_email = "guest.itinerary@example.com"
+    user = User.query.filter_by(email=guest_email).first()
+    if user is None:
+        user = User(email=guest_email, username="guest_itinerary")
+        user.set_password("guest-password-123")
+        db.session.add(user)
+        db.session.commit()
+    return user.id
+
+
 def _current_user_uuid():
     try:
         identity = get_jwt_identity()
@@ -46,7 +59,7 @@ def _current_user_uuid():
         identity = request.headers.get("X-User-Id")
 
     if identity in (None, "", "None"):
-        identity = "00000000-0000-0000-0000-000000000001"
+        return _ensure_guest_user_id()
 
     if isinstance(identity, uuid.UUID):
         return identity

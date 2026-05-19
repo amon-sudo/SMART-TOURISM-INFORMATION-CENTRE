@@ -35,6 +35,19 @@ _itinerary_schema = ItinerarySchema()
 _qr_schema        = QrCodeSchema()
 
 
+def _ensure_guest_user_id() -> uuid.UUID:
+    from app.user_settings.models.models import User
+
+    guest_email = "guest.itinerary@example.com"
+    user = User.query.filter_by(email=guest_email).first()
+    if user is None:
+        user = User(email=guest_email, username="guest_itinerary")
+        user.set_password("guest-password-123")
+        db.session.add(user)
+        db.session.commit()
+    return user.id
+
+
 def _current_user_uuid():
     try:
         identity = get_jwt_identity()
@@ -42,7 +55,7 @@ def _current_user_uuid():
         identity = request.headers.get("X-User-Id")
 
     if identity in (None, "", "None"):
-        identity = "00000000-0000-0000-0000-000000000001"
+        return _ensure_guest_user_id()
 
     if isinstance(identity, uuid.UUID):
         return identity
@@ -68,6 +81,16 @@ def create():
         status=ItineraryStatus.DRAFT,
     )
     db.session.add(itinerary)
+    db.session.flush()
+
+    # Create a QR code immediately so frontend can display/share right after
+    # creation, even before the itinerary is published.
+    qr = qr_code_service.generate_or_refresh(
+        target_type="itinerary",
+        target_id=itinerary.id,
+        created_by=user_id,
+    )
+    itinerary.qr_code_url = qr.url
     db.session.commit()
 
     return created(_itinerary_schema.dump(itinerary))
@@ -208,9 +231,6 @@ def generate_qr(itinerary_id: str):
         .filter_by(id=itinerary_id, user_id=user_id)
         .first_or_404(description="Itinerary not found")
     )
-
-    if itinerary.status == ItineraryStatus.DRAFT:
-        return bad_request("Publish the itinerary before generating a QR code")
 
     qr = qr_code_service.generate_or_refresh(
         target_type="itinerary",

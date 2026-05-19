@@ -70,6 +70,14 @@ class Itinerary(BaseModel):
         lazy="select",
     )
 
+    days = relationship(
+        "ItineraryDay",
+        back_populates="itinerary",
+        cascade="all, delete-orphan",
+        lazy="select",
+        order_by="ItineraryDay.day_number",
+    )
+
     # Polymorphic QR codes — filtered via primaryjoin
     qr_codes = relationship(
         "QrCode",

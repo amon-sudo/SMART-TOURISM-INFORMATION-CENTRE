@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import joinedload
 import uuid
 
 from app.extensions import db, cache
@@ -40,6 +41,7 @@ def create_attraction():
             business_owner_id=uuid.UUID(str(data["business_owner_id"])),
             name=data["name"],
             description=data.get("description"),
+            image_url=data.get("image_url"),
             category=data.get("category"),
             status=data.get("status"),
             is_wheelchair_accessible=data.get("is_wheelchair_accessible", False),
@@ -95,7 +97,7 @@ def get_attractions():
             return jsonify(cached_data), 200
 
         # 2. query DB
-        query = Attraction.query
+        query = Attraction.query.options(joinedload(Attraction.destination))
         if not include_all:
             query = query.filter(Attraction.status == "approved")
         pagination = query.paginate(
@@ -133,7 +135,11 @@ def get_attraction(id):
 
     try:
 
-        attraction = Attraction.query.get(id)
+        attraction = (
+            Attraction.query
+            .options(joinedload(Attraction.destination))
+            .get(id)
+        )
 
         if not attraction:
             return jsonify({
@@ -172,6 +178,7 @@ def update_attraction(id):
         allowed_fields = [
             "name",
             "description",
+            "image_url",
             "category",
             "status",
             "entry_fee",
