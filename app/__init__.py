@@ -281,6 +281,7 @@ def create_app(config_class=AppConfig):
         AnalyticsEvent,
         UserActivity,
         DailyAnalyticsSnapshot,
+        SosAlert,
     )
     from app.tourism_amenitties import models as tourism_models  # noqa: F401
     from app.feedback_media import models as feedback_media_models  # noqa: F401

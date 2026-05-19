@@ -105,6 +105,11 @@
       "key": "notification_id",
       "value": "00000000-0000-0000-0000-000000000000",
       "type": "string"
+    },
+    {
+      "key": "sos_id",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string"
     }
   ],
   "item": [
@@ -3149,6 +3154,49 @@
               ]
             }
           }
+        },
+        {
+          "name": "Get route (cycling)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/navigation/route?from_lat=-1.2921&from_lng=36.8219&to_lat=-1.3733&to_lng=36.8569&mode=cycling",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "navigation",
+                "route"
+              ],
+              "query": [
+                {
+                  "key": "from_lat",
+                  "value": "-1.2921"
+                },
+                {
+                  "key": "from_lng",
+                  "value": "36.8219"
+                },
+                {
+                  "key": "to_lat",
+                  "value": "-1.3733"
+                },
+                {
+                  "key": "to_lng",
+                  "value": "36.8569"
+                },
+                {
+                  "key": "mode",
+                  "value": "cycling"
+                }
+              ]
+            }
+          }
         }
       ]
     },
@@ -3305,6 +3353,335 @@
                 "attractions",
                 "{{attraction_id}}",
                 "profile"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "22. Geo / Proximity / Location ping",
+      "item": [
+        {
+          "name": "Attractions nearby (public)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/attractions/nearby?lat=-1.2921&lng=36.8219&radius_km=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attractions",
+                "nearby"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "-1.2921"
+                },
+                {
+                  "key": "lng",
+                  "value": "36.8219"
+                },
+                {
+                  "key": "radius_km",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Location ping (geofence trigger)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lat\": -1.2921,\n  \"lng\": 36.8219,\n  \"accuracy_m\": 12.5,\n  \"geofence_radius_m\": 250\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/location/ping",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "location",
+                "ping"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "23. SOS / Emergency 'find me'",
+      "item": [
+        {
+          "name": "Open SOS (tourist)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body && body.alert && body.alert.id) {",
+                  "  pm.collectionVariables.set('sos_id', body.alert.id);",
+                  "  console.log('Saved sos_id =', body.alert.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lat\": -1.5825,\n  \"lng\": 35.2562,\n  \"accuracy_m\": 12,\n  \"severity\": \"high\",\n  \"category\": \"vehicle_breakdown\",\n  \"message\": \"Vehicle broken down on game drive \\u2014 tyre + suspension. 5 people.\",\n  \"contact_phone\": \"+254712345678\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/sos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Tourist's own active alerts",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/sos/active",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sos",
+                "active"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get one alert",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/sos/{{sos_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sos",
+                "{{sos_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cancel SOS (false alarm)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"False alarm — fixed it ourselves.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/sos/{{sos_id}}/cancel",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sos",
+                "{{sos_id}}",
+                "cancel"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin — list active alerts (poll this)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Admin",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/sos/active",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "sos",
+                "active"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin — list active alerts (high severity only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Admin",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/sos/active?severity=high",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "sos",
+                "active"
+              ],
+              "query": [
+                {
+                  "key": "severity",
+                  "value": "high"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin — drill in (location history)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Admin",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/sos/{{sos_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "sos",
+                "{{sos_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin — mark responding",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Admin",
+                "value": "true"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/sos/{{sos_id}}/respond",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "sos",
+                "{{sos_id}}",
+                "respond"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin — resolve",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Admin",
+                "value": "true"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Rescue team reached them, vehicle towed, tourists transferred to backup van.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/sos/{{sos_id}}/resolve",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "sos",
+                "{{sos_id}}",
+                "resolve"
               ]
             }
           }

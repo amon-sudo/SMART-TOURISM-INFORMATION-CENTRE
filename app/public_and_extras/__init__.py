@@ -13,6 +13,7 @@ from .models import (  # noqa: F401
     AnalyticsEvent,
     UserActivity,
     DailyAnalyticsSnapshot,
+    SosAlert,
 )
 
 __all__ = [
@@ -21,4 +22,5 @@ __all__ = [
     "AnalyticsEvent",
     "UserActivity",
     "DailyAnalyticsSnapshot",
+    "SosAlert",
 ]

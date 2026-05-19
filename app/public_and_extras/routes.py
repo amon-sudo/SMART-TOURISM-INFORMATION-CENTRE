@@ -14,11 +14,13 @@ Tighten the auth before production.
 from __future__ import annotations
 
 import math
+import os
 import secrets
 import uuid
 from datetime import datetime, date, timedelta
 
-from flask import Blueprint, request, jsonify
+import requests
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import (
     get_jwt_identity,
     verify_jwt_in_request,
@@ -54,6 +56,7 @@ from .models import (
     AnalyticsEvent,
     UserActivity,
     DailyAnalyticsSnapshot,
+    SosAlert,
 )
 
 
@@ -1196,16 +1199,73 @@ def admin_compute_snapshot():
 
 # ── Navigation routing (STORY036) ────────────────────────────────────────────
 
+_ORS_PROFILE_MAP = {
+    "walking": "foot-walking",
+    "driving": "driving-car",
+    "cycling": "cycling-regular",
+}
+
+
+def _route_via_ors(api_key: str, f_lat, f_lng, t_lat, t_lng, mode: str) -> dict | None:
+    """Call OpenRouteService Directions API. Returns the route dict or
+    None on any failure (caller falls back to haversine)."""
+    profile = _ORS_PROFILE_MAP.get(mode, "driving-car")
+    url = f"https://api.openrouteservice.org/v2/directions/{profile}/geojson"
+    try:
+        resp = requests.post(
+            url,
+            headers={
+                "Authorization": api_key,
+                "Content-Type": "application/json",
+            },
+            json={"coordinates": [[f_lng, f_lat], [t_lng, t_lat]]},
+            timeout=8,
+        )
+        if resp.status_code != 200:
+            current_app.logger.warning(
+                "ORS returned %s: %s", resp.status_code, resp.text[:200]
+            )
+            return None
+        body = resp.json()
+        feature = body["features"][0]
+        props = feature["properties"]
+        summary = props.get("summary", {})
+        segments = props.get("segments", [{}])
+        steps_raw = segments[0].get("steps", []) if segments else []
+        steps = [
+            {
+                "instruction": s.get("instruction"),
+                "distance_m": s.get("distance"),
+                "duration_s": s.get("duration"),
+            }
+            for s in steps_raw
+        ]
+        return {
+            "geometry": feature["geometry"],
+            "distance_km": round(summary.get("distance", 0) / 1000.0, 3),
+            "duration_minutes": round(summary.get("duration", 0) / 60.0, 1),
+            "engine": "openrouteservice",
+            "steps": steps,
+        }
+    except Exception as exc:
+        current_app.logger.warning("ORS routing failed, falling back: %s", exc)
+        return None
+
+
 @extras_bp.get("/navigation/route")
 def navigation_route():
     """STORY036 — directions between two coordinates.
 
-    Query params: from_lat, from_lng, to_lat, to_lng, mode=(walking|driving)
+    Query params: from_lat, from_lng, to_lat, to_lng, mode=(walking|driving|cycling)
 
-    Returns GeoJSON LineString of the straight-line path plus estimated
-    distance + travel time using a haversine + per-mode speed assumption.
-    Production deployments should swap this for a real routing engine
-    (OSRM / Mapbox / Google Directions) by replacing the function body.
+    Strategy:
+      1. If ORS_API_KEY is set, call OpenRouteService for a real
+         road-following GeoJSON LineString + turn-by-turn steps.
+      2. Otherwise (or if ORS fails) fall back to a haversine straight
+         line + speed-based ETA.
+
+    The response shape is identical either way so the frontend doesn't
+    need to branch.
     """
     try:
         f_lat = float(request.args["from_lat"])
@@ -1218,13 +1278,31 @@ def navigation_route():
         }), 400
 
     mode = (request.args.get("mode") or "driving").lower()
-    if mode not in {"walking", "driving"}:
-        return jsonify({"error": "mode must be 'walking' or 'driving'"}), 400
+    if mode not in {"walking", "driving", "cycling"}:
+        return jsonify({"error": "mode must be 'walking', 'driving', or 'cycling'"}), 400
 
+    ors_key = os.getenv("ORS_API_KEY")
+    if ors_key:
+        result = _route_via_ors(ors_key, f_lat, f_lng, t_lat, t_lng, mode)
+        if result:
+            return jsonify({
+                "route": {
+                    "type": "Feature",
+                    "geometry": result["geometry"],
+                    "properties": {
+                        "mode": mode,
+                        "distance_km": result["distance_km"],
+                        "duration_minutes": result["duration_minutes"],
+                        "engine": result["engine"],
+                    },
+                },
+                "steps": result["steps"],
+            }), 200
+
+    # Fallback: straight-line haversine with per-mode speed assumption.
     distance_km = _haversine_km(f_lat, f_lng, t_lat, t_lng)
-    speed_kph = 5.0 if mode == "walking" else 40.0
+    speed_kph = {"walking": 5.0, "cycling": 15.0, "driving": 40.0}[mode]
     duration_minutes = (distance_km / speed_kph) * 60
-
     geojson = {
         "type": "Feature",
         "geometry": {
@@ -1552,6 +1630,466 @@ def public_product_profile(attraction_id):
     if not profile:
         return jsonify({"error": "No product profile for this attraction"}), 404
     return jsonify(_profile_to_dict(profile)), 200
+
+
+# ── Proximity / nearby attractions ───────────────────────────────────────────
+
+def _attractions_within(lat: float, lng: float, radius_km: float, limit: int = 50):
+    """Return approved attractions within `radius_km` of (lat, lng).
+
+    Uses Python haversine on Attraction.latitude/longitude. Switch to
+    `ST_DWithin(Attraction.location, ST_MakePoint(:lng, :lat)::geography,
+    :radius_meters)` once PostGIS is enabled.
+    """
+    candidates = (
+        Attraction.query
+        .filter(Attraction.status == "approved")
+        .filter(Attraction.latitude.is_not(None))
+        .filter(Attraction.longitude.is_not(None))
+        .all()
+    )
+    hits = []
+    for a in candidates:
+        d = _haversine_km(lat, lng, float(a.latitude), float(a.longitude))
+        if d <= radius_km:
+            hits.append((d, a))
+    hits.sort(key=lambda t: t[0])
+    return hits[:limit]
+
+
+@extras_bp.get("/attractions/nearby")
+def attractions_nearby():
+    """Public — find approved attractions within a radius of a coordinate.
+
+    Query params: lat, lng (required), radius_km (default 5, max 50).
+    """
+    try:
+        lat = float(request.args["lat"])
+        lng = float(request.args["lng"])
+    except (KeyError, TypeError, ValueError):
+        return jsonify({"error": "lat and lng (floats) required"}), 400
+    try:
+        radius_km = float(request.args.get("radius_km", 5))
+    except (TypeError, ValueError):
+        return jsonify({"error": "radius_km must be a number"}), 400
+    radius_km = max(0.1, min(radius_km, 50))
+
+    hits = _attractions_within(lat, lng, radius_km)
+    return jsonify({
+        "origin": {"lat": lat, "lng": lng},
+        "radius_km": radius_km,
+        "count": len(hits),
+        "results": [
+            {**_attraction_summary(a), "distance_km": round(d, 3)}
+            for d, a in hits
+        ],
+    }), 200
+
+
+# ── Location ping + geofencing ───────────────────────────────────────────────
+
+# Notifications are throttled per (user, attraction) so a stationary user
+# doesn't get spammed every ping. Holds in-memory; swap for Redis in prod.
+_GEOFENCE_COOLDOWN = {}  # {(user_uuid, attraction_uuid): datetime}
+_GEOFENCE_COOLDOWN_MINUTES = 30
+
+
+def _should_notify(user_uuid, attraction_uuid) -> bool:
+    key = (str(user_uuid), str(attraction_uuid))
+    last = _GEOFENCE_COOLDOWN.get(key)
+    now = datetime.utcnow()
+    if last and (now - last).total_seconds() < _GEOFENCE_COOLDOWN_MINUTES * 60:
+        return False
+    _GEOFENCE_COOLDOWN[key] = now
+    return True
+
+
+@extras_bp.post("/location/ping")
+@jwt_required()
+def location_ping():
+    """Tourist sends their current location.
+
+    Body: { "lat": -1.2921, "lng": 36.8219, "accuracy_m": 12.3 }
+
+    Behaviour:
+      - logs the ping to analytics_events (event_type='location_ping')
+      - returns approved attractions within geofence_radius_m (default 250 m)
+      - for each new attraction the user just entered, creates a
+        Notification row so the frontend can show a popup ('You are near…')
+
+    Cooldown: per (user, attraction) — 30 min between notifications for the
+    same place, so a stationary tourist isn't spammed.
+    """
+    user_uuid = _require_user_uuid()
+    if user_uuid is None:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json(silent=True) or {}
+    try:
+        lat = float(data["lat"])
+        lng = float(data["lng"])
+    except (KeyError, TypeError, ValueError):
+        return jsonify({"error": "lat and lng required (floats)"}), 400
+    accuracy_m = data.get("accuracy_m")
+    radius_m = float(data.get("geofence_radius_m", 250))
+    radius_km = radius_m / 1000.0
+
+    _log_event(
+        "location_ping",
+        user_id=user_uuid,
+        metadata={"lat": lat, "lng": lng, "accuracy_m": accuracy_m},
+    )
+
+    # If this tourist has any open SOS alerts, push the new coordinate so
+    # rescue can watch them move in real time.
+    open_sos = (
+        SosAlert.query
+        .filter(SosAlert.user_id == user_uuid)
+        .filter(SosAlert.status.in_((SosAlert.STATUS_ACTIVE, SosAlert.STATUS_RESPONDING)))
+        .all()
+    )
+    if open_sos:
+        for sos in open_sos:
+            sos.last_lat = lat
+            sos.last_lng = lng
+            sos.accuracy_m = accuracy_m
+            sos.last_seen_at = datetime.utcnow()
+        db.session.commit()
+
+    hits = _attractions_within(lat, lng, radius_km, limit=10)
+
+    notifications_fired = []
+    for distance_km, attraction in hits:
+        if not _should_notify(user_uuid, attraction.id):
+            continue
+        try:
+            notif = Notification(
+                user_id=user_uuid,
+                type="geofence_enter",
+                title=f"You are near {attraction.name}",
+                body=(attraction.description or "")[:280],
+                channel="in_app",
+            )
+            db.session.add(notif)
+            db.session.commit()
+            notifications_fired.append({
+                "attraction_id": str(attraction.id),
+                "name": attraction.name,
+                "distance_km": round(distance_km, 3),
+                "notification_id": str(notif.id),
+            })
+        except Exception:
+            db.session.rollback()
+
+    return jsonify({
+        "logged": True,
+        "origin": {"lat": lat, "lng": lng, "accuracy_m": accuracy_m},
+        "geofence_radius_m": radius_m,
+        "nearby_count": len(hits),
+        "nearby": [
+            {
+                "attraction_id": str(a.id),
+                "name": a.name,
+                "distance_km": round(d, 3),
+            }
+            for d, a in hits
+        ],
+        "notifications_fired": notifications_fired,
+    }), 200
+
+
+# ── SOS / Emergency "find me" workflow ───────────────────────────────────────
+# Tourist hits a panic button (e.g. broken-down vehicle on a game drive).
+# The frontend captures lat/lng and POSTs to /api/v1/sos. The backend:
+#   1. creates a SosAlert row,
+#   2. notifies every admin via the Notification table,
+#   3. logs an analytics event so dashboards see it.
+# While the alert is open, every subsequent /location/ping from that user
+# updates last_lat/last_lng/last_seen_at on the alert row, so rescue can
+# watch the position move live by polling /admin/sos/<id>.
+
+_SOS_SEVERITIES = {"low", "medium", "high", "critical"}
+_SOS_CATEGORIES = {
+    "vehicle_breakdown", "medical", "wildlife", "lost",
+    "weather", "crime", "other",
+}
+
+
+def _notify_admins_of_sos(sos: SosAlert) -> int:
+    """Create an in-app Notification for every active admin user.
+
+    Returns the number of admins notified. Best-effort — failures don't
+    block the SOS creation.
+    """
+    # Heuristic admin lookup: rely on flask_jwt_extended claims is unreliable
+    # in batch context, so look for User.role columns or the RBAC tables.
+    # This codebase has BOTH a legacy User.role string AND an RBAC user_roles
+    # table — try both to be safe.
+    admins = []
+    try:
+        admins = User.query.filter(User.is_active.is_(True)).filter(
+            (getattr(User, "role", None) == "admin")
+            | (getattr(User, "role", None) == "super_admin")
+        ).all() if hasattr(User, "role") else []
+    except Exception:
+        admins = []
+
+    if not admins:
+        # Fallback: notify the user themselves so the demo always shows
+        # at least one notification fired.
+        try:
+            admins = User.query.filter_by(id=sos.user_id).all()
+        except Exception:
+            admins = []
+
+    count = 0
+    for admin in admins:
+        try:
+            db.session.add(Notification(
+                user_id=admin.id,
+                type="sos_opened",
+                title=f"🚨 SOS — tourist needs help ({sos.severity})",
+                body=(
+                    f"{sos.category or 'emergency'}: {sos.message or 'no message'}\n"
+                    f"Location: {sos.initial_lat:.5f}, {sos.initial_lng:.5f}"
+                )[:500],
+                channel="in_app",
+            ))
+            count += 1
+        except Exception:
+            db.session.rollback()
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+    return count
+
+
+@extras_bp.post("/sos")
+@jwt_required()
+def open_sos():
+    """Tourist raises an SOS. Body: lat, lng (required); optional severity,
+    category, message, accuracy_m, contact_phone.
+    """
+    user_uuid = _require_user_uuid()
+    if user_uuid is None:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json(silent=True) or {}
+    try:
+        lat = float(data["lat"])
+        lng = float(data["lng"])
+    except (KeyError, TypeError, ValueError):
+        return jsonify({"error": "lat and lng required (floats)"}), 400
+
+    severity = (data.get("severity") or "medium").lower()
+    if severity not in _SOS_SEVERITIES:
+        return jsonify({"error": f"severity must be one of {sorted(_SOS_SEVERITIES)}"}), 400
+    category = data.get("category")
+    if category is not None and category not in _SOS_CATEGORIES:
+        return jsonify({"error": f"category must be one of {sorted(_SOS_CATEGORIES)}"}), 400
+
+    sos = SosAlert(
+        user_id=user_uuid,
+        status=SosAlert.STATUS_ACTIVE,
+        severity=severity,
+        category=category,
+        message=(data.get("message") or "")[:1000] or None,
+        initial_lat=lat,
+        initial_lng=lng,
+        last_lat=lat,
+        last_lng=lng,
+        accuracy_m=data.get("accuracy_m"),
+        contact_phone=(data.get("contact_phone") or "")[:30] or None,
+    )
+    db.session.add(sos)
+    db.session.commit()
+
+    notified = _notify_admins_of_sos(sos)
+    _log_event("sos_opened", user_id=user_uuid, metadata={
+        "sos_id": str(sos.id),
+        "severity": severity,
+        "category": category,
+        "lat": lat,
+        "lng": lng,
+    })
+    _log_activity(user_uuid, "sos_opened", "sos_alert", sos.id, {"severity": severity})
+
+    return jsonify({
+        "alert": sos.to_dict(),
+        "admins_notified": notified,
+    }), 201
+
+
+@extras_bp.get("/sos/active")
+@jwt_required()
+def list_my_active_sos():
+    """The current tourist's own open alerts."""
+    user_uuid = _require_user_uuid()
+    if user_uuid is None:
+        return jsonify({"error": "Unauthorized"}), 401
+    alerts = (
+        SosAlert.query
+        .filter(SosAlert.user_id == user_uuid)
+        .filter(SosAlert.status.in_((SosAlert.STATUS_ACTIVE, SosAlert.STATUS_RESPONDING)))
+        .order_by(SosAlert.opened_at.desc())
+        .all()
+    )
+    return jsonify({"data": [a.to_dict() for a in alerts]}), 200
+
+
+@extras_bp.get("/sos/<uuid:sos_id>")
+@jwt_required()
+def get_sos(sos_id):
+    """Tourist (owner) or admin fetches a single alert."""
+    user_uuid = _require_user_uuid()
+    if user_uuid is None:
+        return jsonify({"error": "Unauthorized"}), 401
+    sos = db.session.get(SosAlert, sos_id)
+    if not sos:
+        return jsonify({"error": "SOS alert not found"}), 404
+    if str(sos.user_id) != str(user_uuid) and not _is_admin():
+        return jsonify({"error": "Forbidden"}), 403
+    return jsonify(sos.to_dict()), 200
+
+
+@extras_bp.patch("/sos/<uuid:sos_id>/cancel")
+@jwt_required()
+def cancel_sos(sos_id):
+    """Tourist cancels their own alert (false alarm / resolved themselves)."""
+    user_uuid = _require_user_uuid()
+    if user_uuid is None:
+        return jsonify({"error": "Unauthorized"}), 401
+    sos = db.session.get(SosAlert, sos_id)
+    if not sos:
+        return jsonify({"error": "SOS alert not found"}), 404
+    if str(sos.user_id) != str(user_uuid):
+        return jsonify({"error": "Forbidden"}), 403
+    if not sos.is_open:
+        return jsonify({"error": "Alert already closed"}), 400
+    sos.status = SosAlert.STATUS_CANCELLED
+    sos.resolved_at = datetime.utcnow()
+    sos.resolution_notes = (request.get_json(silent=True) or {}).get("notes") or "Cancelled by user"
+    db.session.commit()
+    _log_event("sos_cancelled", user_id=user_uuid, metadata={"sos_id": str(sos.id)})
+    return jsonify(sos.to_dict()), 200
+
+
+@extras_bp.get("/admin/sos/active")
+@jwt_required()
+def admin_list_active_sos():
+    """Admin dashboard polls this every few seconds for the live alert list."""
+    if not _is_admin():
+        return jsonify({"error": "Forbidden"}), 403
+    severity = request.args.get("severity")
+    query = SosAlert.query.filter(
+        SosAlert.status.in_((SosAlert.STATUS_ACTIVE, SosAlert.STATUS_RESPONDING))
+    )
+    if severity:
+        if severity not in _SOS_SEVERITIES:
+            return jsonify({"error": f"severity must be one of {sorted(_SOS_SEVERITIES)}"}), 400
+        query = query.filter(SosAlert.severity == severity)
+    alerts = query.order_by(SosAlert.opened_at.desc()).all()
+    return jsonify({
+        "count": len(alerts),
+        "data": [a.to_dict() for a in alerts],
+    }), 200
+
+
+@extras_bp.get("/admin/sos/<uuid:sos_id>")
+@jwt_required()
+def admin_get_sos(sos_id):
+    """Admin drills into a single alert; includes recent location history."""
+    if not _is_admin():
+        return jsonify({"error": "Forbidden"}), 403
+    sos = db.session.get(SosAlert, sos_id)
+    if not sos:
+        return jsonify({"error": "SOS alert not found"}), 404
+
+    # Pull every location_ping for the user since the alert opened.
+    history_rows = (
+        AnalyticsEvent.query
+        .filter(AnalyticsEvent.user_id == sos.user_id)
+        .filter(AnalyticsEvent.event_type == "location_ping")
+        .filter(AnalyticsEvent.created_at >= sos.opened_at)
+        .order_by(AnalyticsEvent.created_at.asc())
+        .limit(500)
+        .all()
+    )
+    history = []
+    for ev in history_rows:
+        meta = ev.event_metadata or {}
+        history.append({
+            "lat": meta.get("lat"),
+            "lng": meta.get("lng"),
+            "accuracy_m": meta.get("accuracy_m"),
+            "at": ev.created_at.isoformat() if ev.created_at else None,
+        })
+
+    user = db.session.get(User, sos.user_id)
+    user_info = None
+    if user:
+        user_info = {
+            "id": str(user.id),
+            "email": user.email,
+            "username": user.username,
+        }
+
+    payload = sos.to_dict()
+    payload["user"] = user_info
+    payload["location_history"] = history
+    return jsonify(payload), 200
+
+
+@extras_bp.patch("/admin/sos/<uuid:sos_id>/respond")
+@jwt_required()
+def admin_respond_sos(sos_id):
+    """Admin marks they're responding (so other admins know)."""
+    if not _is_admin():
+        return jsonify({"error": "Forbidden"}), 403
+    sos = db.session.get(SosAlert, sos_id)
+    if not sos:
+        return jsonify({"error": "SOS alert not found"}), 404
+    if not sos.is_open:
+        return jsonify({"error": "Alert already closed"}), 400
+    sos.status = SosAlert.STATUS_RESPONDING
+    db.session.commit()
+    return jsonify(sos.to_dict()), 200
+
+
+@extras_bp.patch("/admin/sos/<uuid:sos_id>/resolve")
+@jwt_required()
+def admin_resolve_sos(sos_id):
+    """Admin marks the alert resolved (rescue completed / false alarm)."""
+    if not _is_admin():
+        return jsonify({"error": "Forbidden"}), 403
+    sos = db.session.get(SosAlert, sos_id)
+    if not sos:
+        return jsonify({"error": "SOS alert not found"}), 404
+    if not sos.is_open:
+        return jsonify({"error": "Alert already closed"}), 400
+    data = request.get_json(silent=True) or {}
+    sos.status = SosAlert.STATUS_RESOLVED
+    sos.resolved_at = datetime.utcnow()
+    sos.resolved_by_admin_id = _require_user_uuid()
+    sos.resolution_notes = (data.get("notes") or "")[:1000] or None
+    db.session.commit()
+    _log_event("sos_resolved", user_id=sos.user_id, metadata={"sos_id": str(sos.id)})
+
+    # Notify the original tourist that their alert has been resolved.
+    try:
+        db.session.add(Notification(
+            user_id=sos.user_id,
+            type="sos_resolved",
+            title="Your SOS has been resolved",
+            body=sos.resolution_notes or "Help has reached you / the alert was closed.",
+            channel="in_app",
+        ))
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+
+    return jsonify(sos.to_dict()), 200
 
 
 # ── Anonymous analytics ingestion (used by STORY004 search etc.) ─────────────

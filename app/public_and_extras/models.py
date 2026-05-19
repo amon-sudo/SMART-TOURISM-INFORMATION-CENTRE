@@ -174,3 +174,73 @@ class DailyAnalyticsSnapshot(db.Model):
             "booking_conversion_rate": self.booking_conversion_rate,
             "top_searches": self.top_searches,
         }
+
+
+class SosAlert(db.Model):
+    """Emergency 'find me' alert raised by a tourist.
+
+    Created when the panic button is hit. Admins poll
+    /api/v1/admin/sos/active for open alerts. The user's `location_ping`
+    endpoint updates last_lat/last_lng/last_seen_at while the alert is
+    open, so rescue can watch the position move in real time.
+    """
+
+    __tablename__ = "sos_alerts"
+    __table_args__ = (
+        db.Index("ix_sos_alerts_status", "status"),
+        db.Index("ix_sos_alerts_user_status", "user_id", "status"),
+    )
+
+    STATUS_ACTIVE = "active"
+    STATUS_RESPONDING = "responding"
+    STATUS_RESOLVED = "resolved"
+    STATUS_CANCELLED = "cancelled"
+
+    id = db.Column(db.Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = db.Column(
+        db.Uuid(as_uuid=True),
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    status = db.Column(db.String(20), default=STATUS_ACTIVE, nullable=False)
+    severity = db.Column(db.String(20), default="medium", nullable=False)  # low|medium|high|critical
+    category = db.Column(db.String(40), nullable=True)  # vehicle_breakdown|medical|wildlife|other
+    message = db.Column(db.Text, nullable=True)
+    initial_lat = db.Column(db.Float, nullable=False)
+    initial_lng = db.Column(db.Float, nullable=False)
+    last_lat = db.Column(db.Float, nullable=False)
+    last_lng = db.Column(db.Float, nullable=False)
+    last_seen_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    accuracy_m = db.Column(db.Float, nullable=True)
+    opened_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    resolved_at = db.Column(db.DateTime, nullable=True)
+    resolved_by_admin_id = db.Column(
+        db.Uuid(as_uuid=True),
+        db.ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    resolution_notes = db.Column(db.Text, nullable=True)
+    contact_phone = db.Column(db.String(30), nullable=True)  # tourist's reachable number
+
+    def to_dict(self, include_history: bool = False) -> dict:
+        payload = {
+            "id": str(self.id),
+            "user_id": str(self.user_id),
+            "status": self.status,
+            "severity": self.severity,
+            "category": self.category,
+            "message": self.message,
+            "contact_phone": self.contact_phone,
+            "initial_location": {"lat": self.initial_lat, "lng": self.initial_lng},
+            "last_location": {"lat": self.last_lat, "lng": self.last_lng},
+            "accuracy_m": self.accuracy_m,
+            "opened_at": self.opened_at.isoformat() if self.opened_at else None,
+            "last_seen_at": self.last_seen_at.isoformat() if self.last_seen_at else None,
+            "resolved_at": self.resolved_at.isoformat() if self.resolved_at else None,
+            "resolution_notes": self.resolution_notes,
+        }
+        return payload
+
+    @property
+    def is_open(self) -> bool:
+        return self.status in (self.STATUS_ACTIVE, self.STATUS_RESPONDING)
