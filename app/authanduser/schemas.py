@@ -22,4 +22,4 @@ class PasswordResetSchema(SQLAlchemyAutoSchema):
 
     token = fields.String()
     expires_at = fields.DateTime()
-    used = fields.Boolean()
+    used_at = fields.DateTime(allow_none=True)

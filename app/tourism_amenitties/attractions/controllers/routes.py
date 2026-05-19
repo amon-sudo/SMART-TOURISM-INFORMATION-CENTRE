@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy.exc import IntegrityError
+import uuid
 
 from app.extensions import db, cache
 
@@ -7,11 +8,7 @@ from app.tourism_amenitties.attractions.models.attraction import Attraction
 from app.tourism_amenitties.attractions.schemas.attraction import AttractionSchema
 
 
-attraction_bp = Blueprint(
-    "attraction_bp",
-    __name__,
-    url_prefix="/api/v1/attractions"
-)
+attraction_bp = Blueprint("attraction_bp", __name__)
 
 attraction_schema = AttractionSchema()
 attractions_schema = AttractionSchema(many=True)
@@ -39,8 +36,8 @@ def create_attraction():
             }), 400
 
         attraction = Attraction(
-            destination_id=data["destination_id"],
-            business_owner_id=data["business_owner_id"],
+            destination_id=uuid.UUID(str(data["destination_id"])),
+            business_owner_id=uuid.UUID(str(data["business_owner_id"])),
             name=data["name"],
             description=data.get("description"),
             category=data.get("category"),
@@ -86,8 +83,11 @@ def get_attractions():
 
         page = request.args.get("page", 1, type=int)
         per_page = request.args.get("per_page", 10, type=int)
+        # Public/tourist listing must only ever show approved attractions
+        # (STORY001, STORY028). Admin endpoints use their own listing.
+        include_all = request.args.get("include_all") == "true"
 
-        cache_key = f"attractions_page_{page}_per_page_{per_page}"
+        cache_key = f"attractions_page_{page}_per_page_{per_page}_all_{include_all}"
 
         # 1. check redis first
         cached_data = cache.get(cache_key)
@@ -95,7 +95,10 @@ def get_attractions():
             return jsonify(cached_data), 200
 
         # 2. query DB
-        pagination = Attraction.query.paginate(
+        query = Attraction.query
+        if not include_all:
+            query = query.filter(Attraction.status == "approved")
+        pagination = query.paginate(
             page=page,
             per_page=per_page,
             error_out=False

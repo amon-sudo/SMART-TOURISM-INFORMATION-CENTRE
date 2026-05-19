@@ -1,8 +1,14 @@
+import uuid
+
 from app.extensions import db
 from app.rbac.models.role import Role
 from app.rbac.models.permission import Permission
 from app.rbac.models.role_permission import RolePermission
 from app.rbac.models.user_role import UserRole
+
+
+def _to_uuid(value):
+    return value if isinstance(value, uuid.UUID) else uuid.UUID(str(value))
 
 
 def create_role(data: dict) -> Role:
@@ -88,14 +94,17 @@ def assign_role_to_user(user_id: str, role_id: str, assigned_by: str) -> UserRol
     if not role:
         raise ValueError("Role not found.")
 
-    existing = UserRole.query.filter_by(user_id=user_id, role_id=role_id).first()
+    user_uuid = _to_uuid(user_id)
+    assigned_by_uuid = _to_uuid(assigned_by) if assigned_by else None
+
+    existing = UserRole.query.filter_by(user_id=user_uuid, role_id=role_id).first()
     if existing:
         raise ValueError("Role already assigned to this user.")
 
     user_role = UserRole(
-        user_id=user_id,
+        user_id=user_uuid,
         role_id=role_id,
-        assigned_by=assigned_by
+        assigned_by=assigned_by_uuid
     )
     db.session.add(user_role)
     db.session.commit()
@@ -103,4 +112,8 @@ def assign_role_to_user(user_id: str, role_id: str, assigned_by: str) -> UserRol
 
 
 def get_user_roles(user_id: str) -> list:
-    return UserRole.query.filter_by(user_id=user_id).all()
+    try:
+        user_uuid = _to_uuid(user_id)
+    except Exception:
+        return []
+    return UserRole.query.filter_by(user_id=user_uuid).all()

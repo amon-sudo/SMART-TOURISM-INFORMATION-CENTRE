@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy.exc import IntegrityError
+import uuid
 
 from app.extensions import db, cache
 
@@ -7,11 +8,7 @@ from app.tourism_amenitties.attraction_translations.models.attraction_tran impor
 from app.tourism_amenitties.attraction_translations.schemas.attraction_translation import AttractionTranslationSchema
 
 
-attraction_translation_bp = Blueprint(
-    "attraction_translation_bp",
-    __name__,
-    url_prefix="/api/v1/attraction-translations"
-)
+attraction_translation_bp = Blueprint("attraction_translation_bp", __name__)
 
 translation_schema = AttractionTranslationSchema()
 translations_schema = AttractionTranslationSchema(many=True)
@@ -30,7 +27,7 @@ def create_attraction_translation():
             return jsonify({"success": False, "errors": errors}), 400
 
         existing_translation = AttractionTranslation.query.filter_by(
-            attraction_id=data["attraction_id"],
+            attraction_id=uuid.UUID(str(data["attraction_id"])),
             locale=data["locale"]
         ).first()
 
@@ -38,7 +35,7 @@ def create_attraction_translation():
             return jsonify({"success": False, "error": "Translation already exists for this locale"}), 409
 
         translation = AttractionTranslation(
-            attraction_id=data["attraction_id"],
+            attraction_id=uuid.UUID(str(data["attraction_id"])),
             locale=data["locale"],
             name=data["name"],
             description=data.get("description"),

@@ -7,11 +7,7 @@ from app.tourism_amenitties.amenities.models.amenities import Amenity
 from app.tourism_amenitties.amenities.schemas.amenity import AmenitySchema
 
 
-amenities_bp = Blueprint(
-    "amenities_bp",
-    __name__,
-    url_prefix="/api/v1/amenities"
-)
+amenities_bp = Blueprint("amenities_bp", __name__)
 
 amenity_schema = AmenitySchema()
 amenities_schema = AmenitySchema(many=True)
@@ -36,7 +32,7 @@ def create_amenity():
 
         amenity = Amenity(
             name=data["name"],
-            description=data.get("description")
+            icon_url=data.get("icon_url")
         )
 
         db.session.add(amenity)
@@ -152,8 +148,8 @@ def update_amenity(id):
         if "name" in data:
             amenity.name = data["name"]
 
-        if "description" in data:
-            amenity.description = data["description"]
+        if "icon_url" in data:
+            amenity.icon_url = data["icon_url"]
 
         db.session.commit()
 

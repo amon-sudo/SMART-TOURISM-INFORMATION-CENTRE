@@ -1,0 +1,1097 @@
+[
+  {
+    "method": "POST",
+    "route": "/api/payments/callback/mpesa",
+    "url": "/api/payments/callback/mpesa",
+    "status": 400,
+    "message": {
+      "code": 400,
+      "message": "Payment not found"
+    }
+  },
+  {
+    "method": "POST",
+    "route": "/api/payments/pay/mpesa",
+    "url": "/api/payments/pay/mpesa",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/payments/status/<reference>",
+    "url": "/api/payments/status/ref_smoke_test",
+    "status": 400,
+    "message": {
+      "code": 400,
+      "message": "Payment not found"
+    }
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/admin/business/business_profiles/profiles",
+    "url": "/api/v1/admin/business/business_profiles/profiles",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/admin/business/business_profiles/profiles/<string:profile_id>",
+    "url": "/api/v1/admin/business/business_profiles/profiles/00000000-0000-0000-0000-000000000001",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/admin/business/business_profiles/registrations",
+    "url": "/api/v1/admin/business/business_profiles/registrations",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/admin/business/business_profiles/registrations/<string:request_id>",
+    "url": "/api/v1/admin/business/business_profiles/registrations/00000000-0000-0000-0000-000000000001",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/v1/admin/business/business_profiles/registrations/<string:request_id>",
+    "url": "/api/v1/admin/business/business_profiles/registrations/00000000-0000-0000-0000-000000000001",
+    "status": 422,
+    "message": {
+      "code": "VALIDATION_ERROR",
+      "details": {
+        "fields": {
+          "status": [
+            "Missing data for required field."
+          ]
+        },
+        "timestamp": "2026-05-15T09:39:03Z"
+      },
+      "message": "Validation failed.",
+      "trace_id": "1cbb07f0-c361-425c-9ddc-fe78bd3b8c64"
+    }
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/admin/business/registrations",
+    "url": "/api/v1/admin/business/registrations",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/admin/business/registrations/<string:request_id>",
+    "url": "/api/v1/admin/business/registrations/00000000-0000-0000-0000-000000000001",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/v1/admin/business/registrations/<string:request_id>",
+    "url": "/api/v1/admin/business/registrations/00000000-0000-0000-0000-000000000001",
+    "status": 422,
+    "message": {
+      "code": "VALIDATION_ERROR",
+      "details": {
+        "fields": {
+          "status": [
+            "Missing data for required field."
+          ]
+        },
+        "timestamp": "2026-05-15T09:39:03Z"
+      },
+      "message": "Validation failed.",
+      "trace_id": "7f0cddb7-438e-49e3-8ada-7b2d8ccc5faa"
+    }
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/admin/business/registrations/all_registrations",
+    "url": "/api/v1/admin/business/registrations/all_registrations",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/amenities/",
+    "url": "/api/v1/amenities/",
+    "status": 400,
+    "message": "No input data"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/amenities/",
+    "url": "/api/v1/amenities/",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/amenities/<uuid:id>",
+    "url": "/api/v1/amenities/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Not found"
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/v1/amenities/<uuid:id>",
+    "url": "/api/v1/amenities/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Not found"
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/v1/amenities/<uuid:id>",
+    "url": "/api/v1/amenities/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Not found"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/attraction-amenities/",
+    "url": "/api/v1/attraction-amenities/",
+    "status": 400,
+    "message": "No input data provided"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/attraction-amenities/",
+    "url": "/api/v1/attraction-amenities/",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/v1/attraction-amenities/<uuid:attraction_id>/<uuid:amenity_id>",
+    "url": "/api/v1/attraction-amenities/00000000-0000-0000-0000-000000000001/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Relationship not found"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/attraction-translations/",
+    "url": "/api/v1/attraction-translations/",
+    "status": 400,
+    "message": "No input data provided"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/attraction-translations/",
+    "url": "/api/v1/attraction-translations/",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/attraction-translations/<uuid:attraction_id>/<string:locale>",
+    "url": "/api/v1/attraction-translations/00000000-0000-0000-0000-000000000001/smoke",
+    "status": 404,
+    "message": "Translation not found"
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/v1/attraction-translations/<uuid:attraction_id>/<string:locale>",
+    "url": "/api/v1/attraction-translations/00000000-0000-0000-0000-000000000001/smoke",
+    "status": 404,
+    "message": "Translation not found"
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/v1/attraction-translations/<uuid:attraction_id>/<string:locale>",
+    "url": "/api/v1/attraction-translations/00000000-0000-0000-0000-000000000001/smoke",
+    "status": 404,
+    "message": "Translation not found"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/attractions/",
+    "url": "/api/v1/attractions/",
+    "status": 400,
+    "message": "No input data provided"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/attractions/",
+    "url": "/api/v1/attractions/",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/attractions/<uuid:id>",
+    "url": "/api/v1/attractions/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Attraction not found"
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/v1/attractions/<uuid:id>",
+    "url": "/api/v1/attractions/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Attraction not found"
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/v1/attractions/<uuid:id>",
+    "url": "/api/v1/attractions/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Attraction not found"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/audit-logs",
+    "url": "/api/v1/audit-logs",
+    "status": 422,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/audit-logs",
+    "url": "/api/v1/audit-logs",
+    "status": 200,
+    "message": "0 audit log(s) found."
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/audit-logs/<log_id>",
+    "url": "/api/v1/audit-logs/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Audit log not found."
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/v1/audit-logs/<log_id>",
+    "url": "/api/v1/audit-logs/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Audit log not found."
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/audit-logs/action/<action>",
+    "url": "/api/v1/audit-logs/action/smoke",
+    "status": 200,
+    "message": "0 audit log(s) found for action 'smoke'."
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/audit-logs/entity/<entity_type>/<entity_id>",
+    "url": "/api/v1/audit-logs/entity/smoke/00000000-0000-0000-0000-000000000001",
+    "status": 200,
+    "message": "0 audit log(s) found for smoke '00000000-0000-0000-0000-000000000001'."
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/audit-logs/user/<user_id>",
+    "url": "/api/v1/audit-logs/user/00000000-0000-0000-0000-000000000001",
+    "status": 200,
+    "message": "0 audit log(s) found for user '00000000-0000-0000-0000-000000000001'."
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/auth/login",
+    "url": "/api/v1/auth/login",
+    "status": 401,
+    "message": "Invalid credentials"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/auth/logout",
+    "url": "/api/v1/auth/logout",
+    "status": 401,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/auth/me",
+    "url": "/api/v1/auth/me",
+    "status": 401,
+    "message": null
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/auth/password-reset",
+    "url": "/api/v1/auth/password-reset",
+    "status": 404,
+    "message": "User not found"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/auth/password-reset/confirm",
+    "url": "/api/v1/auth/password-reset/confirm",
+    "status": 400,
+    "message": "Invalid or expired token"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/auth/refresh",
+    "url": "/api/v1/auth/refresh",
+    "status": 401,
+    "message": null
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/auth/signup",
+    "url": "/api/v1/auth/signup",
+    "status": 201,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/business/profile",
+    "url": "/api/v1/business/profile",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/v1/business/profile",
+    "url": "/api/v1/business/profile",
+    "status": 404,
+    "message": {
+      "code": "PROFILE_NOT_FOUND",
+      "details": {
+        "timestamp": "2026-05-15T09:39:03Z"
+      },
+      "message": "No business profile found for user 00000000-0000-0000-0000-000000000001.",
+      "trace_id": "9fdba1a0-de62-46a4-b970-864fc19d9b5f"
+    }
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/v1/business/profile/<string:profile_id>",
+    "url": "/api/v1/business/profile/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": {
+      "code": "PROFILE_NOT_FOUND",
+      "details": {
+        "timestamp": "2026-05-15T09:39:03Z"
+      },
+      "message": "Business profile 00000000-0000-0000-0000-000000000001 not found.",
+      "trace_id": "781e19a0-5e2c-416d-854e-b71da2c2937a"
+    }
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/v1/business/profile/delete",
+    "url": "/api/v1/business/profile/delete",
+    "status": 400,
+    "message": {
+      "code": "MISSING_FIELD",
+      "details": {
+        "field": "profile_id",
+        "timestamp": "2026-05-15T09:39:03Z"
+      },
+      "message": "profile_id is required.",
+      "trace_id": "618b61d0-2bed-4e0a-b0a4-9b8e20427932"
+    }
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/v1/business/profile/update",
+    "url": "/api/v1/business/profile/update",
+    "status": 404,
+    "message": {
+      "code": "PROFILE_NOT_FOUND",
+      "details": {
+        "timestamp": "2026-05-15T09:39:03Z"
+      },
+      "message": "No business profile found for user 00000000-0000-0000-0000-000000000001.",
+      "trace_id": "dced1400-4c77-4d35-b088-9d4d431fdaef"
+    }
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/business/profiles",
+    "url": "/api/v1/business/profiles",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/business/register",
+    "url": "/api/v1/business/register",
+    "status": 422,
+    "message": {
+      "code": "VALIDATION_ERROR",
+      "details": {
+        "fields": {
+          "business_name": [
+            "Missing data for required field."
+          ],
+          "business_type": [
+            "Missing data for required field."
+          ]
+        },
+        "timestamp": "2026-05-15T09:39:03Z"
+      },
+      "message": "Validation failed.",
+      "trace_id": "0aef3a9b-a000-4a1e-af01-9b4e4534abb8"
+    }
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/business/registration",
+    "url": "/api/v1/business/registration",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/v1/business/registration/<string:request_id>",
+    "url": "/api/v1/business/registration/00000000-0000-0000-0000-000000000001",
+    "status": 422,
+    "message": {
+      "code": "VALIDATION_ERROR",
+      "details": {
+        "fields": {
+          "_schema": [
+            "Provide at least one field to update."
+          ]
+        },
+        "timestamp": "2026-05-15T09:39:03Z"
+      },
+      "message": "Validation failed.",
+      "trace_id": "67a6946c-f652-4180-bdf4-754d955da884"
+    }
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/business/registrations",
+    "url": "/api/v1/business/registrations",
+    "status": 422,
+    "message": {
+      "code": "VALIDATION_ERROR",
+      "details": {
+        "fields": {
+          "business_name": [
+            "Missing data for required field."
+          ],
+          "business_type": [
+            "Missing data for required field."
+          ]
+        },
+        "timestamp": "2026-05-15T09:39:03Z"
+      },
+      "message": "Validation failed.",
+      "trace_id": "96c47488-e696-4a6e-8d07-f43ea69b2942"
+    }
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/business/registrations",
+    "url": "/api/v1/business/registrations",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/v1/business/registrations/<string:request_id>",
+    "url": "/api/v1/business/registrations/00000000-0000-0000-0000-000000000001",
+    "status": 422,
+    "message": {
+      "code": "VALIDATION_ERROR",
+      "details": {
+        "fields": {
+          "_schema": [
+            "Provide at least one field to update."
+          ]
+        },
+        "timestamp": "2026-05-15T09:39:03Z"
+      },
+      "message": "Validation failed.",
+      "trace_id": "53e092f6-00a8-44c4-9397-6ae5815051a1"
+    }
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/business/registrations/register",
+    "url": "/api/v1/business/registrations/register",
+    "status": 422,
+    "message": {
+      "code": "VALIDATION_ERROR",
+      "details": {
+        "fields": {
+          "business_name": [
+            "Missing data for required field."
+          ],
+          "business_type": [
+            "Missing data for required field."
+          ]
+        },
+        "timestamp": "2026-05-15T09:39:03Z"
+      },
+      "message": "Validation failed.",
+      "trace_id": "38e2ad30-62d9-4760-b609-31aa06d9fc99"
+    }
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/v1/business/registrations/registration/<string:request_id>",
+    "url": "/api/v1/business/registrations/registration/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": {
+      "code": "NOT_FOUND",
+      "details": {
+        "timestamp": "2026-05-15T09:39:03Z"
+      },
+      "message": "Registration request 00000000-0000-0000-0000-000000000001 not found.",
+      "trace_id": "e6617300-c2d7-46d0-ab6e-3792f7d4b3c5"
+    }
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/destination-translations/",
+    "url": "/api/v1/destination-translations/",
+    "status": 400,
+    "message": "No input data provided"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/destination-translations/",
+    "url": "/api/v1/destination-translations/",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/destination-translations/<uuid:destination_id>/<string:locale>",
+    "url": "/api/v1/destination-translations/00000000-0000-0000-0000-000000000001/smoke",
+    "status": 404,
+    "message": "Translation not found"
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/v1/destination-translations/<uuid:destination_id>/<string:locale>",
+    "url": "/api/v1/destination-translations/00000000-0000-0000-0000-000000000001/smoke",
+    "status": 404,
+    "message": "Translation not found"
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/v1/destination-translations/<uuid:destination_id>/<string:locale>",
+    "url": "/api/v1/destination-translations/00000000-0000-0000-0000-000000000001/smoke",
+    "status": 404,
+    "message": "Translation not found"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/destinations/",
+    "url": "/api/v1/destinations/",
+    "status": 400,
+    "message": "No input data provided"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/destinations/",
+    "url": "/api/v1/destinations/",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/destinations/<uuid:id>",
+    "url": "/api/v1/destinations/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Destination not found"
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/v1/destinations/<uuid:id>",
+    "url": "/api/v1/destinations/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Destination not found"
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/v1/destinations/<uuid:id>",
+    "url": "/api/v1/destinations/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Destination not found"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/feedback/contacts",
+    "url": "/api/v1/feedback/contacts",
+    "status": 400,
+    "message": "validation_error"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/feedback/contacts",
+    "url": "/api/v1/feedback/contacts",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/feedback/destinations",
+    "url": "/api/v1/feedback/destinations",
+    "status": 400,
+    "message": "Name required"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/feedback/destinations",
+    "url": "/api/v1/feedback/destinations",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/feedback/destinations/<uuid:dest_id>",
+    "url": "/api/v1/feedback/destinations/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Destination not found"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/v1/feedback/destinations/<uuid:dest_id>",
+    "url": "/api/v1/feedback/destinations/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Destination not found"
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/v1/feedback/destinations/<uuid:dest_id>",
+    "url": "/api/v1/feedback/destinations/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Destination not found"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/feedback/gallery",
+    "url": "/api/v1/feedback/gallery",
+    "status": 400,
+    "message": "validation_error"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/feedback/gallery",
+    "url": "/api/v1/feedback/gallery",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/feedback/reviews",
+    "url": "/api/v1/feedback/reviews",
+    "status": 400,
+    "message": "validation_error"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/feedback/reviews",
+    "url": "/api/v1/feedback/reviews",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/feedback/users",
+    "url": "/api/v1/feedback/users",
+    "status": 400,
+    "message": "Email and password required"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/feedback/users",
+    "url": "/api/v1/feedback/users",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/feedback/users/<uuid:user_id>",
+    "url": "/api/v1/feedback/users/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "User not found"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/v1/feedback/users/<uuid:user_id>",
+    "url": "/api/v1/feedback/users/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "User not found"
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/v1/feedback/users/<uuid:user_id>",
+    "url": "/api/v1/feedback/users/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "User not found"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/health",
+    "url": "/api/v1/health",
+    "status": 200,
+    "message": "Smart Tourism API is running"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/payments/stripe/create-payment-intent",
+    "url": "/api/v1/payments/stripe/create-payment-intent",
+    "status": 400,
+    "message": "Stripe API key is missing."
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/payments/stripe/payment-status/<intent_id>",
+    "url": "/api/v1/payments/stripe/payment-status/pi_smoke_test",
+    "status": 404,
+    "message": "Payment not found"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/payments/stripe/webhook",
+    "url": "/api/v1/payments/stripe/webhook",
+    "status": 400,
+    "message": "Stripe API key is missing."
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/permissions",
+    "url": "/api/v1/permissions",
+    "status": 422,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/permissions",
+    "url": "/api/v1/permissions",
+    "status": 200,
+    "message": "4 permission(s) found in the system."
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/permissions/<permission_id>",
+    "url": "/api/v1/permissions/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Permission not found."
+  },
+  {
+    "method": "PUT",
+    "route": "/api/v1/permissions/<permission_id>",
+    "url": "/api/v1/permissions/00000000-0000-0000-0000-000000000001",
+    "status": 409,
+    "message": "Permission not found."
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/v1/permissions/<permission_id>",
+    "url": "/api/v1/permissions/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Permission not found."
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/role-permissions",
+    "url": "/api/v1/role-permissions",
+    "status": 422,
+    "message": "Missing required fields."
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/roles",
+    "url": "/api/v1/roles",
+    "status": 422,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/roles",
+    "url": "/api/v1/roles",
+    "status": 200,
+    "message": "4 role(s) found in the system."
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/roles/<role_id>",
+    "url": "/api/v1/roles/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Role not found."
+  },
+  {
+    "method": "PUT",
+    "route": "/api/v1/roles/<role_id>",
+    "url": "/api/v1/roles/00000000-0000-0000-0000-000000000001",
+    "status": 409,
+    "message": "Role not found."
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/v1/roles/<role_id>",
+    "url": "/api/v1/roles/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Role not found."
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/settings",
+    "url": "/api/v1/settings",
+    "status": 200,
+    "message": "Fallback settings returned"
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/v1/settings/accessibility",
+    "url": "/api/v1/settings/accessibility",
+    "status": 400,
+    "message": "No data provided"
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/v1/settings/notifications",
+    "url": "/api/v1/settings/notifications",
+    "status": 400,
+    "message": "No data provided"
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/v1/settings/preferences",
+    "url": "/api/v1/settings/preferences",
+    "status": 400,
+    "message": "No data provided"
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/v1/settings/profile",
+    "url": "/api/v1/settings/profile",
+    "status": 400,
+    "message": "No data provided"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/transport/routes/<string:route_id>",
+    "url": "/api/v1/transport/routes/00000000-0000-0000-0000-000000000001",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/v1/transport/routes/<string:route_id>",
+    "url": "/api/v1/transport/routes/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Route not found"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/v1/transport/routes/<string:route_id>",
+    "url": "/api/v1/transport/routes/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Route not found"
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/v1/transport/routes/<string:route_id>",
+    "url": "/api/v1/transport/routes/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Route not found"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/transport/routes/active",
+    "url": "/api/v1/transport/routes/active",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/transport/routes/add_route",
+    "url": "/api/v1/transport/routes/add_route",
+    "status": 400,
+    "message": {
+      "base_fare": [
+        "Missing data for required field."
+      ],
+      "duration_minutes": [
+        "Missing data for required field."
+      ],
+      "origin_station_id": [
+        "Missing data for required field."
+      ],
+      "type": [
+        "Missing data for required field."
+      ]
+    }
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/transport/routes/all_routes",
+    "url": "/api/v1/transport/routes/all_routes",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/transport/routes/nearby",
+    "url": "/api/v1/transport/routes/nearby",
+    "status": 400,
+    "message": "Latitude and longitude are required parameters"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/transport/schedules/<string:schedule_id>",
+    "url": "/api/v1/transport/schedules/00000000-0000-0000-0000-000000000001",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/v1/transport/schedules/<string:schedule_id>",
+    "url": "/api/v1/transport/schedules/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Schedule not found"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/v1/transport/schedules/<string:schedule_id>/update_seats",
+    "url": "/api/v1/transport/schedules/00000000-0000-0000-0000-000000000001/update_seats",
+    "status": 404,
+    "message": "Schedule not found"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/transport/schedules/add_schedule",
+    "url": "/api/v1/transport/schedules/add_schedule",
+    "status": 400,
+    "message": {
+      "arrival_time": [
+        "Missing data for required field."
+      ],
+      "available_seats": [
+        "Missing data for required field."
+      ],
+      "departure_time": [
+        "Missing data for required field."
+      ],
+      "price": [
+        "Missing data for required field."
+      ],
+      "transport_route_id": [
+        "Missing data for required field."
+      ]
+    }
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/transport/schedules/all_schedules",
+    "url": "/api/v1/transport/schedules/all_schedules",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/transport/schedules/search",
+    "url": "/api/v1/transport/schedules/search",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/transport/stations/<string:station_id>",
+    "url": "/api/v1/transport/stations/00000000-0000-0000-0000-000000000001",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "PUT",
+    "route": "/api/v1/transport/stations/<string:station_id>",
+    "url": "/api/v1/transport/stations/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Station not found"
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/v1/transport/stations/<string:station_id>",
+    "url": "/api/v1/transport/stations/00000000-0000-0000-0000-000000000001",
+    "status": 404,
+    "message": "Station not found"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/transport/stations/<string:station_id>/destinations",
+    "url": "/api/v1/transport/stations/00000000-0000-0000-0000-000000000001/destinations",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/transport/stations/<string:station_id>/routes",
+    "url": "/api/v1/transport/stations/00000000-0000-0000-0000-000000000001/routes",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/transport/stations/<string:station_id>/routes",
+    "url": "/api/v1/transport/stations/00000000-0000-0000-0000-000000000001/routes",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/transport/stations/add_station",
+    "url": "/api/v1/transport/stations/add_station",
+    "status": 400,
+    "message": {
+      "name": [
+        "Missing data for required field."
+      ],
+      "type": [
+        "Missing data for required field."
+      ]
+    }
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/transport/stations/all_stations",
+    "url": "/api/v1/transport/stations/all_stations",
+    "status": 200,
+    "message": null
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/transport/stations/nearby",
+    "url": "/api/v1/transport/stations/nearby",
+    "status": 400,
+    "message": "Latitude and longitude are required parameters"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/transport/stations/search",
+    "url": "/api/v1/transport/stations/search",
+    "status": 400,
+    "message": "At least one search parameter (city, region, type, country) is required"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/user-roles",
+    "url": "/api/v1/user-roles",
+    "status": 422,
+    "message": "Missing required fields."
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/user-roles",
+    "url": "/api/v1/user-roles",
+    "status": 200,
+    "message": "0 user role assignment(s) found."
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/user/<user_id>/roles",
+    "url": "/api/v1/user/00000000-0000-0000-0000-000000000001/roles",
+    "status": 200,
+    "message": "No roles found for user '00000000-0000-0000-0000-000000000001'."
+  },
+  {
+    "method": "GET",
+    "route": "/db-test",
+    "url": "/db-test",
+    "status": 200,
+    "message": null
+  }
+]

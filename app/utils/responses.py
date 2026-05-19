@@ -1,24 +1,31 @@
+from __future__ import annotations
+
 from flask import jsonify
+
 
 class ApiResponse:
     @staticmethod
-    def success(data=None, message="Success", status_code=200):
-        return jsonify({
+    def success(data=None, message: str = "Success", status_code: int = 200):
+        payload = {
             "success": True,
+            "message": message,
             "data": data,
-            "message": message
-        }), status_code
+        }
+        return jsonify(payload), status_code
 
     @staticmethod
-    def error(message="An error occurred", code="INTERNAL_ERROR", details=None, status_code=500, **kwargs):
-        error_payload = {
+    def error(
+        message: str,
+        status_code: int = 400,
+        code: str | None = None,
+        details=None,
+    ):
+        payload = {
             "success": False,
-            "error": {
-                "code": code,
-                "message": message
-            }
+            "message": message,
         }
-        if details:
-            error_payload["error"]["details"] = details
-        
-        return jsonify(error_payload), status_code
+        if code is not None:
+            payload["code"] = code
+        if details is not None:
+            payload["details"] = details
+        return jsonify(payload), status_code

@@ -2,7 +2,11 @@ from flask import Flask
 
 
 def register_business_blueprints(app: Flask) -> None:
-	"""Register all Business module blueprints in one place."""
+	"""Register all Business module blueprints in one place.
+	
+	Note: Business blueprints define their own url_prefix internally,
+	so we register them without an additional prefix here.
+	"""
 	# Business Registration blueprints
 	try:
 		from app.Business.Business_registration.MVC_architecture_business.Business_controllers.Business_registration_routes import (

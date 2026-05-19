@@ -10,10 +10,13 @@ PASSKEY = os.getenv("MPESA_PASSKEY", "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059
 SHORTCODE = os.getenv("MPESA_SHORTCODE", "174379")
 CALLBACK_URL = os.getenv("MPESA_CALLBACK_URL", "http://localhost:5000/api/payments/callback/mpesa")
 
-if not all([CONSUMER_KEY, CONSUMER_SECRET]):
-    raise RuntimeError("Missing required M-Pesa Consumer Key/Secret")
+
+def _require_credentials():
+    if not all([CONSUMER_KEY, CONSUMER_SECRET]):
+        raise RuntimeError("Missing required M-Pesa Consumer Key/Secret")
 
 def get_access_token():
+    _require_credentials()
     response = requests.get(
         f"{DARAJA_BASE_URL}/oauth/v1/generate?grant_type=client_credentials",
         auth=(CONSUMER_KEY, CONSUMER_SECRET),

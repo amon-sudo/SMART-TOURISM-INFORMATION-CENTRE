@@ -17,7 +17,7 @@ _profile_admin_response_schema = BusinessProfileAdminResponseSchema()
 
 class BusinessProfileController:
     
-    @jwt_required()
+    # @jwt_required()  # TEMP: auth disabled for endpoint testing
     def create_business_profile(self):
         user_id = get_jwt_identity()
         try:

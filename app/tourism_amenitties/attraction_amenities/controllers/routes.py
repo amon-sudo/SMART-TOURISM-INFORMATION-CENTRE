@@ -1,18 +1,16 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy.exc import IntegrityError
+import uuid
 
 from app.extensions import db
+from app.utils.api_response import no_result
 
 from app.tourism_amenitties.attraction_amenities.models.attraction_amenities import AttractionAmenity
 
 from app.tourism_amenitties.attraction_amenities.schemas.attraction_amenity import AttractionAmenitySchema
 
 
-attraction_amenity_bp = Blueprint(
-    "attraction_amenity_bp",
-    __name__,
-    url_prefix="/api/v1/attraction-amenities"
-)
+attraction_amenity_bp = Blueprint("attraction_amenity_bp", __name__)
 
 attraction_amenity_schema = AttractionAmenitySchema()
 attraction_amenities_schema = AttractionAmenitySchema(many=True)
@@ -40,19 +38,16 @@ def create_attraction_amenity():
             }), 400
 
         existing_relation = AttractionAmenity.query.filter_by(
-            attraction_id=data["attraction_id"],
-            amenity_id=data["amenity_id"]
+            attraction_id=uuid.UUID(str(data["attraction_id"])),
+            amenity_id=uuid.UUID(str(data["amenity_id"]))
         ).first()
 
         if existing_relation:
-            return jsonify({
-                "success": False,
-                "error": "Relationship already exists"
-            }), 409
+            return no_result("Relationship already exists")
 
         attraction_amenity = AttractionAmenity(
-            attraction_id=data["attraction_id"],
-            amenity_id=data["amenity_id"]
+            attraction_id=uuid.UUID(str(data["attraction_id"])),
+            amenity_id=uuid.UUID(str(data["amenity_id"]))
         )
 
         db.session.add(attraction_amenity)
@@ -136,9 +131,9 @@ def delete_attraction_amenity(attraction_id, amenity_id):
 
         if not relationship:
             return jsonify({
-                "success": False,
-                "error": "Relationship not found"
-            }), 404
+                "success": True,
+                "message": "Relationship already absent"
+            }), 200
 
         db.session.delete(relationship)
         db.session.commit()

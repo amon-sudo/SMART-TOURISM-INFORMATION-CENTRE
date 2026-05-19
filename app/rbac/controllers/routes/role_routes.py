@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from app.utils.api_response import no_result
 from app.rbac.schemas.role_schemas import RoleCreateSchema, RoleResponseSchema
 from app.rbac.models.role import Role
 from app.rbac.models.permission import Permission
@@ -13,8 +14,7 @@ from app.rbac.services.role_service import (
     assign_role_to_user,
     get_user_roles
 )
-
-role_bp = Blueprint("roles", __name__, url_prefix="/api/v1")
+role_bp = Blueprint("roles", __name__)
 
 role_create_schema = RoleCreateSchema()
 role_response_schema = RoleResponseSchema()
@@ -129,8 +129,9 @@ def handle_assign_permission():
             }
         }), 201
     except ValueError as e:
+        if str(e) == "Permission already assigned to this role.":
+            return no_result("Permission already assigned to this role")
         return jsonify({"error": str(e)}), 409
-
 
 @role_bp.post("/user-roles")
 def handle_assign_role_to_user():
@@ -160,6 +161,8 @@ def handle_assign_role_to_user():
             }
         }), 201
     except ValueError as e:
+        if str(e) == "Role already assigned to this user.":
+            return no_result("Role already assigned to this user")
         return jsonify({"error": str(e)}), 409
 
 
@@ -189,10 +192,7 @@ def handle_get_all_user_roles():
 def handle_get_user_roles(user_id):
     user_roles = get_user_roles(user_id)
     if not user_roles:
-        return jsonify({
-            "message": f"No roles found for user '{user_id}'.",
-            "roles": []
-        }), 200
+        return no_result(f"No roles found for user '{user_id}'.")
 
     result = []
     for ur in user_roles:
