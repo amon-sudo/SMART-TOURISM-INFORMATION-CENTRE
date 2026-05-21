@@ -51,6 +51,7 @@ def signup():
     email = data.get("email")
     password = data.get("password")
     username = data.get("username")
+    full_name = data.get("full_name")
 
     if not email or not password:
         return ApiResponse.error(message="Email and password required", code="MISSING_DATA", status_code=400)
@@ -64,7 +65,7 @@ def signup():
             details={"password": pw_errors},
         )
 
-    user = AuthService.signup(email, password, username=username)
+    user = AuthService.signup(email, password, username=username, full_name=full_name)
 
     if not user:
         return ApiResponse.error(message="Email already exists", code="CONFLICT", status_code=409)

@@ -108,6 +108,7 @@ def register_blueprints(flask_app: Flask) -> None:
     from app.tourism_amenitties.destination_translation.controllers.routes import destination_translation_bp
     from app.tourism_amenitties.attraction_translations.controllers.routes import attraction_translation_bp
     from app.tourism_amenitties.attraction_amenities.controllers.routes import attraction_amenity_bp
+    from app.tourism_amenitties.accommodation.controllers.routes import accommodation_bp
     from app.user_settings.views.views import user_settings_bp
     from app.public_and_extras.routes import public_bp, extras_bp
     from app.kiosk_feature.kiosk.MVC_architecture.controllers.routes.kiosk_routes import (
@@ -137,7 +138,8 @@ def register_blueprints(flask_app: Flask) -> None:
         flask_app.register_blueprint(destination_translation_bp, url_prefix="/api/v1/destination-translations")
         flask_app.register_blueprint(attraction_translation_bp, url_prefix="/api/v1/attraction-translations")
         flask_app.register_blueprint(attraction_amenity_bp, url_prefix="/api/v1/attraction-amenities")
-        
+        flask_app.register_blueprint(accommodation_bp, url_prefix="/api/v1/accommodations")
+
         flask_app.register_blueprint(user_settings_bp, url_prefix="/api/v1")
         flask_app.register_blueprint(role_bp, url_prefix="/api/v1")
         flask_app.register_blueprint(permission_bp, url_prefix="/api/v1")

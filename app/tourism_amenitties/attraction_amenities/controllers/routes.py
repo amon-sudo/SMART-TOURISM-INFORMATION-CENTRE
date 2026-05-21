@@ -83,13 +83,16 @@ def get_attraction_amenities():
     try:
         page = request.args.get("page", 1, type=int)
         per_page = request.args.get("per_page", 5, type=int)
-        pagination = AttractionAmenity.query.paginate(
-            page=page,
-            per_page=per_page,
-            error_out=False
-        )
-        
-        pagination = AttractionAmenity.query.paginate(
+        attraction_id = request.args.get("attraction_id")
+
+        query = AttractionAmenity.query
+        if attraction_id:
+            try:
+                query = query.filter_by(attraction_id=uuid.UUID(attraction_id))
+            except ValueError:
+                return jsonify({"success": False, "error": "Invalid attraction_id format"}), 400
+
+        pagination = query.paginate(
             page=page,
             per_page=per_page,
             error_out=False
@@ -99,10 +102,10 @@ def get_attraction_amenities():
             "success": True,
             "data": attraction_amenities_schema.dump(pagination.items),
             "pagination": {
-                "page": page,
-                "per_page": per_page,
+                "page": pagination.page,
+                "per_page": pagination.per_page,
                 "total": pagination.total,
-                "pages": pagination.pages,
+                "total_pages": pagination.pages,
                 "has_next": pagination.has_next,
                 "has_prev": pagination.has_prev
             }

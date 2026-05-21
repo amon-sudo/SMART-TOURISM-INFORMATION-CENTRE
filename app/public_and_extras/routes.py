@@ -319,24 +319,68 @@ def public_map():
 
 @public_bp.get("/accommodations")
 def public_accommodations():
-    """STORY007 — public accommodation listing."""
+    """STORY007 — public accommodation listing with attraction details and room info."""
     query = Accommodation.query
     min_rating = request.args.get("min_rating", type=int)
     if min_rating is not None:
         query = query.filter(Accommodation.star_rating >= min_rating)
-    pagination = _paginate(query)
+    search = request.args.get("search")
+    if search:
+        ilike = f"%{search}%"
+        query = query.join(Attraction, Accommodation.attraction_id == Attraction.id).filter(
+            or_(Attraction.name.ilike(ilike), Attraction.description.ilike(ilike))
+        )
+    pagination = _paginate(query, default_per_page=12)
+
+    def _acc_payload(item: Accommodation) -> dict:
+        attraction: Attraction | None = item.attraction
+        rooms = item.rooms if hasattr(item, "rooms") else []
+        prices = [r.base_price for r in rooms if r.base_price is not None]
+        min_price = min(prices) if prices else None
+        max_price = max(prices) if prices else None
+        amenity_names = []
+        if attraction:
+            amenity_names = [a.name for a in (attraction.amenities or [])]
+        return {
+            "id": str(item.id),
+            "attraction_id": str(item.attraction_id),
+            # Attraction-level fields the frontend displays
+            "name": attraction.name if attraction else None,
+            "description": attraction.description if attraction else None,
+            "image_url": attraction.image_url if attraction else None,
+            "location": (
+                attraction.destination.canonical_name
+                if attraction and attraction.destination
+                else None
+            ),
+            "destination_id": str(attraction.destination_id) if attraction else None,
+            "latitude": float(attraction.latitude) if attraction and attraction.latitude else None,
+            "longitude": float(attraction.longitude) if attraction and attraction.longitude else None,
+            # Accommodation-level fields
+            "star_rating": item.star_rating,
+            "rating": attraction.avg_rating if attraction else None,
+            "check_in_time": item.check_in_time.isoformat() if item.check_in_time else None,
+            "check_out_time": item.check_out_time.isoformat() if item.check_out_time else None,
+            "policies": item.policies,
+            # Room pricing summary
+            "price_per_night": min_price,
+            "max_price_per_night": max_price,
+            "room_count": len(rooms),
+            "amenities": amenity_names,
+            "rooms": [
+                {
+                    "id": str(r.id),
+                    "name": r.name,
+                    "base_price": r.base_price,
+                    "capacity": r.capacity,
+                    "amenities_json": r.amenities_json,
+                }
+                for r in rooms
+            ],
+        }
+
     return jsonify({
-        "data": [
-            {
-                "id": str(item.id),
-                "attraction_id": str(item.attraction_id),
-                "star_rating": item.star_rating,
-                "check_in_time": item.check_in_time.isoformat() if item.check_in_time else None,
-                "check_out_time": item.check_out_time.isoformat() if item.check_out_time else None,
-                "policies": item.policies,
-            }
-            for item in pagination.items
-        ],
+        "data": [_acc_payload(item) for item in pagination.items],
         "pagination": {
             "page": pagination.page,
             "per_page": pagination.per_page,

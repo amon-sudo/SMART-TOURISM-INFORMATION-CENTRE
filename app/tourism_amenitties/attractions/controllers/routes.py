@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 import uuid
@@ -13,6 +14,12 @@ attraction_bp = Blueprint("attraction_bp", __name__)
 
 attraction_schema = AttractionSchema()
 attractions_schema = AttractionSchema(many=True)
+
+
+def _bust_attractions_cache() -> None:
+    """Increment the generation counter so all cached attraction list keys miss."""
+    gen = cache.get("attractions_cache_gen") or 0
+    cache.set("attractions_cache_gen", gen + 1, timeout=0)
 
 
 @attraction_bp.route("/", methods=["POST"])
@@ -51,8 +58,7 @@ def create_attraction():
         db.session.add(attraction)
         db.session.commit()
 
-        # clear cache after write
-        cache.clear()
+        _bust_attractions_cache()
 
         return jsonify({
             "success": True,
@@ -88,8 +94,17 @@ def get_attractions():
         # Public/tourist listing must only ever show approved attractions
         # (STORY001, STORY028). Admin endpoints use their own listing.
         include_all = request.args.get("include_all") == "true"
+        category = request.args.get("category", "").strip() or None
+        destination_id = request.args.get("destination_id", "").strip() or None
+        search = request.args.get("search", "").strip() or None
 
-        cache_key = f"attractions_page_{page}_per_page_{per_page}_all_{include_all}"
+        # Cache key encodes all filter dimensions so different queries get
+        # independent cache entries.
+        gen = cache.get("attractions_cache_gen") or 0
+        cache_key = (
+            f"attractions_gen_{gen}_p{page}_pp{per_page}_all{include_all}"
+            f"_cat{category}_dest{destination_id}_q{search}"
+        )
 
         # 1. check redis first
         cached_data = cache.get(cache_key)
@@ -100,6 +115,19 @@ def get_attractions():
         query = Attraction.query.options(joinedload(Attraction.destination))
         if not include_all:
             query = query.filter(Attraction.status == "approved")
+        if category:
+            query = query.filter(Attraction.category == category)
+        if destination_id:
+            try:
+                query = query.filter(Attraction.destination_id == uuid.UUID(destination_id))
+            except ValueError:
+                return jsonify({"success": False, "error": "Invalid destination_id format"}), 400
+        if search:
+            like = f"%{search}%"
+            query = query.filter(
+                or_(Attraction.name.ilike(like), Attraction.description.ilike(like))
+            )
+
         pagination = query.paginate(
             page=page,
             per_page=per_page,
@@ -113,7 +141,9 @@ def get_attractions():
                 "page": pagination.page,
                 "per_page": pagination.per_page,
                 "total_pages": pagination.pages,
-                "total_items": pagination.total
+                "total_items": pagination.total,
+                "has_next": pagination.has_next,
+                "has_prev": pagination.has_prev,
             }
         }
 
@@ -191,8 +221,7 @@ def update_attraction(id):
 
         db.session.commit()
 
-        # clear cache after update
-        cache.clear()
+        _bust_attractions_cache()
 
         return jsonify({
             "success": True,
@@ -225,8 +254,7 @@ def delete_attraction(id):
         db.session.delete(attraction)
         db.session.commit()
 
-        # clear cache after delete
-        cache.clear()
+        _bust_attractions_cache()
 
         return jsonify({
             "success": True,
