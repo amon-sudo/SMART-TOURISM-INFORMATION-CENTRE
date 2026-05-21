@@ -169,7 +169,8 @@ def handle_assign_role_to_user():
 @role_bp.get("/user-roles")
 def handle_get_all_user_roles():
     user_roles = UserRole.query.all()
-    result = []
+    result = []/""""""""
+    
     for ur in user_roles:
         role = Role.query.get(ur.role_id)
         result.append({
