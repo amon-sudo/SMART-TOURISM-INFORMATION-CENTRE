@@ -14,8 +14,10 @@ class BusinessProfile(db.Model):
     registration_request_id = db.Column(db.Uuid(as_uuid=True), db.ForeignKey("business_registration_requests.id"), nullable=True, unique=True)
     business_type = db.Column(db.String(50), nullable=True)
     business_name = db.Column(db.String(255), nullable=True)
-    # # MISSING MEDIA TABLE - COMMENTED OUT (foreign key to non-existent media table)
-    # media_url = db.Column(db.UUID(as_uuid=True), db.ForeignKey("media.id", ondelete="SET NULL"), nullable=True)
+    description = db.Column(db.Text, nullable=True)
+    address = db.Column(db.String(500), nullable=True)
+    phone = db.Column(db.String(50), nullable=True)
+    email = db.Column(db.String(255), nullable=True)
     verified = db.Column(db.Boolean, nullable=False, default=False)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     created_at = db.Column(

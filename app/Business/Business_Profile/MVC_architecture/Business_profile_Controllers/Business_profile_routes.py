@@ -4,7 +4,7 @@ from werkzeug.exceptions import Unauthorized
 from http import HTTPStatus
 
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import get_jwt_identity, jwt_required, verify_jwt_in_request
 from app.utils.api_response import no_result
 
 from app.Business.errors_handling import error_response
@@ -34,8 +34,9 @@ business_bp = Blueprint(
 
 def _current_user_uuid() -> uuid.UUID:
     try:
+        verify_jwt_in_request(optional=True)
         identity = get_jwt_identity()
-    except RuntimeError:
+    except Exception:
         identity = None
 
     if identity is None:
@@ -82,8 +83,13 @@ def get_my_profile():
                     "user_id": str(profile.user_id),
                     "business_name": profile.business_name,
                     "business_type": profile.business_type,
+                    "description": profile.description,
+                    "address": profile.address,
+                    "phone": profile.phone,
+                    "email": profile.email,
                     "verified": profile.verified,
                     "is_active": profile.is_active,
+                    "created_at": profile.created_at.isoformat() if profile.created_at else None,
                 }
             }
         ),
@@ -150,3 +156,65 @@ def delete_business_profile_route(profile_id: str):
         return no_result("Business profile not found; nothing to delete")
 
     return jsonify({"message": "Business profile deleted successfully"}), HTTPStatus.OK
+
+
+@business_bp.route("/bookings", methods=["GET"])
+def get_business_bookings():
+    """
+    GET /api/v1/business/bookings
+    Returns bookings for attractions owned by the current user's business profile.
+    """
+    try:
+        profile = get_business_profile(_current_user_uuid())
+    except (ValueError, ProfileNotFoundError):
+        return jsonify({"bookings": [], "total": 0}), HTTPStatus.OK
+
+    from app.extensions import db
+    from app.tourism_amenitties.attractions.models.attraction import Attraction
+    from sqlalchemy import select
+
+    attraction_ids = db.session.scalars(
+        select(Attraction.id).where(Attraction.business_owner_id == profile.id)
+    ).all()
+
+    if not attraction_ids:
+        return jsonify({"bookings": [], "total": 0}), HTTPStatus.OK
+
+    try:
+        from app.models.booking import Booking, BookingItem
+        from app.validators.schemas import BookingSchema, BookingItemSchema
+
+        booking_ids = db.session.scalars(
+            select(BookingItem.booking_id)
+            .where(BookingItem.target_id.in_(attraction_ids))
+            .distinct()
+        ).all()
+
+        if not booking_ids:
+            return jsonify({"bookings": [], "total": 0}), HTTPStatus.OK
+
+        bookings = db.session.scalars(
+            select(Booking)
+            .where(Booking.id.in_(booking_ids))
+            .order_by(Booking.created_at.desc())
+        ).all()
+
+        _booking_schema = BookingSchema()
+        _item_schema = BookingItemSchema()
+
+        result = []
+        for b in bookings:
+            bd = _booking_schema.dump(b)
+            relevant_items = [
+                _item_schema.dump(i)
+                for i in b.items
+                if i.target_id in attraction_ids
+            ]
+            bd["items"] = relevant_items
+            result.append(bd)
+
+        return jsonify({"bookings": result, "total": len(result)}), HTTPStatus.OK
+
+    except Exception as exc:
+        # Fallback: booking feature may not be available in all envs
+        return jsonify({"bookings": [], "total": 0, "error": str(exc)}), HTTPStatus.OK

@@ -1,3 +1,5 @@
+
+
 venv/
 .env
 .env-example
@@ -33,3 +35,5 @@ amo.rest
 <migrations/
 *.db
 migrations/versions/*.py
+
+.claude/settings.json

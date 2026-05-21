@@ -5,7 +5,7 @@ import os
 from http import HTTPStatus
 
 from flask import request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request
 from marshmallow import ValidationError
 from werkzeug.exceptions import Unauthorized
 
@@ -279,8 +279,9 @@ def admin_action_registration(request_id: str):
 
 def _current_user_id() -> uuid.UUID:
     try:
+        verify_jwt_in_request(optional=True)
         identity = get_jwt_identity()
-    except RuntimeError:
+    except Exception:
         identity = None
 
     if identity is not None:
