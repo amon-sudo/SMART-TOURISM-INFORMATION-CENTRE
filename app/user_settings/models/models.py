@@ -30,6 +30,7 @@ class User(BaseUUIDModel):
     itineraries = db.relationship('Itinerary', back_populates='user', lazy='dynamic')
     refresh_tokens = db.relationship("RefreshToken", backref="user", lazy=True)
     password_resets = db.relationship("PasswordReset", backref="user", lazy=True)
+    
 
     def set_password(self, password: str):
         self.password_hash = generate_password_hash(password)

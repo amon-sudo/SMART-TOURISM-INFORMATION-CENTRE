@@ -114,6 +114,7 @@ def register_blueprints(flask_app: Flask) -> None:
         kiosk_bp,
         session_bp,
         transfer_bp,
+
     )
 
     try:
