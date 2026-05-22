@@ -39,6 +39,10 @@ class BusinessProfile(db.Model):
         uselist=False,
     )
     registration_request = db.relationship("BusinessRegistrationRequest", back_populates="business_profile", uselist=False)
-    # # MISSING MEDIA TABLE - COMMENTED OUT (relationship to non-existent Media model)
-    # media = db.relationship("Media", back_populates="business_profile", uselist=False)
-    # attractions = db.relationship("Attraction", back_populates="business_profile", lazy="dynamic", cascade="all, delete-orphan")
+    attractions = db.relationship(
+        "app.tourism_amenitties.attractions.models.attraction.Attraction",
+        foreign_keys="app.tourism_amenitties.attractions.models.attraction.Attraction.business_owner_id",
+        primaryjoin="BusinessProfile.id == app.tourism_amenitties.attractions.models.attraction.Attraction.business_owner_id",
+        lazy="dynamic",
+        viewonly=True,
+    )

@@ -1478,6 +1478,248 @@ def seed_data():
 
         print(f"  Bookings: {Booking.query.count()}")
 
+        # ── Extra Business Owners for endpoint testing ───────────────────────────
+        print("\nSeeding extra business owners...")
+
+        extra_owners = [
+            {
+                "email": "coastal.retreats@example.com",
+                "password": "CoastalB1z!",
+                "username": "coastalretreats",
+                "business_name": "Coastal Retreats Ltd",
+                "business_type": "accommodation",
+                "description": "Premium beach lodges and resort properties along Kenya's coastline.",
+                "phone": "+254711000001",
+                "verified": True,
+            },
+            {
+                "email": "mara.adventures@example.com",
+                "password": "MaraAdv1!",
+                "username": "maraadventures",
+                "business_name": "Mara Adventures Co.",
+                "business_type": "tour_operator",
+                "description": "Specialist in Maasai Mara game drives and Maasai cultural tours.",
+                "phone": "+254711000002",
+                "verified": True,
+            },
+            {
+                "email": "rift.valley.eco@example.com",
+                "password": "RiftEco1!",
+                "username": "riftvalleyeco",
+                "business_name": "Rift Valley Eco Tours",
+                "business_type": "eco_tourism",
+                "description": "Sustainable ecotourism experiences around Naivasha and the Rift Valley.",
+                "phone": "+254711000003",
+                "verified": False,
+            },
+            {
+                "email": "nairobi.urban.tours@example.com",
+                "password": "NrbUrban1!",
+                "username": "nairobimeetings",
+                "business_name": "Nairobi Urban Experiences",
+                "business_type": "cultural_tourism",
+                "description": "City walking tours, food scenes, art galleries, and local community visits.",
+                "phone": "+254711000004",
+                "verified": True,
+            },
+            {
+                "email": "amboseli.safaris@example.com",
+                "password": "Ambos3li!",
+                "username": "amboselisafaris",
+                "business_name": "Amboseli Safari Camps",
+                "business_type": "wildlife_safari",
+                "description": "Luxury tented camps at the foot of Kilimanjaro with elephant encounters.",
+                "phone": "+254711000005",
+                "verified": True,
+            },
+        ]
+
+        extra_owner_profiles: dict[str, "BusinessProfile"] = {}
+        for owner_data in extra_owners:
+            u = _ensure_user(owner_data["email"], password=owner_data["password"], username=owner_data["username"])
+            bp = BusinessProfile.query.filter_by(user_id=u.id).first()
+            if not bp:
+                bp = BusinessProfile(
+                    user_id=u.id,
+                    business_name=owner_data["business_name"],
+                    business_type=owner_data["business_type"],
+                    description=owner_data["description"],
+                    phone=owner_data["phone"],
+                    email=owner_data["email"],
+                    verified=owner_data["verified"],
+                    is_active=True,
+                )
+                db.session.add(bp)
+                db.session.flush()
+            else:
+                bp.business_name = owner_data["business_name"]
+                bp.business_type = owner_data["business_type"]
+                bp.verified = owner_data["verified"]
+            extra_owner_profiles[owner_data["username"]] = bp
+
+        db.session.flush()
+
+        # Attractions owned by the extra business owners
+        extra_attractions_payload = [
+            # Coastal Retreats
+            {
+                "name": "Diani Beach Sunset Walk",
+                "destination_slug": "mombasa",
+                "description": "A guided sunset walk along Diani Beach with marine conservation insights.",
+                "image_url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=80",
+                "category": "beach",
+                "latitude": -4.3167,
+                "longitude": 39.5667,
+                "status": "approved",
+                "is_wheelchair_accessible": True,
+                "entry_fee": 15.0,
+                "avg_rating": 4.7,
+                "amenities": ["Guided Tour", "Sunset Views", "Photo Stops"],
+                "owner_key": "coastalretreats",
+            },
+            {
+                "name": "Fort Jesus Historical Tour",
+                "destination_slug": "mombasa",
+                "description": "Expert guided tour of the UNESCO-listed Fort Jesus with Swahili history.",
+                "image_url": "https://images.unsplash.com/photo-1589519160732-576f165b9aad?auto=format&fit=crop&w=1400&q=80",
+                "category": "cultural_and_heritage",
+                "latitude": -4.0617,
+                "longitude": 39.6790,
+                "status": "approved",
+                "is_wheelchair_accessible": True,
+                "entry_fee": 20.0,
+                "avg_rating": 4.6,
+                "amenities": ["Museum Access", "Audio Guide", "Gift Shop"],
+                "owner_key": "coastalretreats",
+            },
+            # Mara Adventures
+            {
+                "name": "Great Migration Hot Air Balloon",
+                "destination_slug": "maasai-mara",
+                "description": "Watch the Great Migration from above in a sunrise hot air balloon ride.",
+                "image_url": "https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=1400&q=80",
+                "category": "adventure",
+                "latitude": -1.5021,
+                "longitude": 35.1437,
+                "status": "approved",
+                "is_wheelchair_accessible": False,
+                "entry_fee": 450.0,
+                "avg_rating": 5.0,
+                "amenities": ["Champagne Breakfast", "Certificate", "Pilot Guide"],
+                "owner_key": "maraadventures",
+            },
+            {
+                "name": "Maasai Village Cultural Stay",
+                "destination_slug": "maasai-mara",
+                "description": "An overnight cultural immersion with a Maasai homestead family.",
+                "image_url": "https://images.unsplash.com/photo-1570985024756-d43e7d3ec2d6?auto=format&fit=crop&w=1400&q=80",
+                "category": "cultural_and_heritage",
+                "latitude": -1.5500,
+                "longitude": 35.1700,
+                "status": "approved",
+                "is_wheelchair_accessible": False,
+                "entry_fee": 80.0,
+                "avg_rating": 4.9,
+                "amenities": ["Traditional Meals", "Dance Performance", "Craft Workshop"],
+                "owner_key": "maraadventures",
+            },
+            # Rift Valley Eco
+            {
+                "name": "Lake Naivasha Boat Safari",
+                "destination_slug": "naivasha",
+                "description": "Boat excursion on Lake Naivasha spotting hippos and 400+ bird species.",
+                "image_url": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1400&q=80",
+                "category": "ecotourism",
+                "latitude": -0.7200,
+                "longitude": 36.3600,
+                "status": "approved",
+                "is_wheelchair_accessible": True,
+                "entry_fee": 25.0,
+                "avg_rating": 4.5,
+                "amenities": ["Life Jackets", "Binoculars", "Naturalist Guide"],
+                "owner_key": "riftvalleyeco",
+            },
+            # Nairobi Urban Experiences
+            {
+                "name": "Kibera Community Art Walk",
+                "destination_slug": "nairobi",
+                "description": "Walk through Kibera with local artists discovering murals and studios.",
+                "image_url": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1400&q=80",
+                "category": "cultural_and_heritage",
+                "latitude": -1.3130,
+                "longitude": 36.7850,
+                "status": "approved",
+                "is_wheelchair_accessible": False,
+                "entry_fee": 18.0,
+                "avg_rating": 4.8,
+                "amenities": ["Local Guide", "Art Purchase Options", "Community Snacks"],
+                "owner_key": "nairobimeetings",
+            },
+            {
+                "name": "Nairobi Street Food Safari",
+                "destination_slug": "nairobi",
+                "description": "Evening food tour sampling Nairobi's best street eats from nyama choma to mandazi.",
+                "image_url": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=1400&q=80",
+                "category": "gastronomy",
+                "latitude": -1.2890,
+                "longitude": 36.8200,
+                "status": "approved",
+                "is_wheelchair_accessible": True,
+                "entry_fee": 35.0,
+                "avg_rating": 4.7,
+                "amenities": ["8 Tastings", "Local Guide", "Recipe Cards"],
+                "owner_key": "nairobimeetings",
+            },
+            # Amboseli Safaris
+            {
+                "name": "Kilimanjaro Sunrise Game Drive",
+                "destination_slug": "amboseli",
+                "description": "Pre-dawn game drive timed to catch Kilimanjaro at first light with elephant herds.",
+                "image_url": "https://images.unsplash.com/photo-1534577403868-a078fb6cce7b?auto=format&fit=crop&w=1400&q=80",
+                "category": "adventure",
+                "latitude": -2.6400,
+                "longitude": 37.2500,
+                "status": "approved",
+                "is_wheelchair_accessible": False,
+                "entry_fee": 120.0,
+                "avg_rating": 4.9,
+                "amenities": ["4WD Vehicle", "Bush Breakfast", "Expert Driver-Guide"],
+                "owner_key": "amboselisafaris",
+            },
+            {
+                "name": "Amboseli Elephant Research Visit",
+                "destination_slug": "amboseli",
+                "description": "Join the Amboseli Elephant Research Project team for a morning identification walk.",
+                "image_url": "https://images.unsplash.com/photo-1564760055775-d63b17a55c44?auto=format&fit=crop&w=1400&q=80",
+                "category": "ecotourism",
+                "latitude": -2.6550,
+                "longitude": 37.2620,
+                "status": "approved",
+                "is_wheelchair_accessible": False,
+                "entry_fee": 90.0,
+                "avg_rating": 5.0,
+                "amenities": ["Researcher Briefing", "Field Notes", "Conservation Certificate"],
+                "owner_key": "amboselisafaris",
+            },
+        ]
+
+        for att_data in extra_attractions_payload:
+            owner_key = att_data.pop("owner_key")
+            dest_slug = att_data.pop("destination_slug")
+            amenity_names = att_data.pop("amenities")
+            destination = destination_map[dest_slug]
+            bp = extra_owner_profiles[owner_key]
+            model_data = {
+                "destination_id": destination.id,
+                "business_owner_id": bp.id,
+                **att_data,
+            }
+            att = _ensure_attraction(model_data, amenity_names)
+            attraction_map[att.name] = att
+
+        print(f"  Extra business profiles : {len(extra_owner_profiles)}")
+        print(f"  Total attractions now   : {Attraction.query.count()}")
+
         # ── Commit all ───────────────────────────────────────────────────────────
         db.session.commit()
 
@@ -1500,6 +1742,12 @@ def seed_data():
         print(f"\n  Tourist login  : tourist@example.com / Tourist123!")
         print(f"  Admin login    : admin@example.com / Admin1234!")
         print(f"  Owner login    : kenya.operator@example.com / password123")
+        print(f"\n  Extra business owner logins:")
+        print(f"    coastal.retreats@example.com     / CoastalB1z!")
+        print(f"    mara.adventures@example.com      / MaraAdv1!")
+        print(f"    rift.valley.eco@example.com      / RiftEco1!")
+        print(f"    nairobi.urban.tours@example.com  / NrbUrban1!")
+        print(f"    amboseli.safaris@example.com     / Ambos3li!")
 
 
 if __name__ == "__main__":

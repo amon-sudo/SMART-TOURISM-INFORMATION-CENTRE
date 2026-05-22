@@ -158,6 +158,32 @@ def delete_business_profile_route(profile_id: str):
     return jsonify({"message": "Business profile deleted successfully"}), HTTPStatus.OK
 
 
+@business_bp.route("/attractions", methods=["GET"])
+def get_business_attractions():
+    """
+    GET /api/v1/business/attractions
+    Returns all attractions owned by the current user's business profile.
+    """
+    try:
+        profile = get_business_profile(_current_user_uuid())
+    except (ValueError, ProfileNotFoundError):
+        return jsonify({"attractions": [], "total": 0}), HTTPStatus.OK
+
+    from app.extensions import db
+    from app.tourism_amenitties.attractions.models.attraction import Attraction
+    from app.tourism_amenitties.attractions.schemas.attraction import AttractionSchema
+    from sqlalchemy import select
+
+    attractions = db.session.scalars(
+        select(Attraction)
+        .where(Attraction.business_owner_id == profile.id)
+        .order_by(Attraction.created_at.desc())
+    ).all()
+
+    schema = AttractionSchema(many=True)
+    return jsonify({"attractions": schema.dump(attractions), "total": len(attractions)}), HTTPStatus.OK
+
+
 @business_bp.route("/bookings", methods=["GET"])
 def get_business_bookings():
     """
