@@ -43,12 +43,17 @@ def create_attraction():
                 "errors": errors
             }), 400
 
+        media_urls = data.get("media_urls") or []
+        # First media URL doubles as the cover image_url if not provided separately.
+        cover = data.get("image_url") or (media_urls[0] if media_urls else None)
+
         attraction = Attraction(
             destination_id=uuid.UUID(str(data["destination_id"])),
             business_owner_id=uuid.UUID(str(data["business_owner_id"])),
             name=data["name"],
             description=data.get("description"),
-            image_url=data.get("image_url"),
+            image_url=cover,
+            media_urls=media_urls,
             category=data.get("category"),
             status=data.get("status"),
             is_wheelchair_accessible=data.get("is_wheelchair_accessible", False),
@@ -209,6 +214,7 @@ def update_attraction(id):
             "name",
             "description",
             "image_url",
+            "media_urls",
             "category",
             "status",
             "entry_fee",
@@ -218,6 +224,10 @@ def update_attraction(id):
         for field in allowed_fields:
             if field in data:
                 setattr(attraction, field, data[field])
+
+        # Keep image_url in sync: if media_urls were updated, use the first as cover.
+        if "media_urls" in data and data["media_urls"] and "image_url" not in data:
+            attraction.image_url = data["media_urls"][0]
 
         db.session.commit()
 

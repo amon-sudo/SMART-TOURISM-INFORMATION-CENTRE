@@ -13,6 +13,7 @@ Tighten the auth before production.
 
 from __future__ import annotations
 
+import json
 import math
 import os
 import secrets
@@ -92,15 +93,23 @@ def _require_user_uuid():
 
 
 def _is_admin() -> bool:
-    """Permissive admin check — JWT claim 'is_admin' OR X-Admin header.
-
-    Wire to the RBAC module in a follow-up; this keeps the routes runnable
-    while RBAC plumbing is finished.
-    """
+    """Check admin status: JWT claim, database fallback, or X-Admin header."""
     try:
         from flask_jwt_extended import get_jwt
         if get_jwt().get("is_admin"):
             return True
+    except Exception:
+        pass
+    # Fallback: check the database for users who logged in before is_admin was
+    # added to JWT claims (old tokens won't have the claim).
+    try:
+        from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
+        verify_jwt_in_request(optional=True)
+        user_id = get_jwt_identity()
+        if user_id:
+            user = db.session.get(User, user_id)
+            if user and getattr(user, "is_admin", False):
+                return True
     except Exception:
         pass
     return request.headers.get("X-Admin", "").lower() in {"1", "true", "yes"}
@@ -1150,15 +1159,17 @@ def admin_analytics():
         .order_by(Attraction.view_count.desc().nullslast())
         .limit(10).all()
     )
+    from sqlalchemy import cast, Text as SaText
+    _meta_as_text = cast(AnalyticsEvent.event_metadata, SaText)
     top_searches = (
         db.session.query(
-            AnalyticsEvent.event_metadata,
+            _meta_as_text,
             func.count(AnalyticsEvent.id).label("n"),
         )
         .filter(AnalyticsEvent.event_type == "search",
                 AnalyticsEvent.created_at >= d_from,
                 AnalyticsEvent.created_at < d_to + timedelta(days=1))
-        .group_by(AnalyticsEvent.event_metadata)
+        .group_by(_meta_as_text)
         .order_by(func.count(AnalyticsEvent.id).desc())
         .limit(10).all()
     )
@@ -1184,7 +1195,14 @@ def admin_analytics():
             for a in top_attractions
         ],
         "top_searches": [
-            {"query": (md or {}).get("query") if isinstance(md, dict) else None, "count": n}
+            {
+                "query": (
+                    json.loads(md).get("query")
+                    if isinstance(md, str) and md
+                    else (md or {}).get("query") if isinstance(md, dict) else None
+                ),
+                "count": n,
+            }
             for md, n in top_searches
         ],
         "latest_snapshot": latest_snapshot.to_dict() if latest_snapshot else None,

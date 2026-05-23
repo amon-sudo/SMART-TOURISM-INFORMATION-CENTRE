@@ -310,6 +310,24 @@ def create_app(config_class=AppConfig):
         # Ensure missing tables exist in local development DBs.
         db.create_all()
 
+        # PostgreSQL: add columns that were introduced after the initial migration
+        # but are not yet present in the DB (e.g. from a broken Alembic chain).
+        if db.engine.dialect.name == "postgresql":
+            with db.engine.connect() as pg_conn:
+                pg_conn.execute(text(
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN NOT NULL DEFAULT FALSE"
+                ))
+                pg_conn.execute(text(
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE"
+                ))
+                pg_conn.execute(text(
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP"
+                ))
+                pg_conn.execute(text(
+                    "ALTER TABLE attractions ADD COLUMN IF NOT EXISTS media_urls JSON"
+                ))
+                pg_conn.commit()
+
         # Lightweight sqlite compatibility for historical schema drift.
         if db.engine.dialect.name == "sqlite":
             conn = db.session.connection()
@@ -431,8 +449,16 @@ def create_app(config_class=AppConfig):
                     text("ALTER TABLE users ADD COLUMN is_active BOOLEAN DEFAULT 1")
                 )
 
+            if has_column("users", "id") and not has_column("users", "is_admin"):
+                conn.execute(
+                    text("ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT 0")
+                )
+
             if has_column("users", "id") and not has_column("users", "deleted_at"):
                 conn.execute(text("ALTER TABLE users ADD COLUMN deleted_at DATETIME"))
+
+            if has_table("attractions") and not has_column("attractions", "media_urls"):
+                conn.execute(text("ALTER TABLE attractions ADD COLUMN media_urls JSON"))
 
             if has_column("destinations", "id") and not has_column("destinations", "canonical_name"):
                 conn.execute(text("ALTER TABLE destinations ADD COLUMN canonical_name VARCHAR"))

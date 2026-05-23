@@ -53,18 +53,31 @@ class StripeService:
                 intent = SimpleNamespace(
                     id=mock_intent_id,
                     client_secret=f"{mock_intent_id}_secret_mock",
+                    _is_mock=True,
                 )
 
+            is_mock = getattr(intent, "_is_mock", False)
             payment = PaymentStripe(
                 user_id=user_id,
                 amount=Decimal(amount) / 100,
                 currency=currency,
                 stripe_payment_intent_id=intent.id,
-                status="pending",
+                status="succeeded" if is_mock else "pending",
                 payment_metadata=metadata
             )
             db.session.add(payment)
             db.session.commit()
+
+            # Auto-confirm the linked booking in dev mock mode.
+            if is_mock and metadata and metadata.get("booking_id"):
+                try:
+                    from app.models.booking import Booking, BookingStatus
+                    booking = Booking.query.get(uuid.UUID(metadata["booking_id"]))
+                    if booking and booking.status == BookingStatus.PENDING:
+                        booking.status = BookingStatus.CONFIRMED
+                        db.session.commit()
+                except Exception:
+                    db.session.rollback()
 
             return intent
         except stripe.error.StripeError as e:

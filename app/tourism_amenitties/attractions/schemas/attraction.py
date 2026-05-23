@@ -13,6 +13,7 @@ class AttractionSchema(Schema):
     name = fields.String(required=True)
     description = fields.String(allow_none=True)
     image_url = fields.String(allow_none=True)
+    media_urls = fields.List(fields.String(), allow_none=True, load_default=None)
     category = fields.String(allow_none=True)
 
     location = fields.Raw(allow_none=True)  # PostGIS geography

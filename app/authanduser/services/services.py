@@ -36,7 +36,8 @@ class AuthService:
     def login(email, password):
         user = User.query.filter_by(email=email).first()
         if user and verify_password(user.password_hash, password):
-            access_token = create_access_token(identity=str(user.id))
+            additional_claims = {"is_admin": bool(getattr(user, "is_admin", False))}
+            access_token = create_access_token(identity=str(user.id), additional_claims=additional_claims)
             refresh_token = create_refresh_token(identity=str(user.id))
             try:
                 rt = RefreshToken(

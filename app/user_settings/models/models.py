@@ -18,6 +18,7 @@ class User(BaseUUIDModel):
     # Soft delete (STORY016) — accounts are anonymised and disabled for 30
     # days before a Celery sweep does the hard delete.
     is_active = db.Column(db.Boolean, default=True, nullable=False)
+    is_admin = db.Column(db.Boolean, default=False, nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
     
     # Relationships

@@ -47,6 +47,9 @@ class Attraction(db.Model):
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.Text)
     image_url = db.Column(db.String, nullable=True)
+    # Ordered list of media URLs; first entry is the cover image.
+    # Supports both image URLs and video URLs.
+    media_urls = db.Column(db.JSON, default=list, nullable=True)
 
     category = db.Column(db.String)
 
