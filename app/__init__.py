@@ -152,6 +152,10 @@ def register_blueprints(flask_app: Flask) -> None:
         flask_app.register_blueprint(kiosk_bp, url_prefix="/api/v1")
         flask_app.register_blueprint(session_bp, url_prefix="/api/v1")
         flask_app.register_blueprint(transfer_bp, url_prefix="/api/v1")
+
+        from app.culture_hub.controllers.routes import culture_hub_bp
+        flask_app.register_blueprint(culture_hub_bp)
+
         flask_app.logger.info("Registered all blueprints successfully")
     except Exception as exc:
         flask_app.logger.exception("Failed to register blueprints: %s", exc)

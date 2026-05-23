@@ -98,6 +98,12 @@ class Kiosk(BaseModel):
         comment="Human-readable address for display",
     )
 
+    # Kenya administrative location
+    county = Column(String(100), nullable=True)
+    sub_county = Column(String(100), nullable=True)
+    ward = Column(String(100), nullable=True)
+    description = Column(Text, nullable=True)
+
     location_type = Column(
         SAEnum(
             KioskLocationType,

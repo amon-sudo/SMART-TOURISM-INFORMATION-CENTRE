@@ -12,6 +12,7 @@ from .services import (
     list_reviews as svc_list_reviews,
     list_media as svc_list_media,
     list_contacts as svc_list_contacts,
+    delete_contact as svc_delete_contact,
 )
 from app.feedback_media.models import User  # <-- make sure User model exists
 
@@ -266,6 +267,21 @@ def list_contacts():
         result.append(obj)
 
     return jsonify(result), 200
+
+
+@feedback_bp.route("/contacts/<uuid:contact_id>", methods=["DELETE"])
+@jwt_required()
+def delete_contact(contact_id):
+    try:
+        found = svc_delete_contact(contact_id)
+    except Exception:
+        current_app.logger.exception("Failed to delete contact")
+        return error_response(500, "internal_server_error", "Failed to delete contact")
+    if not found:
+        return error_response(404, "not_found", "Contact not found")
+    return jsonify({"message": "Contact deleted"}), 200
+
+
 from app.feedback_media.models import Destination
 
 @feedback_bp.route("/destinations", methods=["POST"])

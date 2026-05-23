@@ -138,3 +138,11 @@ def list_contacts(destination_id=None):
     if destination_id:
         q = q.filter(EmergencyContact.destination_id == destination_id)
     return q.all()
+
+def delete_contact(contact_id) -> bool:
+    contact = db.session.query(EmergencyContact).filter_by(id=contact_id).first()
+    if not contact:
+        return False
+    db.session.delete(contact)
+    db.session.commit()
+    return True

@@ -90,6 +90,40 @@ class Attraction(db.Model):
 
     view_count = db.Column(db.Integer, default=0)
 
+    # Kenya administrative location
+    county = db.Column(db.String(100), nullable=True)
+    sub_county = db.Column(db.String(100), nullable=True)
+    ward = db.Column(db.String(100), nullable=True)
+    locality = db.Column(db.String(255), nullable=True)
+    gps_coordinates = db.Column(db.String(100), nullable=True)
+
+    # Tourism product type
+    tourism_type = db.Column(db.String(100), nullable=True)
+
+    # Experience highlights (section 3)
+    unique_features = db.Column(db.Text, nullable=True)
+    environmental_impact = db.Column(db.Text, nullable=True)
+    visitor_capacity = db.Column(db.Integer, nullable=True)
+    types_of_experiences = db.Column(db.Text, nullable=True)
+    avg_time_spent = db.Column(db.String(100), nullable=True)
+    best_visiting_periods = db.Column(db.String(255), nullable=True)
+    key_events = db.Column(db.Text, nullable=True)
+
+    # Situational analysis (section 4)
+    roads_condition = db.Column(db.String(255), nullable=True)
+    visitor_center_info = db.Column(db.Text, nullable=True)
+    water_supply = db.Column(db.String(255), nullable=True)
+    signage_info = db.Column(db.String(255), nullable=True)
+    fencing_security = db.Column(db.String(255), nullable=True)
+    parking_area = db.Column(db.String(255), nullable=True)
+    rest_areas = db.Column(db.String(255), nullable=True)
+    site_current_status = db.Column(db.String(100), nullable=True)
+
+    # Associated services (section 5)
+    tour_operators = db.Column(db.Text, nullable=True)
+    nearby_accommodation = db.Column(db.Text, nullable=True)
+    distance_to_major_town = db.Column(db.String(100), nullable=True)
+
     search_vector = db.Column(TSVECTOR)
 
     created_at = db.Column(db.DateTime, server_default=db.func.now())
