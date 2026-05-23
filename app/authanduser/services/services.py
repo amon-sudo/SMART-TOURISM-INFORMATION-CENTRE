@@ -36,7 +36,8 @@ class AuthService:
     def login(email, password):
         user = User.query.filter_by(email=email).first()
         if user and verify_password(user.password_hash, password):
-            access_token = create_access_token(identity=str(user.id))
+            additional_claims = {"is_admin": bool(getattr(user, "is_admin", False))}
+            access_token = create_access_token(identity=str(user.id), additional_claims=additional_claims)
             refresh_token = create_refresh_token(identity=str(user.id))
             try:
                 rt = RefreshToken(
@@ -127,7 +128,9 @@ class AuthService:
 
     @staticmethod
     def generate_access_token(user_id):
-        return create_access_token(identity=str(user_id))
+        user = User.query.get(uuid.UUID(str(user_id))) if user_id else None
+        additional_claims = {"is_admin": bool(getattr(user, "is_admin", False))} if user else {}
+        return create_access_token(identity=str(user_id), additional_claims=additional_claims)
 
     @staticmethod
     def get_or_create_google_user(email):

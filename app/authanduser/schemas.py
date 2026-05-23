@@ -7,11 +7,12 @@ class UserSchema(SQLAlchemyAutoSchema):
         model = User
         load_instance = True
         include_fk = True
-        exclude = ("password_hash",)  # 🔹 don’t expose password hash
+        exclude = ("password_hash",)
 
     id = fields.UUID(dump_only=True)
     email = fields.Email(required=True)
-    username = fields.String(required=False)   # 🔹 NEW FIELD
+    username = fields.String(required=False)
+    is_admin = fields.Boolean(dump_only=True)
     created_at = fields.DateTime(dump_only=True)
 
 class PasswordResetSchema(SQLAlchemyAutoSchema):

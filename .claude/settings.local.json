@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/VS CODE PROJ/DIGITAL SMART TOURISM INFORMATION CENTRE APP/SMART-TOURISM-INFORMATION-CENTRE-FRONTEND/**)",
+      "Bash(npx tsc *)"
+    ]
+  }
+}

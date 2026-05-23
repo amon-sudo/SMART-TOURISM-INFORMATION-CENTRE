@@ -158,8 +158,23 @@ def role_required(role_name: str):
     return decorator
 
 
+def _user_is_admin(user_id) -> bool:
+    """True if the user has User.is_admin=True OR the RBAC 'admin' role."""
+    try:
+        from app.user_settings.models.models import User
+        from app.extensions import db
+
+        user = db.session.get(User, str(user_id))
+        if user is not None and bool(getattr(user, "is_admin", False)):
+            return True
+    except Exception:
+        pass
+    return user_has_role(user_id, "admin")
+
+
 def admin_required():
-    """Route decorator – requires the JWT user to have the 'admin' role."""
+    """Route decorator – requires the JWT user to be an admin
+    (either User.is_admin=True or the RBAC 'admin' role)."""
     def decorator(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):
@@ -168,7 +183,7 @@ def admin_required():
 
             verify_jwt_in_request()
             uid = get_jwt_identity() or _dev_user_id()
-            if not user_has_role(uid, "admin"):
+            if not _user_is_admin(uid):
                 return error_response(
                     "Admin access required.",
                     status_code=403,

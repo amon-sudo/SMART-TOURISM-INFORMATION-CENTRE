@@ -17,6 +17,7 @@ class BusinessRegistrationRequest(db.Model):
 	business_type = db.Column(db.String(100), nullable=False)
 	registration_doc = db.Column(db.JSON, nullable=True, default = dict)
 	status = db.Column(db.String(50), nullable=False, default="pending")
+	rejection_reason = db.Column(db.Text, nullable=True)
 	reviewed_by = db.Column(
 		db.Uuid(as_uuid=True),
 		db.ForeignKey("users.id"),

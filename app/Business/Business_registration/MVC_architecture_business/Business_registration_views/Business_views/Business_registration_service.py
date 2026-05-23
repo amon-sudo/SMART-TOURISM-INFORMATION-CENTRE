@@ -135,6 +135,9 @@ def action_registration_request(
     """
     Approve, reject, or suspend a registration request.
 
+    On approval, automatically creates (or verifies) the BusinessProfile so
+    all submitted data (address, phone, email, description) lands in the DB.
+
     Raises:
         RegistrationNotFoundError
         InvalidStatusTransitionError
@@ -157,12 +160,13 @@ def action_registration_request(
     reg_request.reviewed_by = admin_id
     reg_request.reviewed_at = datetime.now(timezone.utc)
     reg_request.updated_at = datetime.now(timezone.utc)
-
-    # Link to a profile when admin approves and profile id is supplied.
-    if new_status == "approved" and action_data.get("business_profile_id"):
-        reg_request.business_profile_id = action_data["business_profile_id"]
+    if action_data.get("rejection_reason"):
+        reg_request.rejection_reason = action_data["rejection_reason"]
     db.session.commit()
     db.session.refresh(reg_request)
+
+    if new_status == "approved":
+        _provision_business_profile(reg_request)
 
     # Notify the applicant
     send_notification(
@@ -172,6 +176,60 @@ def action_registration_request(
     )
 
     return reg_request
+
+
+def _provision_business_profile(reg_request: BusinessRegistrationRequest) -> None:
+    """
+    Create or update the BusinessProfile for an approved registration.
+
+    Extracts the contact/location details stored in registration_doc and
+    writes them to proper columns on BusinessProfile so the business is
+    immediately queryable and can appear on the explore page once it has
+    attractions linked to it.
+    """
+    from app.Business.Business_Profile.MVC_architecture.Business_profile_models.Business_profile_domain.Business_profile_domain import BusinessProfile
+
+    existing = db.session.scalar(
+        select(BusinessProfile).where(BusinessProfile.user_id == reg_request.user_id)
+    )
+
+    doc = reg_request.registration_doc or {}
+
+    if existing is not None:
+        existing.verified = True
+        existing.is_active = True
+        if existing.registration_request_id is None:
+            existing.registration_request_id = reg_request.id
+        # Fill in any missing fields from the registration doc
+        for attr, key in (
+            ("business_name", None),
+            ("business_type", None),
+            ("description", "description"),
+            ("address", "address"),
+            ("phone", "phone"),
+            ("email", "email"),
+        ):
+            src = getattr(reg_request, attr, None) if key is None else doc.get(key)
+            if src and not getattr(existing, attr):
+                setattr(existing, attr, src)
+        existing.updated_at = datetime.now(timezone.utc)
+        db.session.commit()
+        return
+
+    profile = BusinessProfile(
+        user_id=reg_request.user_id,
+        registration_request_id=reg_request.id,
+        business_name=reg_request.business_name,
+        business_type=reg_request.business_type,
+        description=doc.get("description"),
+        address=doc.get("address"),
+        phone=doc.get("phone"),
+        email=doc.get("email"),
+        verified=True,
+        is_active=True,
+    )
+    db.session.add(profile)
+    db.session.commit()
 
 
 def delete_registration_request(

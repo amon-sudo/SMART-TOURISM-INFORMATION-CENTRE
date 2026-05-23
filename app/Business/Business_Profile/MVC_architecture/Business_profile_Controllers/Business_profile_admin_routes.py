@@ -25,25 +25,25 @@ business_admin_blueprint = Blueprint(
 _admin_profile_schema = BusinessProfileAdminResponseSchema()
 
 @business_admin_blueprint.route("/registrations", methods=["GET"])
-# @admin_required()  # TEMP: auth disabled for endpoint testing
+@admin_required()
 def admin_list_registration_requests():
     return admin_list_registrations()
 
 
 @business_admin_blueprint.route("/registrations/<string:request_id>", methods=["GET"])
-# @admin_required()  # TEMP: auth disabled for endpoint testing
+@admin_required()
 def admin_get_registration_request(request_id: str):
     return admin_get_registration(request_id)
 
 
 @business_admin_blueprint.route("/registrations/<string:request_id>", methods=["PATCH"])
-# @admin_required()  # TEMP: auth disabled for endpoint testing
+@admin_required()
 def admin_update_registration_request(request_id: str):
     return admin_action_registration(request_id)
 
 
 @business_admin_blueprint.route("/profiles", methods=["GET"])
-# @admin_required()  # TEMP: auth disabled for endpoint testing
+@admin_required()
 def admin_list_profiles():
     search_query = request.args.get("search", type=str)
     profiles = get_all_business_profiles(public=False, search_query=search_query)
@@ -51,7 +51,7 @@ def admin_list_profiles():
 
 
 @business_admin_blueprint.route("/profiles/<string:profile_id>", methods=["GET"])
-# @admin_required()  # TEMP: auth disabled for endpoint testing
+@admin_required()
 def admin_get_profile(profile_id: str):
     try:
         profile = get_business_profile_by_id(uuid.UUID(profile_id), public=False)

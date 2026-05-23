@@ -23,7 +23,7 @@ class PriceService:
             pkg = TourPackage.query.get(target_id)
             if pkg is None:
                 return 0.0
-            return float(getattr(pkg, "price_per_person", 0.0) or 0.0)
+            return float(getattr(pkg, "price", 0.0) or 0.0)
 
         if target_type == "transport":
             from app.transport_feature.Transport_schedule.MVC_architecture.transport_schedule_models.transport_schedule_domain import transport_schedule

@@ -92,18 +92,24 @@ def _require_user_uuid():
 
 
 def _is_admin() -> bool:
-    """Permissive admin check — JWT claim 'is_admin' OR X-Admin header.
+    """Admin check — JWT claim 'is_admin' is the source of truth.
 
-    Wire to the RBAC module in a follow-up; this keeps the routes runnable
-    while RBAC plumbing is finished.
+    Falls back to a direct lookup on User.is_admin if the JWT claim is
+    missing (e.g. an older token issued before the claim was added).
     """
     try:
-        from flask_jwt_extended import get_jwt
-        if get_jwt().get("is_admin"):
+        from flask_jwt_extended import get_jwt, get_jwt_identity
+        claims = get_jwt() or {}
+        if claims.get("is_admin"):
             return True
+        identity = get_jwt_identity()
+        if identity:
+            user = User.query.get(str(identity))
+            if user is not None and bool(getattr(user, "is_admin", False)):
+                return True
     except Exception:
         pass
-    return request.headers.get("X-Admin", "").lower() in {"1", "true", "yes"}
+    return False
 
 
 def _paginate(query, default_per_page: int = 10, max_per_page: int = 50):

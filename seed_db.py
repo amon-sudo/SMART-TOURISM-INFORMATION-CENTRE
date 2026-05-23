@@ -1289,6 +1289,30 @@ def seed_data():
                 "max_participants": 8,
                 "status": "active",
             },
+            {
+                "name": "Nairobi City & Culture Day Tour — 1 Day",
+                "description": "A full-day Nairobi city tour: Nairobi National Park morning game drive, Karen Blixen Museum, Giraffe Centre, and Kazuri Beads factory. Ideal for layovers and city visitors.",
+                "duration_days": 1,
+                "price": 120.0,
+                "max_participants": 15,
+                "status": "active",
+            },
+            {
+                "name": "Rift Valley Lakes Safari — 3 Days",
+                "description": "Explore Lake Nakuru's flamingos, rhinos, and pelicans, then head to Lake Elementaita for sunrise birdwatching. Mid-range lodge accommodation included.",
+                "duration_days": 3,
+                "price": 650.0,
+                "max_participants": 10,
+                "status": "active",
+            },
+            {
+                "name": "Mount Kenya Hiking Adventure — 6 Days",
+                "description": "Summit Mount Kenya via the Sirimon–Chogoria route with certified mountain guides. Includes all park fees, camping gear, full-board, and porter support.",
+                "duration_days": 6,
+                "price": 980.0,
+                "max_participants": 8,
+                "status": "active",
+            },
         ]
 
         tour_package_map: dict[str, TourPackage] = {}
