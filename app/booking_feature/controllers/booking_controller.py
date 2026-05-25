@@ -41,9 +41,6 @@ _qr_schema         = QrCodeSchema()
 
 
 def _current_user_uuid():
-    # verify_jwt_in_request(optional=True) parses the Authorization header
-    # without requiring @jwt_required(); get_jwt_identity() then returns the
-    # sub claim if a valid token is present, or None otherwise.
     try:
         verify_jwt_in_request(optional=True)
         identity = get_jwt_identity()
@@ -54,7 +51,7 @@ def _current_user_uuid():
         identity = request.headers.get("X-User-Id")
 
     if identity in (None, "", "None"):
-        identity = "00000000-0000-0000-0000-000000000001"
+        abort(401, description="Authentication required")
 
     if isinstance(identity, uuid.UUID):
         return identity

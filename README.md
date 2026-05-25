@@ -1,3 +1,4 @@
+
 # Smart Tourism Information Centre — Backend API
 
 Flask + PostgreSQL backend for the Digital Smart Tourism Information Centre. Powers the visitor kiosks, mobile/web apps, business owner portal, and admin dashboard.
@@ -7,7 +8,31 @@ Flask + PostgreSQL backend for the Digital Smart Tourism Information Centre. Pow
 
 ---
 
-## Quick start
+
+## Setup notes
+
+1. Copy `.env-example` to `.env` and fill in all required secrets and config values:
+   ```bash
+   cp .env-example .env
+   # Then edit .env and set your secrets
+   ```
+
+2. For production, use a strong, unique password for your database user (do not use the default in the example).
+
+3. If you are using Flask 2.x+, you may need to run migrations with:
+   ```bash
+   pipenv run flask --app main db upgrade
+   ```
+
+4. If you are on Windows or using WSL, ensure PostgreSQL and Python 3.11+ are installed and available in your PATH.
+
+5. If you use Redis for rate limiting, ensure it is running and the URI is set in `.env`.
+
+6. System dependencies (required for some Python packages):
+   - Ubuntu/Debian: `sudo apt-get install build-essential libpq-dev`
+   - macOS: `brew install postgresql`
+
+---
 
 ```bash
 # 1. Install dependencies
@@ -91,6 +116,8 @@ Reset the dev database from scratch (drops everything!):
 ```bash
 python recreate_db.py
 ```
+
+**Important:** Never delete or modify old migration scripts. Only add new ones for schema changes. This ensures all contributors can upgrade their databases reliably.
 
 ---
 
@@ -196,12 +223,21 @@ GET http://localhost:5000/api/v1/auth/oauth/debug
 
 ## Testing
 
+### Smoke test
 Smoke-test every registered endpoint end-to-end:
 ```bash
 python smoke_all_endpoints_stateful.py
 ```
-
 Reads results into `smoke_report_all_endpoints_stateful.json`. Expected: zero 5xx, zero exceptions. Any 4xx are auth/validation paths the smoke deliberately exercises.
+
+### Unit tests
+If you add or maintain code, run the unit tests:
+```bash
+pytest
+# or
+python -m unittest discover
+```
+If you do not have pytest/unittest installed, add it to your Pipfile and run `pipenv install`.
 
 ---
 

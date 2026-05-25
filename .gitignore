@@ -34,6 +34,5 @@ amo.rest
 *.db
 <migrations/
 *.db
-migrations/versions/*.py
 
 .claude/settings.json
